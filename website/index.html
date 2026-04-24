@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Noor Companion — Daily dhikr, duas, Quran recitations, prayer times, and certified Muslim therapists in one app." />
+  <meta property="og:title" content="Noor Companion — Light your way back" />
+  <meta property="og:description" content="Your Islamic spiritual wellness companion. Build daily habits, track your streak, and talk to a verified Muslim therapist." />
+  <meta property="og:image" content="assets/og-image.png" />
+  <meta property="og:type" content="website" />
+  <title>Noor Companion — Light your way back</title>
+  <link rel="icon" href="assets/favicon.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/main.css" />
+
+  <style>
+
+  /* ══ HERO ══ */
+  .hero {
+    background: var(--bg);
+    padding: 88px 0 96px;
+    border-bottom: 1.5px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Decorative teal arc top-right */
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -180px; right: -180px;
+    width: 520px; height: 520px;
+    border-radius: 50%;
+    background: var(--teal-light);
+    opacity: 0.6;
+    pointer-events: none;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -120px; left: -120px;
+    width: 340px; height: 340px;
+    border-radius: 50%;
+    background: var(--gold-light);
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .hero-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-eyebrow { margin-bottom: 20px; }
+
+  .hero-title { margin-bottom: 20px; }
+  .hero-title em { color: var(--teal); font-style: normal; }
+
+  .hero-subtitle { font-size: 1.1rem; max-width: 480px; margin-bottom: 36px; }
+
+  .hero-ctas { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 48px; }
+
+  .store-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 11px;
+    padding: 12px 22px;
+    background: var(--dark);
+    color: #fff;
+    border-radius: 12px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    box-shadow: 0 4px 14px rgba(15,28,26,0.18);
+  }
+  .store-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(15,28,26,0.26); }
+  .store-btn:active { transform: scale(0.97); }
+  .store-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
+  .store-btn-text { text-align: left; line-height: 1.25; }
+  .store-btn-sub  { font-size: 0.68rem; font-weight: 400; opacity: 0.7; display: block; }
+  .store-btn-name { font-size: 0.92rem; font-weight: 700; display: block; }
+
+  /* Hero stats */
+  .hero-stats {
+    display: flex;
+    gap: 0;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    width: fit-content;
+  }
+  .hero-stat {
+    padding: 14px 24px;
+    border-right: 1.5px solid var(--border);
+    text-align: center;
+  }
+  .hero-stat:last-child { border-right: none; }
+  .hero-stat-value { font-size: 1.3rem; font-weight: 800; color: var(--dark); display: block; letter-spacing: -0.02em; }
+  .hero-stat-label { font-size: 0.72rem; color: var(--text-3); font-weight: 500; display: block; margin-top: 1px; }
+
+  /* Hero visual panel */
+  .hero-visual {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .app-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 20px 22px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .app-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+
+  .app-card-row { display: flex; align-items: center; gap: 14px; }
+  .app-card-icon {
+    width: 44px; height: 44px;
+    border-radius: 11px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .app-card-icon svg { width: 22px; height: 22px; }
+  .app-card-icon-teal { background: var(--teal-light); color: var(--teal); }
+  .app-card-icon-gold  { background: var(--gold-light);  color: var(--gold);  }
+
+  .app-card-label { font-size: 0.72rem; color: var(--text-3); font-weight: 500; margin-bottom: 2px; }
+  .app-card-title { font-size: 0.95rem; font-weight: 600; color: var(--dark); }
+  .app-card-sub   { font-size: 0.8rem;  color: var(--text-2); }
+
+  /* Arabic preview card */
+  .dhikr-card {
+    background: var(--teal-xlight);
+    border-color: rgba(13,124,110,0.16);
+  }
+  .dhikr-arabic {
+    font-size: 1.5rem;
+    color: var(--teal-dark);
+    font-weight: 500;
+    text-align: center;
+    direction: rtl;
+    margin-bottom: 4px;
+    line-height: 1.6;
+  }
+  .dhikr-meta { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; }
+  .dhikr-label { font-size: 0.78rem; color: var(--text-3); font-weight: 500; }
+  .dhikr-counter {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--teal); color: #fff;
+    border-radius: 50px; padding: 4px 12px;
+    font-size: 0.8rem; font-weight: 700;
+  }
+
+  /* Prayer times mini card */
+  .prayer-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.88rem;
+  }
+  .prayer-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .prayer-name { color: var(--text-2); font-weight: 500; }
+  .prayer-time { color: var(--dark); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .prayer-row.active .prayer-name { color: var(--teal); font-weight: 700; }
+  .prayer-row.active .prayer-time { color: var(--teal); }
+  .prayer-active-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--teal);
+    box-shadow: 0 0 0 3px var(--teal-light);
+    flex-shrink: 0;
+  }
+
+  /* Streak card */
+  .streak-display { display: flex; align-items: center; gap: 16px; }
+  .streak-flame { font-size: 2.4rem; line-height: 1; }
+  .streak-value { font-size: 2rem; font-weight: 900; color: var(--gold); letter-spacing: -0.04em; }
+  .streak-label { font-size: 0.8rem; color: var(--text-3); font-weight: 500; }
+  .streak-bar-wrap { flex: 1; height: 6px; background: var(--bg-2); border-radius: 50px; overflow: hidden; margin-top: 8px; }
+  .streak-bar-fill { height: 100%; background: var(--gold); border-radius: 50px; width: 72%; }
+
+  @media (max-width: 900px) {
+    .hero-inner { grid-template-columns: 1fr; gap: 48px; }
+    .hero-visual { display: none; }
+    .hero { padding: 64px 0 72px; }
+  }
+  @media (max-width: 600px) {
+    .hero { padding: 52px 0 60px; }
+    .hero-stats { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
+    .hero-stat { border-right: none; border-bottom: 1.5px solid var(--border); }
+    .hero-stat:nth-child(1), .hero-stat:nth-child(2) { border-right: none; }
+    .hero-stat:nth-child(odd)  { border-right: 1.5px solid var(--border); }
+    .hero-stat:nth-child(3), .hero-stat:nth-child(4) { border-bottom: none; }
+    .hero-ctas { flex-direction: column; align-items: flex-start; }
+    .store-btn { width: 100%; max-width: 280px; }
+  }
+
+  /* ══ TRUST BAR ══ */
+  .trust-bar {
+    padding: 0;
+    border-bottom: 1.5px solid var(--border);
+    background: var(--surface);
+    overflow: hidden;
+  }
+  .trust-track-wrap { overflow: hidden; }
+  .trust-track {
+    display: flex;
+    gap: 0;
+    width: max-content;
+    animation: marquee 28s linear infinite;
+  }
+  .trust-track:hover { animation-play-state: paused; }
+  .trust-item {
+    display: flex; align-items: center; gap: 9px;
+    white-space: nowrap;
+    padding: 16px 36px;
+    border-right: 1.5px solid var(--border);
+    color: var(--text-2);
+    font-size: 0.86rem;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+  .trust-item svg { width: 15px; height: 15px; color: var(--teal); flex-shrink: 0; }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  /* ══ FEATURES ══ */
+  .features-section { padding: 104px 0; background: var(--surface); }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+
+  .feature-card {
+    padding: 28px;
+    border-radius: var(--radius);
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+  .feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--border-dark);
+  }
+  .feature-card--wide { grid-column: span 2; }
+  .feature-card--teal-bg {
+    background: var(--teal-xlight);
+    border-color: rgba(13,124,110,0.16);
+  }
+  .feature-card--gold-bg {
+    background: var(--gold-light);
+    border-color: rgba(201,147,58,0.18);
+  }
+
+  .feature-icon {
+    width: 46px; height: 46px;
+    border-radius: 11px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 18px;
+    border: 1.5px solid transparent;
+  }
+  .feature-icon svg { width: 22px; height: 22px; }
+  .feature-icon-teal { background: var(--teal-light); color: var(--teal); border-color: rgba(13,124,110,0.15); }
+  .feature-icon-gold  { background: var(--gold-light); color: var(--gold);  border-color: rgba(201,147,58,0.18); }
+
+  .feature-card h3 { margin-bottom: 8px; }
+  .feature-card p  { font-size: 0.92rem; }
+
+  .feature-card-wide-inner { display: flex; gap: 28px; align-items: flex-start; }
+  .feature-card-wide-inner .ft { flex: 1; }
+
+  .premium-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    margin-top: 14px;
+    background: var(--gold-light);
+    border: 1.5px solid rgba(201,147,58,0.22);
+    color: var(--gold-dark);
+    border-radius: 50px;
+    padding: 4px 11px;
+    font-size: 0.72rem; font-weight: 700;
+    letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  .premium-pill svg { width: 10px; height: 10px; }
+
+  .therapist-pills { display: flex; flex-direction: column; gap: 8px; min-width: 160px; }
+  .therapist-pill {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm, 8px);
+    padding: 10px 14px;
+  }
+  .therapist-pill-name { font-size: 0.78rem; font-weight: 700; color: var(--dark); margin-bottom: 2px; }
+  .therapist-pill-spec { font-size: 0.72rem; color: var(--text-3); }
+  .therapist-pill-rating { font-size: 0.72rem; color: var(--gold); margin-top: 4px; font-weight: 600; }
+
+  @media (max-width: 900px) {
+    .features-grid { grid-template-columns: 1fr 1fr; }
+    .feature-card--wide { grid-column: span 2; }
+    .features-section { padding: 72px 0; }
+  }
+  @media (max-width: 600px) {
+    .features-grid { grid-template-columns: 1fr; }
+    .feature-card--wide { grid-column: span 1; }
+    .feature-card-wide-inner { flex-direction: column; gap: 20px; }
+    .therapist-pills { flex-direction: row; flex-wrap: wrap; }
+    .therapist-pill { flex: 1; min-width: 140px; }
+  }
+
+  /* ══ HOW IT WORKS ══ */
+  .how-section { padding: 104px 0; background: var(--bg); border-top: 1.5px solid var(--border); border-bottom: 1.5px solid var(--border); }
+
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    margin-top: 68px;
+    position: relative;
+  }
+  .steps-grid::before {
+    content: '';
+    position: absolute;
+    top: 31px;
+    left: calc(16.66% + 16px);
+    right: calc(16.66% + 16px);
+    height: 1.5px;
+    background: var(--border-dark);
+  }
+  .step { text-align: center; padding: 0 16px; position: relative; }
+  .step-number {
+    width: 62px; height: 62px;
+    border-radius: 50%;
+    background: var(--teal);
+    color: #fff;
+    font-size: 1.3rem; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 24px;
+    box-shadow: 0 4px 16px rgba(13,124,110,0.28);
+    letter-spacing: -0.02em;
+    position: relative; z-index: 1;
+  }
+  .step h3 { margin-bottom: 8px; }
+  .step p { font-size: 0.92rem; max-width: 230px; margin: 0 auto; }
+
+  @media (max-width: 700px) {
+    .steps-grid { grid-template-columns: 1fr; gap: 40px; }
+    .steps-grid::before { display: none; }
+    .step { padding: 0; }
+    .how-section { padding: 72px 0; }
+  }
+
+  /* ══ TESTIMONIALS ══ */
+  .testimonials-section { padding: 104px 0; background: var(--surface); }
+
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-top: 68px;
+  }
+
+  .testimonial-card {
+    padding: 26px;
+    border-radius: var(--radius);
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .testimonial-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+
+  .testimonial-stars { display: flex; gap: 3px; margin-bottom: 14px; }
+  .testimonial-stars svg { width: 14px; height: 14px; color: var(--gold); fill: var(--gold); }
+
+  .testimonial-text { font-size: 0.92rem; color: var(--text); line-height: 1.7; margin-bottom: 20px; }
+  .testimonial-text::before { content: '\201C'; color: var(--teal); font-size: 1.15em; margin-right: 1px; }
+  .testimonial-text::after  { content: '\201D'; color: var(--teal); font-size: 1.15em; margin-left:  1px; }
+
+  .testimonial-author { display: flex; align-items: center; gap: 11px; }
+  .testimonial-avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: var(--teal-light);
+    border: 1.5px solid rgba(13,124,110,0.15);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .testimonial-avatar svg { width: 18px; height: 18px; color: var(--teal); }
+  .testimonial-name { font-size: 0.88rem; font-weight: 600; color: var(--dark); }
+  .testimonial-role { font-size: 0.75rem; color: var(--text-3); }
+
+  @media (max-width: 900px) { .testimonials-grid { grid-template-columns: 1fr 1fr; } .testimonials-section { padding: 72px 0; } }
+  @media (max-width: 600px) { .testimonials-grid { grid-template-columns: 1fr; } }
+
+  /* ══ CTA BANNER ══ */
+  .cta-section { padding: 80px 0 104px; background: var(--bg); border-top: 1.5px solid var(--border); }
+
+  .cta-card {
+    background: var(--teal);
+    border-radius: var(--radius-xl);
+    padding: 72px 48px;
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+  }
+  .cta-card h2 { color: #fff; margin-bottom: 14px; }
+  .cta-card > p { color: rgba(255,255,255,0.78); max-width: 460px; margin: 0 auto 36px; font-size: 1.05rem; }
+  .cta-btns { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
+  .btn-white { background: #fff; color: var(--teal); box-shadow: 0 4px 14px rgba(0,0,0,0.12); }
+  .btn-white:hover { background: var(--teal-light); box-shadow: 0 6px 20px rgba(0,0,0,0.16); transform: translateY(-1px); }
+  .btn-white-outline { background: transparent; color: #fff; border: 1.5px solid rgba(255,255,255,0.45); }
+  .btn-white-outline:hover { background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.70); }
+
+  @media (max-width: 600px) { .cta-card { padding: 48px 24px; } }
+
+  </style>
+</head>
+<body>
+
+  <!-- ══ NAV ══ -->
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="container nav-inner">
+      <a href="index.html" class="nav-logo" aria-label="Noor Companion home">
+        <div class="nav-logo-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </div>
+        <span class="nav-wordmark">Noor <span>Companion</span></span>
+      </a>
+      <nav class="nav-links" aria-label="Site sections">
+        <a href="#features">Features</a>
+        <a href="#how">How it works</a>
+        <a href="pricing.html">Pricing</a>
+      </nav>
+      <div class="nav-right">
+        <a href="pricing.html" class="btn btn-ghost btn-sm">View Pricing</a>
+        <a href="#download" class="btn btn-primary btn-sm">Download App</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ══ HERO ══ -->
+  <section class="hero" aria-labelledby="hero-heading">
+    <div class="container hero-inner">
+
+      <!-- Left: copy -->
+      <div class="hero-copy">
+        <div class="hero-eyebrow">
+          <span class="badge badge-teal badge-dot">Islamic Spiritual Wellness</span>
+        </div>
+        <h1 class="hero-title" id="hero-heading">
+          Light your<br /><em>way back</em>
+        </h1>
+        <p class="hero-subtitle">
+          Daily dhikr, duas, Quran recitations, accurate prayer times,
+          and certified Muslim therapists — all in one app.
+        </p>
+        <div class="hero-ctas" id="download">
+          <a href="#" class="store-btn" data-store-link="ios" aria-label="Download on the App Store">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+            <div class="store-btn-text">
+              <span class="store-btn-sub">Download on the</span>
+              <span class="store-btn-name">App Store</span>
+            </div>
+          </a>
+          <a href="#" class="store-btn" data-store-link="android" aria-label="Get it on Google Play">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.18 23.76c.3.17.64.24.99.19l12.12-12.12-2.97-2.97L3.18 23.76zM20.78 10.3l-2.6-1.5-3.3 3.3 3.3 3.3 2.63-1.52c.75-.44.75-1.15-.03-1.58zM2.01 1.05C1.97 1.2 2 1.36 2 1.53v20.93c0 .17-.03.33.01.49l11.5-11.45L2.01 1.05zM14.09 12.5L3.18.24c-.35-.05-.69.02-.99.19l10.93 10.93 2.97-2.86z"/></svg>
+            <div class="store-btn-text">
+              <span class="store-btn-sub">Get it on</span>
+              <span class="store-btn-name">Google Play</span>
+            </div>
+          </a>
+        </div>
+        <div class="hero-stats" role="list" aria-label="App statistics">
+          <div class="hero-stat" role="listitem">
+            <span class="hero-stat-value">10K+</span>
+            <span class="hero-stat-label">Users</span>
+          </div>
+          <div class="hero-stat" role="listitem">
+            <span class="hero-stat-value">50+</span>
+            <span class="hero-stat-label">Therapists</span>
+          </div>
+          <div class="hero-stat" role="listitem">
+            <span class="hero-stat-value">4.9★</span>
+            <span class="hero-stat-label">Rating</span>
+          </div>
+          <div class="hero-stat" role="listitem">
+            <span class="hero-stat-value">114</span>
+            <span class="hero-stat-label">Surahs</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: app preview cards -->
+      <div class="hero-visual" aria-hidden="true">
+
+        <div class="app-card dhikr-card">
+          <div class="dhikr-arabic">سُبْحَانَ اللَّهِ</div>
+          <div class="dhikr-arabic" style="font-size:1.1rem;opacity:0.65;">الْحَمْدُ لِلَّهِ</div>
+          <div class="dhikr-meta">
+            <span class="dhikr-label">Morning Adhkar</span>
+            <span class="dhikr-counter">
+              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              21 / 33
+            </span>
+          </div>
+        </div>
+
+        <div class="app-card" style="padding:16px 20px;">
+          <div class="app-card-label" style="margin-bottom:10px;">Today's Prayer Times · Lagos</div>
+          <div class="prayer-row"><span class="prayer-name">Fajr</span><span class="prayer-time">05:14</span></div>
+          <div class="prayer-row active"><span class="prayer-active-dot"></span><span class="prayer-name">Dhuhr</span><span class="prayer-time">12:47</span></div>
+          <div class="prayer-row"><span class="prayer-name">Asr</span><span class="prayer-time">16:22</span></div>
+          <div class="prayer-row"><span class="prayer-name">Maghrib</span><span class="prayer-time">18:55</span></div>
+          <div class="prayer-row"><span class="prayer-name">Isha</span><span class="prayer-time">20:18</span></div>
+        </div>
+
+        <div class="app-card">
+          <div class="app-card-row">
+            <div>
+              <div class="app-card-label">Your streak</div>
+              <div class="streak-display">
+                <span class="streak-flame">🔥</span>
+                <div>
+                  <div class="streak-value">42</div>
+                  <div class="streak-label">days in a row</div>
+                </div>
+              </div>
+              <div class="streak-bar-wrap"><div class="streak-bar-fill"></div></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ TRUST BAR ══ -->
+  <div class="trust-bar" role="complementary" aria-label="Platform highlights">
+    <div class="trust-track-wrap">
+      <div class="trust-track" aria-hidden="true">
+        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Shariah-conscious design</div>
+        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Streak-based habit tracking</div>
+        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Accurate prayer times worldwide</div>
+        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Verified Muslim therapists</div>
+        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>All 114 Quran surahs with audio</div>
+        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07"/></svg>Secure in-app therapist calling</div>
+        <!-- duplicate for loop -->
+        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Shariah-conscious design</div>
+        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Streak-based habit tracking</div>
+        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Accurate prayer times worldwide</div>
+        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Verified Muslim therapists</div>
+        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>All 114 Quran surahs with audio</div>
+        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07"/></svg>Secure in-app therapist calling</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ FEATURES ══ -->
+  <section class="features-section" id="features" aria-labelledby="features-heading">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-label">Everything you need</span>
+        <h2 id="features-heading">Your complete spiritual toolkit</h2>
+        <p>Every tool a Muslim needs to nurture their spiritual health, always close at hand.</p>
+      </div>
+      <div class="features-grid">
+
+        <article class="feature-card feature-card--teal-bg" data-reveal>
+          <div class="feature-icon feature-icon-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+          <h3>Daily Dhikr</h3>
+          <p>Morning and evening adhkar with Arabic text, transliteration, audio, and a tasbih counter with haptic feedback.</p>
+        </article>
+
+        <article class="feature-card" data-reveal style="transition-delay:0.07s;">
+          <div class="feature-icon feature-icon-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
+          <h3>Quran Recitations</h3>
+          <p>All 114 surahs with Arabic, English translation, and high-quality audio. Verse highlighting as you listen.</p>
+        </article>
+
+        <article class="feature-card" data-reveal style="transition-delay:0.14s;">
+          <div class="feature-icon feature-icon-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          <h3>Prayer Times</h3>
+          <p>Accurate salah times based on your GPS location with a live countdown to the next prayer.</p>
+        </article>
+
+        <article class="feature-card feature-card--wide" data-reveal style="transition-delay:0.21s;">
+          <div class="feature-card-wide-inner">
+            <div class="ft">
+              <div class="feature-icon feature-icon-gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+              <h3>Streak Tracking</h3>
+              <p>Build a consistent worship habit. Your streak grows every day you engage. Milestone celebrations at 7, 14, 30, and 100 days.</p>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:120px;gap:4px;padding:16px;" aria-hidden="true">
+              <div style="font-size:3rem;line-height:1;">🔥</div>
+              <div style="font-size:2.2rem;font-weight:900;color:var(--gold);letter-spacing:-0.03em;line-height:1.1;">42</div>
+              <div style="font-size:0.75rem;color:var(--text-3);font-weight:500;">day streak</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="feature-card" data-reveal style="transition-delay:0.28s;">
+          <div class="feature-icon feature-icon-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+          <h3>Duas Library</h3>
+          <p>Curated duas for every occasion — morning, evening, anxiety, travel, and more. Bookmark your favourites.</p>
+        </article>
+
+        <article class="feature-card feature-card--wide feature-card--gold-bg" data-reveal style="transition-delay:0.35s;">
+          <div class="feature-card-wide-inner">
+            <div class="ft">
+              <div class="feature-icon feature-icon-gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.18 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 6 6l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
+              <h3>In-App Therapist Calls</h3>
+              <p>Connect face-to-face with a verified Muslim wellness professional via secure HD video calling. No booking required — just tap and call.</p>
+              <span class="premium-pill"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Premium only</span>
+            </div>
+            <div class="therapist-pills" aria-hidden="true">
+              <div class="therapist-pill">
+                <div class="therapist-pill-name">Dr. Fatima Hassan</div>
+                <div class="therapist-pill-spec">Anxiety · Grief · Spiritual Wellness</div>
+                <div class="therapist-pill-rating">★★★★★ 4.9</div>
+              </div>
+              <div class="therapist-pill">
+                <div class="therapist-pill-name">Ustadh Yusuf Adeyemi</div>
+                <div class="therapist-pill-spec">Faith · Marriage · Purpose</div>
+                <div class="therapist-pill-rating">★★★★★ 5.0</div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ HOW IT WORKS ══ -->
+  <section class="how-section" id="how" aria-labelledby="how-heading">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-label">Simple to start</span>
+        <h2 id="how-heading">Three steps to your spiritual journey</h2>
+      </div>
+      <div class="steps-grid" role="list">
+        <div class="step" data-reveal role="listitem">
+          <div class="step-number" aria-hidden="true">1</div>
+          <h3>Create your account</h3>
+          <p>Sign up as a daily user or a therapist. Tell us your goals and practice level so we can personalise your experience.</p>
+        </div>
+        <div class="step" data-reveal style="transition-delay:0.10s;" role="listitem">
+          <div class="step-number" aria-hidden="true">2</div>
+          <h3>Build daily habits</h3>
+          <p>Engage with dhikr, duas, and Quran every day. Watch your streak grow and receive reminders before it breaks.</p>
+        </div>
+        <div class="step" data-reveal style="transition-delay:0.20s;" role="listitem">
+          <div class="step-number" aria-hidden="true">3</div>
+          <h3>Connect with a therapist</h3>
+          <p>Upgrade to Premium and call a verified Muslim wellness professional whenever you need support.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ TESTIMONIALS ══ -->
+  <section class="testimonials-section" aria-labelledby="testimonials-heading">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-label">Testimonials</span>
+        <h2 id="testimonials-heading">Loved by the ummah worldwide</h2>
+      </div>
+      <div class="testimonials-grid">
+        <article class="testimonial-card" data-reveal>
+          <div class="testimonial-stars" aria-label="5 stars"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+          <p class="testimonial-text">I've tried so many Islamic apps but Noor Companion is the first one that actually helped me build a consistent morning adhkar routine. The streak system keeps me coming back every single day.</p>
+          <div class="testimonial-author"><div class="testimonial-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div><p class="testimonial-name">Amina Yusuf</p><p class="testimonial-role">Lagos, Nigeria</p></div></div>
+        </article>
+        <article class="testimonial-card" data-reveal style="transition-delay:0.08s;">
+          <div class="testimonial-stars" aria-label="5 stars"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+          <p class="testimonial-text">As a therapist on the platform I love how thoughtfully it was designed. The video quality is excellent, and the booking-free calling means I can help people right when they need it most.</p>
+          <div class="testimonial-author"><div class="testimonial-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div><p class="testimonial-name">Dr. Fatima Hassan</p><p class="testimonial-role">Verified Therapist · Abuja</p></div></div>
+        </article>
+        <article class="testimonial-card" data-reveal style="transition-delay:0.16s;">
+          <div class="testimonial-stars" aria-label="5 stars"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+          <p class="testimonial-text">Being able to call a Muslim therapist who truly understood my faith context made all the difference during a difficult time in my life. I can't recommend this app enough.</p>
+          <div class="testimonial-author"><div class="testimonial-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div><p class="testimonial-name">Ibrahim Al-Rashid</p><p class="testimonial-role">Premium User · London</p></div></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ CTA BANNER ══ -->
+  <section class="cta-section" aria-labelledby="cta-heading">
+    <div class="container">
+      <div class="cta-card">
+        <span class="badge" style="background:rgba(255,255,255,0.15);color:#fff;border-color:rgba(255,255,255,0.25);margin-bottom:20px;">Start your journey today</span>
+        <h2 id="cta-heading">Ready to light your way back?</h2>
+        <p>Join thousands of Muslims building stronger spiritual habits every day.</p>
+        <div class="cta-btns">
+          <a href="#download" class="btn btn-white btn-lg">Download Free</a>
+          <a href="pricing.html" class="btn btn-white-outline btn-lg">View Pricing</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ FOOTER ══ -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="footer-brand-logo">
+            <div class="footer-logo-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
+            <span class="footer-wordmark">Noor <span>Companion</span></span>
+          </div>
+          <p>Light your way back. Your daily companion for Islamic spiritual wellness.</p>
+        </div>
+        <nav class="footer-col" aria-label="Product"><h4>Product</h4><ul><li><a href="#features">Features</a></li><li><a href="pricing.html">Pricing</a></li><li><a href="#download">Download</a></li></ul></nav>
+        <nav class="footer-col" aria-label="Company"><h4>Company</h4><ul><li><a href="mailto:therapists@noorcompanion.com">Join as Therapist</a></li><li><a href="mailto:support@noorcompanion.com">Contact</a></li></ul></nav>
+        <nav class="footer-col" aria-label="Legal"><h4>Legal</h4><ul><li><a href="/privacy-policy.html">Privacy Policy</a></li><li><a href="/terms.html">Terms of Service</a></li></ul></nav>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; <span id="year"></span> Noor Companion. All rights reserved.</p>
+        <div class="footer-bottom-links"><a href="/privacy-policy.html">Privacy</a><a href="/terms.html">Terms</a><a href="mailto:support@noorcompanion.com">Support</a></div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>

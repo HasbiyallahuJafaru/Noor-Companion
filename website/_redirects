@@ -1,0 +1,5 @@
+# Netlify redirect rules — Noor Companion website
+# subscribe page must resolve cleanly for the iOS payment deep link
+
+/subscribe    /subscribe.html    200
+/pricing      /pricing.html      200

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Subscribe — Noor Companion</title>
+  <link rel="icon" href="assets/favicon.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/subscribe.css" />
+</head>
+<body>
+
+  <main class="payment-shell" role="main">
+
+    <!-- Logo -->
+    <div class="payment-logo" aria-label="Noor Companion">
+      <div class="payment-logo-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+      </div>
+      <span class="payment-logo-text">Noor <span>Companion</span></span>
+    </div>
+
+    <!-- ── Screen: Loading ── -->
+    <div class="screen active" id="screen-loading" role="status" aria-live="polite" aria-label="Verifying payment link">
+      <div class="spinner" aria-hidden="true"></div>
+      <p class="loading-title">Verifying your link…</p>
+      <p class="loading-subtitle">This only takes a moment</p>
+    </div>
+
+    <!-- ── Screen: Plan preview (shown briefly before Paystack opens) ── -->
+    <div class="screen" id="screen-plan" aria-label="Subscription plan details">
+      <div class="icon-circle icon-circle-success" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#0D7C6E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        </svg>
+      </div>
+      <p class="screen-title">Noor Companion Premium</p>
+      <p class="screen-body">Opening secure checkout…</p>
+
+      <div class="plan-card" role="region" aria-label="Plan summary">
+        <div class="plan-card-header">
+          <span class="plan-name">Premium Plan</span>
+          <span class="plan-price">
+            <span id="plan-price-value">₦5,000</span>
+            <span>/month</span>
+          </span>
+        </div>
+        <ul class="plan-features" aria-label="Included features">
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            Everything in the free plan
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            Unlimited therapist video calls
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            Priority access to new therapists
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            Premium badge on your profile
+          </li>
+        </ul>
+      </div>
+
+      <div class="security-note" aria-label="Secure payment note">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        Secured by Paystack · 256-bit SSL
+      </div>
+    </div>
+
+    <!-- ── Screen: Success ── -->
+    <div class="screen" id="screen-success" role="status" aria-live="assertive" aria-label="Payment successful">
+      <div class="icon-circle icon-circle-success" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#0D7C6E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+      </div>
+      <p class="screen-title">Payment Complete!</p>
+      <p class="screen-body">
+        Jazakallahu khayran. Your Noor Companion Premium subscription is now active.
+        Please return to the app to start using your new features.
+      </p>
+      <div style="background:var(--teal-light);border-radius:var(--radius);padding:16px 20px;width:100%;text-align:center;" role="note">
+        <p style="font-size:0.9rem;color:var(--teal);font-weight:600;">
+          Return to the Noor Companion app to continue
+        </p>
+      </div>
+      <div class="security-note">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        Your subscription will appear in the app within seconds
+      </div>
+    </div>
+
+    <!-- ── Screen: Cancelled ── -->
+    <div class="screen" id="screen-cancelled" role="status" aria-live="polite" aria-label="Payment not completed">
+      <div class="icon-circle icon-circle-warning" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#C9933A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <p class="screen-title">Payment Not Completed</p>
+      <p class="screen-body">
+        No worries — you haven't been charged. You can try again or return to the app.
+      </p>
+      <button
+        class="btn btn-primary"
+        id="retry-btn"
+        style="width:100%;"
+        aria-label="Try payment again"
+      >
+        Try Again
+      </button>
+      <p style="font-size:0.85rem;color:var(--text-secondary);">
+        Or close this browser tab and return to the app
+      </p>
+    </div>
+
+    <!-- ── Screen: Error ── -->
+    <div class="screen" id="screen-error" role="alert" aria-live="assertive" aria-label="Payment error">
+      <div class="icon-circle icon-circle-error" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#E53935" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="15" y1="9" x2="9" y2="15"/>
+          <line x1="9" y1="9" x2="15" y2="15"/>
+        </svg>
+      </div>
+      <p class="screen-title">Something went wrong</p>
+      <p class="screen-body" id="error-message">
+        An unexpected error occurred. Please return to the app and try again.
+      </p>
+      <div style="background:#FFF0F0;border-radius:var(--radius);padding:14px 18px;width:100%;text-align:center;" role="note">
+        <p style="font-size:0.88rem;color:#C62828;font-weight:500;">
+          Please return to the Noor Companion app and tap Upgrade again
+        </p>
+      </div>
+      <a
+        href="mailto:support@noorcompanion.com"
+        class="btn btn-outline"
+        style="width:100%;"
+        aria-label="Contact support by email"
+      >
+        Contact Support
+      </a>
+    </div>
+
+  </main>
+
+  <!-- Paystack inline JS — loaded from Paystack CDN -->
+  <script src="https://js.paystack.co/v1/inline.js"></script>
+
+  <!--
+    Runtime config injected by Netlify at deploy time.
+    Set these as environment variables in the Netlify dashboard:
+      NOOR_API_URL              → https://api.noorcompanion.com
+      NOOR_PAYSTACK_PUBLIC_KEY  → pk_live_...
+  -->
+  <script>
+    window.NOOR_API_URL = '%%NOOR_API_URL%%';
+    window.NOOR_PAYSTACK_PUBLIC_KEY = '%%NOOR_PAYSTACK_PUBLIC_KEY%%';
+  </script>
+
+  <script src="js/subscribe.js"></script>
+  <script>
+    /* Retry button — reload the page to restart the payment flow */
+    document.getElementById('retry-btn').addEventListener('click', function () {
+      window.location.reload();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+/**
+ * subscribe.css — Noor Companion payment page styles
+ * Used exclusively by subscribe.html
+ */
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  padding: 24px;
+}
+
+@media (max-width: 480px) {
+  body { padding: 16px; justify-content: flex-start; padding-top: 32px; }
+  .payment-shell { max-width: 100%; }
+  .plan-card { padding: 16px 18px; }
+}
+
+/* ── Payment Shell ── */
+.payment-shell {
+  width: 100%;
+  max-width: 440px;
+  text-align: center;
+}
+
+.payment-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 40px;
+}
+
+.payment-logo-mark {
+  width: 44px;
+  height: 44px;
+  background: var(--teal);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.payment-logo-mark svg { width: 24px; height: 24px; }
+
+.payment-logo-text {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--dark);
+}
+
+.payment-logo-text span { color: var(--teal); }
+
+/* ── Screens ── */
+.screen {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  animation: fadeIn 0.3s ease;
+}
+
+.screen.active { display: flex; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Loading screen ── */
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid var(--teal-light);
+  border-top-color: var(--teal);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--dark);
+}
+
+.loading-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-3);
+}
+
+/* ── Icon circles ── */
+.icon-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 8px;
+}
+
+.icon-circle-success { background: var(--teal-light); }
+.icon-circle-error   { background: #FFF0F0; }
+.icon-circle-warning { background: var(--gold-light); }
+
+.icon-circle svg { width: 40px; height: 40px; }
+
+/* ── Screen titles ── */
+.screen-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--dark);
+}
+
+.screen-body {
+  font-size: 0.95rem;
+  color: var(--text-3);
+  max-width: 320px;
+  line-height: 1.6;
+}
+
+/* ── Plan card ── */
+.plan-card {
+  background: var(--surface);
+  border: 2px solid var(--teal-light);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  width: 100%;
+  text-align: left;
+}
+
+.plan-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.plan-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--dark);
+}
+
+.plan-price {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--teal);
+}
+
+.plan-price span {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-3);
+}
+
+.plan-features {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.plan-features li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--text-3);
+}
+
+.plan-features li svg {
+  width: 16px;
+  height: 16px;
+  color: var(--teal);
+  flex-shrink: 0;
+}
+
+/* ── Security note ── */
+.security-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--text-3);
+}
+
+.security-note svg { width: 14px; height: 14px; }

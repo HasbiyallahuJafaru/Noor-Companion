@@ -1,0 +1,23 @@
+# netlify.toml — Noor Companion website deployment config
+
+[build]
+  publish = "."
+
+[build.environment]
+  # Set these in the Netlify dashboard under Site → Environment Variables
+  # NOOR_API_URL             = https://api.noorcompanion.com
+  # NOOR_PAYSTACK_PUBLIC_KEY = pk_live_...
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options        = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy        = "strict-origin-when-cross-origin"
+    Permissions-Policy     = "camera=(), microphone=(), geolocation=()"
+
+[[headers]]
+  for = "/subscribe.html"
+  [headers.values]
+    # Allow Paystack iframe to load
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://js.paystack.co; frame-src https://checkout.paystack.com; connect-src 'self' https://api.noorcompanion.com https://api.paystack.co; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:;"
