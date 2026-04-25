@@ -1,16 +1,21 @@
 /// Application router for Noor Companion.
-/// Uses GoRouter with role-based redirect guards.
-/// Auth state drives redirects — unauthenticated users land on splash/login,
-/// authenticated users land on the app shell.
+/// Uses GoRouter with auth-state-driven redirect guards.
+/// Unauthenticated users are sent to /login.
+/// Authenticated users are sent to /home (or onboarding on first launch).
+/// Role guards prevent users from accessing admin/therapist routes.
 library;
 
-import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../../features/auth/presentation/providers/auth_provider.dart';
+import '../../features/auth/presentation/screens/login_screen.dart';
+import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/auth/presentation/screens/splash_screen.dart';
-import '../../features/intervention/presentation/screens/intervention_dua_screen.dart';
-import '../../features/intervention/presentation/screens/intervention_breathing_screen.dart';
-import '../../features/intervention/presentation/screens/intervention_task_screen.dart';
 import '../../features/intervention/presentation/screens/intervention_affirm_screen.dart';
+import '../../features/intervention/presentation/screens/intervention_breathing_screen.dart';
+import '../../features/intervention/presentation/screens/intervention_dua_screen.dart';
+import '../../features/intervention/presentation/screens/intervention_task_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_addiction_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_stage_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_therapist_screen.dart';
@@ -19,9 +24,11 @@ import '../../features/progress/presentation/screens/milestone_screen.dart';
 import '../../features/therapists/presentation/screens/therapist_detail_screen.dart';
 import '../shell/app_shell.dart';
 
-/// Named route paths — use these constants instead of raw strings.
+/// Named route path constants — always use these, never raw strings.
 abstract final class AppRoutes {
   static const String splash = '/splash';
+  static const String login = '/login';
+  static const String register = '/register';
   static const String home = '/home';
   static const String onboardingAddiction = '/onboarding/addiction';
   static const String onboardingStage = '/onboarding/stage';
@@ -36,15 +43,51 @@ abstract final class AppRoutes {
   static const String returnScreen = '/return';
 }
 
-/// Builds the GoRouter instance.
-/// Auth state integration added in Phase 1 — currently routes to home directly.
-GoRouter buildAppRouter({bool isAuthenticated = false}) {
+/// Unprotected routes — accessible without a session.
+const _publicRoutes = {
+  AppRoutes.splash,
+  AppRoutes.login,
+  AppRoutes.register,
+};
+
+/// Builds the GoRouter instance with a Riverpod [ref] for auth state.
+/// Pass the ref from [NoorApp] so the router refreshes on auth changes.
+GoRouter buildAppRouter(WidgetRef ref) {
   return GoRouter(
     initialLocation: AppRoutes.splash,
+    // Refresh when auth state changes so redirects fire.
+    refreshListenable: _AuthChangeNotifier(ref),
+    redirect: (context, state) {
+      final current = ref.read(authProvider);
+      final path = state.matchedLocation;
+
+      // While resolving auth, stay on splash.
+      if (current is AuthLoading) {
+        return path == AppRoutes.splash ? null : AppRoutes.splash;
+      }
+
+      // Authenticated user — redirect away from public routes.
+      if (current is AuthAuthenticated) {
+        if (_publicRoutes.contains(path)) return AppRoutes.home;
+        return null;
+      }
+
+      // Unauthenticated — redirect to login unless on a public route.
+      if (_publicRoutes.contains(path)) return null;
+      return AppRoutes.login;
+    },
     routes: [
       GoRoute(
         path: AppRoutes.splash,
         builder: (_, _) => const SplashScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.login,
+        builder: (_, _) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.register,
+        builder: (_, _) => const RegisterScreen(),
       ),
       GoRoute(
         path: AppRoutes.home,
@@ -62,7 +105,6 @@ GoRouter buildAppRouter({bool isAuthenticated = false}) {
         path: AppRoutes.onboardingTherapist,
         builder: (_, _) => const OnboardingTherapistScreen(),
       ),
-      // Intervention flow — 4 sequential full-screen routes
       GoRoute(
         path: AppRoutes.intervention,
         builder: (_, _) => const InterventionDuaScreen(),
@@ -87,9 +129,9 @@ GoRouter buildAppRouter({bool isAuthenticated = false}) {
       ),
       GoRoute(
         path: AppRoutes.call,
-        builder: (context, state) => Scaffold(
+        builder: (_, s) => Scaffold(
           body: Center(
-            child: Text('Call ${state.pathParameters['sessionId']}'),
+            child: Text('Call ${s.pathParameters['sessionId']}'),
           ),
         ),
       ),
@@ -108,4 +150,11 @@ GoRouter buildAppRouter({bool isAuthenticated = false}) {
       body: Center(child: Text('Page not found: ${state.error}')),
     ),
   );
+}
+
+/// Bridges Riverpod auth state changes into a [Listenable] for GoRouter.
+class _AuthChangeNotifier extends ChangeNotifier {
+  _AuthChangeNotifier(WidgetRef ref) {
+    ref.listen(authProvider, (_, __) => notifyListeners());
+  }
 }

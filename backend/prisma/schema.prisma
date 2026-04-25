@@ -1,0 +1,243 @@
+// prisma/schema.prisma
+// Full database schema for Noor Companion.
+// Supabase Auth owns login — our users table mirrors auth.users via supabaseId.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────────────────
+
+enum Role {
+  user
+  therapist
+  admin
+}
+
+enum SubscriptionTier {
+  free
+  paid
+}
+
+enum TherapistStatus {
+  pending
+  active
+  rejected
+  suspended
+}
+
+enum SessionStatus {
+  initiated
+  active
+  completed
+  missed
+  cancelled
+}
+
+enum NotificationType {
+  streak_reminder
+  session_incoming
+  session_completed
+  subscription_active
+  therapist_approved
+  therapist_rejected
+  general
+}
+
+enum ContentCategory {
+  dhikr
+  dua
+  recitation
+}
+
+// ─────────────────────────────────────────────────────────
+// USER
+// ─────────────────────────────────────────────────────────
+
+model User {
+  id               String           @id @default(cuid())
+  supabaseId       String           @unique
+  firstName        String
+  lastName         String
+  role             Role             @default(user)
+  subscriptionTier SubscriptionTier @default(free)
+  avatarUrl        String?
+  fcmToken         String?
+  isActive         Boolean          @default(true)
+  lastSeenAt       DateTime?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  therapistProfile TherapistProfile?
+  streak           Streak?
+  sessionsAsUser   CallSession[]     @relation("UserSessions")
+  notifications    Notification[]
+  contentProgress  ContentProgress[]
+  ratings          SessionRating[]   @relation("UserRatings")
+  paymentEvents    PaymentEvent[]
+
+  @@index([supabaseId])
+}
+
+// ─────────────────────────────────────────────────────────
+// THERAPIST PROFILE
+// ─────────────────────────────────────────────────────────
+
+model TherapistProfile {
+  id                String          @id @default(cuid())
+  userId            String          @unique
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status            TherapistStatus @default(pending)
+  bio               String
+  specialisations   String[]
+  qualifications    String[]
+  yearsExperience   Int
+  languagesSpoken   String[]
+  sessionRateNgn    Int
+  availabilityJson  Json?
+  approvedAt        DateTime?
+  approvedByAdminId String?
+  rejectionReason   String?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  sessions CallSession[]   @relation("TherapistSessions")
+  ratings  SessionRating[] @relation("TherapistRatings")
+
+  @@index([status])
+}
+
+// ─────────────────────────────────────────────────────────
+// CALL SESSION
+// ─────────────────────────────────────────────────────────
+
+model CallSession {
+  id                 String           @id @default(cuid())
+  userId             String
+  user               User             @relation("UserSessions", fields: [userId], references: [id])
+  therapistProfileId String
+  therapistProfile   TherapistProfile @relation("TherapistSessions", fields: [therapistProfileId], references: [id])
+  agoraChannelName   String           @unique
+  status             SessionStatus    @default(initiated)
+  startedAt          DateTime?
+  endedAt            DateTime?
+  durationSeconds    Int?
+  createdAt          DateTime         @default(now())
+
+  rating SessionRating?
+
+  @@index([userId])
+  @@index([therapistProfileId])
+}
+
+// ─────────────────────────────────────────────────────────
+// SESSION RATING
+// ─────────────────────────────────────────────────────────
+
+model SessionRating {
+  id                 String           @id @default(cuid())
+  sessionId          String           @unique
+  session            CallSession      @relation(fields: [sessionId], references: [id])
+  userId             String
+  user               User             @relation("UserRatings", fields: [userId], references: [id])
+  therapistProfileId String
+  therapistProfile   TherapistProfile @relation("TherapistRatings", fields: [therapistProfileId], references: [id])
+  rating             Int
+  comment            String?
+  createdAt          DateTime         @default(now())
+}
+
+// ─────────────────────────────────────────────────────────
+// STREAK
+// ─────────────────────────────────────────────────────────
+
+model Streak {
+  id            String    @id @default(cuid())
+  userId        String    @unique
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  currentStreak Int       @default(0)
+  longestStreak Int       @default(0)
+  lastEngagedAt DateTime?
+  totalDays     Int       @default(0)
+  updatedAt     DateTime  @updatedAt
+}
+
+// ─────────────────────────────────────────────────────────
+// CONTENT
+// ─────────────────────────────────────────────────────────
+
+model Content {
+  id              String          @id @default(cuid())
+  title           String
+  arabicText      String?
+  transliteration String?
+  translation     String?
+  audioUrl        String?
+  category        ContentCategory
+  tags            String[]
+  isActive        Boolean         @default(true)
+  sortOrder       Int             @default(0)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  progress ContentProgress[]
+}
+
+// ─────────────────────────────────────────────────────────
+// CONTENT PROGRESS
+// ─────────────────────────────────────────────────────────
+
+model ContentProgress {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contentId String
+  content   Content  @relation(fields: [contentId], references: [id])
+  engagedAt DateTime @default(now())
+
+  @@unique([userId, contentId])
+  @@index([userId])
+}
+
+// ─────────────────────────────────────────────────────────
+// NOTIFICATION
+// ─────────────────────────────────────────────────────────
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  title     String
+  body      String
+  isRead    Boolean          @default(false)
+  data      Json?
+  createdAt DateTime         @default(now())
+
+  @@index([userId, isRead])
+}
+
+// ─────────────────────────────────────────────────────────
+// PAYMENT EVENT
+// ─────────────────────────────────────────────────────────
+
+model PaymentEvent {
+  id              String   @id @default(cuid())
+  paystackEventId String   @unique
+  userId          String?
+  user            User?    @relation(fields: [userId], references: [id])
+  event           String
+  amount          Int
+  currency        String   @default("NGN")
+  status          String
+  rawPayload      Json
+  createdAt       DateTime @default(now())
+}
