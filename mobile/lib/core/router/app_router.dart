@@ -14,6 +14,8 @@ import '../../features/intervention/presentation/screens/intervention_affirm_scr
 import '../../features/onboarding/presentation/screens/onboarding_addiction_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_stage_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_therapist_screen.dart';
+import '../../features/home/presentation/screens/return_screen.dart';
+import '../../features/progress/presentation/screens/milestone_screen.dart';
 import '../../features/therapists/presentation/screens/therapist_detail_screen.dart';
 import '../shell/app_shell.dart';
 
@@ -30,7 +32,8 @@ abstract final class AppRoutes {
   static const String interventionAffirm = '/intervention/affirm';
   static const String therapistDetail = '/therapists/:id';
   static const String call = '/call/:sessionId';
-  static const String milestone = '/milestone/:badge';
+  static const String milestone = '/milestone/:days';
+  static const String returnScreen = '/return';
 }
 
 /// Builds the GoRouter instance.
@@ -92,11 +95,13 @@ GoRouter buildAppRouter({bool isAuthenticated = false}) {
       ),
       GoRoute(
         path: AppRoutes.milestone,
-        builder: (context, state) => Scaffold(
-          body: Center(
-            child: Text('Milestone ${state.pathParameters['badge']}'),
-          ),
+        builder: (_, state) => MilestoneScreen(
+          days: int.tryParse(state.pathParameters['days'] ?? '') ?? 7,
         ),
+      ),
+      GoRoute(
+        path: AppRoutes.returnScreen,
+        builder: (_, _) => const ReturnScreen(),
       ),
     ],
     errorBuilder: (_, state) => Scaffold(
