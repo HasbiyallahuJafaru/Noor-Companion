@@ -19,7 +19,13 @@ class StreakDisplay extends ConsumerWidget {
     final days = ref.watch(streakProvider);
     final isMilestone = ref.watch(isMilestoneDayProvider);
 
-    return Container(
+    final label = isMilestone
+        ? '$days days clean. Milestone reached.'
+        : '$days days clean.';
+
+    return Semantics(
+      label: label,
+      child: Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: AppColors.surface,
@@ -75,6 +81,7 @@ class StreakDisplay extends ConsumerWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }

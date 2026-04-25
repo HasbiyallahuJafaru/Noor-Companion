@@ -63,9 +63,12 @@ class _PanicButtonState extends State<PanicButton>
   Widget build(BuildContext context) {
     return ScaleTransition(
       scale: _scale,
-      child: GestureDetector(
-        onTap: () => context.go(AppRoutes.intervention),
-        child: Container(
+      child: Semantics(
+        button: true,
+        label: "I'm Struggling — tap to start the crisis support flow",
+        child: GestureDetector(
+          onTap: () => context.go(AppRoutes.intervention),
+          child: Container(
           width: double.infinity,
           height: 64,
           decoration: BoxDecoration(
@@ -89,6 +92,7 @@ class _PanicButtonState extends State<PanicButton>
             ],
           ),
         ),
+      ),
       ),
     );
   }

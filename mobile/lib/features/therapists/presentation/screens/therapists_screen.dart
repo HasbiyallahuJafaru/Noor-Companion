@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../../shared/widgets/skeletons.dart';
 import '../providers/therapists_provider.dart';
 import '../widgets/therapist_card.dart';
 
@@ -17,9 +18,18 @@ class TherapistsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isLoading = ref.watch(therapistsIsLoadingProvider);
     final counsellors = ref.watch(filteredCounsellorsProvider);
     final scholars = ref.watch(filteredScholarsProvider);
     final query = ref.watch(therapistSearchProvider);
+
+    if (isLoading) {
+      return const Scaffold(
+        body: SafeArea(
+          child: SingleChildScrollView(child: TherapistsScreenSkeleton()),
+        ),
+      );
+    }
 
     return Scaffold(
       body: SafeArea(

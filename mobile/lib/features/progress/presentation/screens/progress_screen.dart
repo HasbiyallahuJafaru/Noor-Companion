@@ -4,11 +4,13 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../shared/widgets/skeletons.dart';
 import '../../../home/presentation/providers/home_providers.dart';
 import '../providers/progress_providers.dart';
 import '../widgets/milestone_badge.dart';
@@ -20,8 +22,17 @@ class ProgressScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isLoading = ref.watch(progressIsLoadingProvider);
     final days = ref.watch(streakProvider);
     final milestones = ref.watch(allMilestonesProvider);
+
+    if (isLoading) {
+      return const Scaffold(
+        body: SafeArea(
+          child: SingleChildScrollView(child: ProgressScreenSkeleton()),
+        ),
+      );
+    }
 
     return Scaffold(
       body: SafeArea(
@@ -153,7 +164,10 @@ class _MilestonesGrid extends StatelessWidget {
           milestone: entry.milestone,
           isUnlocked: entry.isUnlocked,
           onTap: entry.isUnlocked
-              ? () => context.push('/milestone/${entry.milestone.days}')
+              ? () {
+                  HapticFeedback.heavyImpact();
+                  context.push('/milestone/${entry.milestone.days}');
+                }
               : null,
         );
       }).toList(),

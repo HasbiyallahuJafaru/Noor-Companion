@@ -6,6 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../home/presentation/providers/home_providers.dart';
 import '../../domain/milestone.dart';
 
+/// True while progress data is being fetched. Defaults false (stub is immediate).
+final progressIsLoadingProvider = Provider<bool>((_) => false);
+
 /// Weekly task completion — one entry per day (Mon–Sun), 0.0–1.0 fraction.
 /// Stub values until Phase 3 wires real streak/task history.
 final weeklyCompletionProvider = Provider<List<double>>(

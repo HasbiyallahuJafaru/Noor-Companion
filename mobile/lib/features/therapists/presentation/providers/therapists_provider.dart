@@ -22,6 +22,9 @@ final therapistSearchProvider =
 /// Full stub therapist list. Replaced with API call in Phase 4.
 final therapistsProvider = Provider<List<TherapistModel>>((_) => _kStubTherapists);
 
+/// True while the therapist list is being fetched. Defaults false (stub is immediate).
+final therapistsIsLoadingProvider = Provider<bool>((_) => false);
+
 /// Counsellors filtered by the current search query.
 final filteredCounsellorsProvider = Provider<List<TherapistModel>>((ref) {
   final query = ref.watch(therapistSearchProvider).toLowerCase().trim();

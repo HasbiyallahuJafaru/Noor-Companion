@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../shared/widgets/skeletons.dart';
 import '../providers/home_providers.dart';
 import '../widgets/panic_button.dart';
 import '../widgets/prayer_time_banner.dart';
@@ -19,6 +20,7 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isLoading = ref.watch(homeIsLoadingProvider);
     final tasks = ref.watch(tasksProvider);
     final allDone = ref.watch(allTasksDoneProvider);
 
@@ -30,7 +32,11 @@ class HomeScreen extends ConsumerWidget {
           children: [
             // ── Scrollable content ──────────────────────────────────────────
             Expanded(
-              child: CustomScrollView(
+              child: isLoading
+                  ? const SingleChildScrollView(
+                      child: HomeScreenSkeleton(),
+                    )
+                  : CustomScrollView(
                 physics: const BouncingScrollPhysics(),
                 slivers: [
                   SliverPadding(

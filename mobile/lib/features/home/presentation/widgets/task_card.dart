@@ -20,7 +20,12 @@ class TaskCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return GestureDetector(
+    return Semantics(
+      button: true,
+      checked: task.isCompleted,
+      label: '${task.label}. ${task.estimatedMinutes} minutes.'
+          '${task.isCompleted ? ' Completed.' : ' Tap to mark complete.'}',
+      child: GestureDetector(
       onTap: () {
         HapticFeedback.lightImpact();
         ref.read(tasksProvider.notifier).toggleComplete(task.id);
@@ -69,6 +74,7 @@ class TaskCard extends ConsumerWidget {
             _Checkbox(isChecked: task.isCompleted),
           ],
         ),
+      ),
       ),
     );
   }

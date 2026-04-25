@@ -7,6 +7,13 @@ library;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/task_model.dart';
 
+// ── Loading state ─────────────────────────────────────────────────────────────
+
+/// True while home data is being fetched from the API.
+/// Defaults to false (stub data is immediate).
+/// Flipped to true in Phase 2/3 when real async calls are made.
+final homeIsLoadingProvider = Provider<bool>((_) => false);
+
 // ── Streak ────────────────────────────────────────────────────────────────────
 
 /// Stub streak provider — returns hardcoded days-clean count.
