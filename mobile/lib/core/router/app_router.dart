@@ -4,12 +4,17 @@
 /// authenticated users land on the app shell.
 library;
 
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter/material.dart';
 import '../../features/auth/presentation/screens/splash_screen.dart';
+import '../../features/intervention/presentation/screens/intervention_dua_screen.dart';
+import '../../features/intervention/presentation/screens/intervention_breathing_screen.dart';
+import '../../features/intervention/presentation/screens/intervention_task_screen.dart';
+import '../../features/intervention/presentation/screens/intervention_affirm_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_addiction_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_stage_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_therapist_screen.dart';
+import '../../features/therapists/presentation/screens/therapist_detail_screen.dart';
 import '../shell/app_shell.dart';
 
 /// Named route paths — use these constants instead of raw strings.
@@ -19,10 +24,13 @@ abstract final class AppRoutes {
   static const String onboardingAddiction = '/onboarding/addiction';
   static const String onboardingStage = '/onboarding/stage';
   static const String onboardingTherapist = '/onboarding/therapist';
+  static const String intervention = '/intervention/dua';
+  static const String interventionBreathing = '/intervention/breathing';
+  static const String interventionTask = '/intervention/task';
+  static const String interventionAffirm = '/intervention/affirm';
   static const String therapistDetail = '/therapists/:id';
   static const String call = '/call/:sessionId';
   static const String milestone = '/milestone/:badge';
-  static const String intervention = '/intervention';
 }
 
 /// Builds the GoRouter instance.
@@ -51,18 +59,27 @@ GoRouter buildAppRouter({bool isAuthenticated = false}) {
         path: AppRoutes.onboardingTherapist,
         builder: (_, _) => const OnboardingTherapistScreen(),
       ),
+      // Intervention flow — 4 sequential full-screen routes
       GoRoute(
         path: AppRoutes.intervention,
-        builder: (_, _) => const Scaffold(
-          body: Center(child: Text('Intervention — coming soon')),
-        ),
+        builder: (_, _) => const InterventionDuaScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.interventionBreathing,
+        builder: (_, _) => const InterventionBreathingScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.interventionTask,
+        builder: (_, _) => const InterventionTaskScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.interventionAffirm,
+        builder: (_, _) => const InterventionAffirmScreen(),
       ),
       GoRoute(
         path: AppRoutes.therapistDetail,
-        builder: (context, state) => Scaffold(
-          body: Center(
-            child: Text('Therapist ${state.pathParameters['id']}'),
-          ),
+        builder: (_, state) => TherapistDetailScreen(
+          therapistId: state.pathParameters['id']!,
         ),
       ),
       GoRoute(
