@@ -69,22 +69,23 @@
   .store-btn {
     display: inline-flex;
     align-items: center;
-    gap: 11px;
-    padding: 12px 22px;
-    background: var(--dark);
+    gap: 13px;
+    padding: 11px 20px;
+    background: #0F1C1A;
     color: #fff;
-    border-radius: 12px;
-    font-size: 0.88rem;
-    font-weight: 600;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-    box-shadow: 0 4px 14px rgba(15,28,26,0.18);
+    border-radius: 14px;
+    border: 1.5px solid rgba(255,255,255,0.08);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    box-shadow: 0 4px 16px rgba(15,28,26,0.22);
+    text-decoration: none;
+    min-width: 168px;
   }
-  .store-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(15,28,26,0.26); }
+  .store-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(15,28,26,0.30); background: #1a2e2b; }
   .store-btn:active { transform: scale(0.97); }
-  .store-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
-  .store-btn-text { text-align: left; line-height: 1.25; }
-  .store-btn-sub  { font-size: 0.68rem; font-weight: 400; opacity: 0.7; display: block; }
-  .store-btn-name { font-size: 0.92rem; font-weight: 700; display: block; }
+  .store-btn-icon { flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .store-btn-text { text-align: left; line-height: 1.2; }
+  .store-btn-sub  { font-size: 0.64rem; font-weight: 400; opacity: 0.65; display: block; letter-spacing: 0.01em; }
+  .store-btn-name { font-size: 0.95rem; font-weight: 700; display: block; letter-spacing: -0.01em; }
 
   /* Hero stats */
   .hero-stats {
@@ -203,8 +204,8 @@
     .hero-stat:nth-child(1), .hero-stat:nth-child(2) { border-right: none; }
     .hero-stat:nth-child(odd)  { border-right: 1.5px solid var(--border); }
     .hero-stat:nth-child(3), .hero-stat:nth-child(4) { border-bottom: none; }
-    .hero-ctas { flex-direction: column; align-items: flex-start; }
-    .store-btn { width: 100%; max-width: 280px; }
+    .hero-ctas { flex-direction: row; flex-wrap: wrap; align-items: flex-start; gap: 10px; }
+    .store-btn { min-width: 0; flex: 1; max-width: 200px; }
   }
 
   /* ══ TRUST BAR ══ */
@@ -402,6 +403,7 @@
     flex-shrink: 0;
   }
   .testimonial-avatar svg { width: 18px; height: 18px; color: var(--teal); }
+  .testimonial-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; }
   .testimonial-name { font-size: 0.88rem; font-weight: 600; color: var(--dark); }
   .testimonial-role { font-size: 0.75rem; color: var(--text-3); }
 
@@ -417,7 +419,17 @@
     padding: 72px 48px;
     text-align: center;
     box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
   }
+  .cta-card-bg {
+    position: absolute; inset: 0;
+    background-image: url('https://images.unsplash.com/photo-1564121211835-e88c852648ab?w=1200&h=480&q=60&auto=format&fit=crop&crop=center');
+    background-size: cover; background-position: center;
+    opacity: 0.12;
+    pointer-events: none;
+  }
+  .cta-card > *:not(.cta-card-bg) { position: relative; z-index: 1; }
   .cta-card h2 { color: #fff; margin-bottom: 14px; }
   .cta-card > p { color: rgba(255,255,255,0.78); max-width: 460px; margin: 0 auto 36px; font-size: 1.05rem; }
   .cta-btns { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
@@ -427,6 +439,128 @@
   .btn-white-outline:hover { background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.70); }
 
   @media (max-width: 600px) { .cta-card { padding: 48px 24px; } }
+
+  /* ══ HAMBURGER NAV ══ */
+  .nav-hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 36px; height: 36px;
+    background: none; border: none;
+    cursor: pointer; padding: 4px;
+    border-radius: 8px;
+    transition: background 0.15s;
+  }
+  .nav-hamburger:hover { background: var(--teal-light); }
+  .nav-hamburger span {
+    display: block; height: 2px;
+    background: var(--dark);
+    border-radius: 2px;
+    transition: transform 0.25s ease, opacity 0.25s ease, width 0.25s ease;
+    transform-origin: center;
+  }
+  .nav-hamburger span:nth-child(2) { width: 65%; }
+  .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .nav-hamburger.open span:nth-child(2) { opacity: 0; width: 100%; }
+  .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  .nav-mobile-menu {
+    display: none;
+    position: fixed;
+    top: 66px; left: 0; right: 0;
+    background: rgba(255,255,255,0.97);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1.5px solid var(--border);
+    padding: 20px 18px 24px;
+    flex-direction: column;
+    gap: 4px;
+    z-index: 199;
+    box-shadow: var(--shadow-md);
+  }
+  .nav-mobile-menu.open { display: flex; }
+  .nav-mobile-menu a {
+    display: block;
+    padding: 12px 14px;
+    font-size: 1rem; font-weight: 500;
+    color: var(--text-2);
+    border-radius: 10px;
+    transition: background 0.15s, color 0.15s;
+  }
+  .nav-mobile-menu a:hover { background: var(--teal-xlight); color: var(--teal); }
+  .nav-mobile-menu .nav-mobile-divider { height: 1px; background: var(--border); margin: 8px 0; }
+  .nav-mobile-menu .btn { width: 100%; justify-content: center; margin-top: 4px; }
+
+  @media (max-width: 900px) {
+    .nav-hamburger { display: flex; }
+  }
+
+  /* ══ HERO PHOTO WRAP ══ */
+  .hero-photo-wrap {
+    position: relative;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    height: 520px;
+  }
+  .hero-photo-wrap > img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+  }
+  .hero-float { position: absolute; }
+  .hero-float--bottom { bottom: 16px; left: 16px; right: 16px; }
+  .hero-float--top-right { top: 16px; right: 16px; width: 178px; }
+  @media (max-width: 900px) { .hero-photo-wrap { height: auto; aspect-ratio: 4/3; } }
+
+  /* ══ FEATURE CARD PHOTO STRIP ══ */
+  .feature-card-photo {
+    border-radius: 10px;
+    overflow: hidden;
+    height: 118px;
+    margin-bottom: 20px;
+    margin-top: -2px;
+  }
+  .feature-card-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  /* ══ LIFESTYLE BAND ══ */
+  .lifestyle-section {
+    padding: 104px 0;
+    background: var(--bg);
+    border-top: 1.5px solid var(--border);
+    border-bottom: 1.5px solid var(--border);
+  }
+  .lifestyle-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 0.85fr 1.1fr;
+    gap: 14px;
+    align-items: end;
+    margin-top: 56px;
+  }
+  .lifestyle-img {
+    position: relative;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+  }
+  .lifestyle-img img { width: 100%; display: block; object-fit: cover; }
+  .lifestyle-img:nth-child(1) img { aspect-ratio: 3/4; }
+  .lifestyle-img:nth-child(2) img { aspect-ratio: 2/3; }
+  .lifestyle-img:nth-child(3) img { aspect-ratio: 3/4; }
+  .lifestyle-cap {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 56px 18px 18px;
+    background: linear-gradient(to top, rgba(10,20,18,0.78) 0%, transparent 100%);
+    color: #fff;
+    font-size: 0.72rem; font-weight: 700;
+    letter-spacing: 0.09em; text-transform: uppercase;
+  }
+  @media (max-width: 700px) {
+    .lifestyle-grid { grid-template-columns: 1fr; }
+    .lifestyle-img:nth-child(1) img,
+    .lifestyle-img:nth-child(2) img,
+    .lifestyle-img:nth-child(3) img { aspect-ratio: 16/9; }
+    .lifestyle-section { padding: 72px 0; }
+  }
 
   </style>
 </head>
@@ -451,9 +585,22 @@
       <div class="nav-right">
         <a href="pricing.html" class="btn btn-ghost btn-sm">View Pricing</a>
         <a href="#download" class="btn btn-primary btn-sm">Download App</a>
+        <button class="nav-hamburger" id="navHamburger" aria-label="Toggle menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
       </div>
     </div>
   </nav>
+
+  <!-- Mobile nav drawer -->
+  <div class="nav-mobile-menu" id="navMobileMenu" role="navigation" aria-label="Mobile navigation">
+    <a href="#features">Features</a>
+    <a href="#how">How it works</a>
+    <a href="pricing.html">Pricing</a>
+    <div class="nav-mobile-divider"></div>
+    <a href="pricing.html" class="btn btn-ghost btn-sm">View Pricing</a>
+    <a href="#download" class="btn btn-primary btn-sm">Download App</a>
+  </div>
 
   <!-- ══ HERO ══ -->
   <section class="hero" aria-labelledby="hero-heading">
@@ -462,25 +609,41 @@
       <!-- Left: copy -->
       <div class="hero-copy">
         <div class="hero-eyebrow">
-          <span class="badge badge-teal badge-dot">Islamic Spiritual Wellness</span>
+          <span class="badge badge-teal badge-dot">Islamic Recovery Companion</span>
         </div>
         <h1 class="hero-title" id="hero-heading">
-          Light your<br /><em>way back</em>
+          Stronger than<br /><em>your desires</em>
         </h1>
         <p class="hero-subtitle">
-          Daily dhikr, duas, Quran recitations, accurate prayer times,
-          and certified Muslim therapists — all in one app.
+          Recovery is possible. Through the remembrance of Allah, daily worship, and the guidance of Muslim counselors — find the strength to reclaim your life, one day at a time.
         </p>
         <div class="hero-ctas" id="download">
           <a href="#" class="store-btn" data-store-link="ios" aria-label="Download on the App Store">
-            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+            <span class="store-btn-icon" aria-hidden="true">
+              <svg width="26" height="32" viewBox="0 0 26 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M21.843 16.976c-.036-3.838 3.13-5.688 3.272-5.776-1.784-2.607-4.558-2.963-5.545-3.001-2.357-.24-4.625 1.394-5.822 1.394-1.208 0-3.066-1.364-5.038-1.327-2.578.038-4.97 1.512-6.294 3.823C-.39 16.52 1.58 23.73 4.07 27.673c1.233 1.782 2.693 3.773 4.612 3.702 1.857-.073 2.556-1.196 4.803-1.196 2.228 0 2.874 1.196 4.833 1.155 1.998-.033 3.261-1.8 4.484-3.588 1.424-2.048 2.003-4.046 2.028-4.148-.046-.017-3.948-1.515-3.987-5.622zM18.13 5.546c.996-1.237 1.672-2.94 1.488-4.646-1.44.06-3.215.981-4.25 2.19-.918 1.07-1.735 2.804-1.519 4.46 1.617.121 3.269-.826 4.281-2.004z" fill="white"/>
+              </svg>
+            </span>
             <div class="store-btn-text">
               <span class="store-btn-sub">Download on the</span>
               <span class="store-btn-name">App Store</span>
             </div>
           </a>
           <a href="#" class="store-btn" data-store-link="android" aria-label="Get it on Google Play">
-            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.18 23.76c.3.17.64.24.99.19l12.12-12.12-2.97-2.97L3.18 23.76zM20.78 10.3l-2.6-1.5-3.3 3.3 3.3 3.3 2.63-1.52c.75-.44.75-1.15-.03-1.58zM2.01 1.05C1.97 1.2 2 1.36 2 1.53v20.93c0 .17-.03.33.01.49l11.5-11.45L2.01 1.05zM14.09 12.5L3.18.24c-.35-.05-.69.02-.99.19l10.93 10.93 2.97-2.86z"/></svg>
+            <span class="store-btn-icon" aria-hidden="true">
+              <svg width="27" height="30" viewBox="0 0 27 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1.215 0.222C0.797 0.46 0.5 0.912 0.5 1.5v27c0 .588.297 1.04.715 1.278l.078.043 15.12-15.12v-.358L1.293 0.179l-.078.043z" fill="url(#gp_a)"/>
+                <path d="M20.952 19.444l-5.04-5.04v-.358l5.04-5.04.114.065 5.967 3.39c1.705.968 1.705 2.553 0 3.521l-5.967 3.39-.114.072z" fill="url(#gp_b)"/>
+                <path d="M21.066 19.372L15.912 14.218 1.215 28.916c.562.596 1.49.67 2.537.076l17.314-9.62z" fill="url(#gp_c)"/>
+                <path d="M21.066 10.628L3.752.944C2.705.35 1.777.424 1.215 1.02l14.697 14.698 5.154-5.09z" fill="url(#gp_d)"/>
+                <defs>
+                  <linearGradient id="gp_a" x1="14.344" y1="1.759" x2="-4.899" y2="20.986" gradientUnits="userSpaceOnUse"><stop stop-color="#00A0FF"/><stop offset="0.007" stop-color="#00A1FF"/><stop offset="0.26" stop-color="#00BEFF"/><stop offset="0.512" stop-color="#00D2FF"/><stop offset="0.76" stop-color="#00DFFF"/><stop offset="1" stop-color="#00E3FF"/></linearGradient>
+                  <linearGradient id="gp_b" x1="27.438" y1="14.218" x2="0.174" y2="14.218" gradientUnits="userSpaceOnUse"><stop stop-color="#FFE000"/><stop offset="0.409" stop-color="#FFBD00"/><stop offset="0.775" stop-color="#FFA500"/><stop offset="1" stop-color="#FF9C00"/></linearGradient>
+                  <linearGradient id="gp_c" x1="17.675" y1="16.903" x2="-3.914" y2="38.459" gradientUnits="userSpaceOnUse"><stop stop-color="#FF3A44"/><stop offset="1" stop-color="#C31162"/></linearGradient>
+                  <linearGradient id="gp_d" x1="-1.718" y1="-4.468" x2="8.359" y2="5.607" gradientUnits="userSpaceOnUse"><stop stop-color="#32A071"/><stop offset="0.069" stop-color="#2DA771"/><stop offset="0.476" stop-color="#15CF74"/><stop offset="0.801" stop-color="#06E775"/><stop offset="1" stop-color="#00F076"/></linearGradient>
+                </defs>
+              </svg>
+            </span>
             <div class="store-btn-text">
               <span class="store-btn-sub">Get it on</span>
               <span class="store-btn-name">Google Play</span>
@@ -490,14 +653,14 @@
         <div class="hero-stats" role="list" aria-label="App statistics">
           <div class="hero-stat" role="listitem">
             <span class="hero-stat-value">10K+</span>
-            <span class="hero-stat-label">Users</span>
+            <span class="hero-stat-label">Journeys started</span>
           </div>
           <div class="hero-stat" role="listitem">
             <span class="hero-stat-value">50+</span>
-            <span class="hero-stat-label">Therapists</span>
+            <span class="hero-stat-label">Muslim counselors</span>
           </div>
           <div class="hero-stat" role="listitem">
-            <span class="hero-stat-value">4.9★</span>
+            <span class="hero-stat-value">4.9<svg viewBox="0 0 24 24" width="16" height="16" fill="var(--gold)" style="vertical-align:-2px;margin-left:1px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
             <span class="hero-stat-label">Rating</span>
           </div>
           <div class="hero-stat" role="listitem">
@@ -536,7 +699,7 @@
             <div>
               <div class="app-card-label">Your streak</div>
               <div class="streak-display">
-                <span class="streak-flame">🔥</span>
+                <span class="streak-flame"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C12 2 7 7.5 7 13a5 5 0 0 0 10 0c0-2.5-1.5-4.5-2.5-5.5 0 2-1 3-1.5 3.5C12 9.5 12 2 12 2Z" fill="#F97316"/><path d="M12 16a2 2 0 0 1-2-2c0-1.5 2-3 2-3s2 1.5 2 3a2 2 0 0 1-2 2Z" fill="#FDE68A"/></svg></span>
                 <div>
                   <div class="streak-value">42</div>
                   <div class="streak-label">days in a row</div>
@@ -555,19 +718,19 @@
   <div class="trust-bar" role="complementary" aria-label="Platform highlights">
     <div class="trust-track-wrap">
       <div class="trust-track" aria-hidden="true">
-        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Shariah-conscious design</div>
-        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Streak-based habit tracking</div>
-        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Accurate prayer times worldwide</div>
-        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Verified Muslim therapists</div>
-        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>All 114 Quran surahs with audio</div>
-        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07"/></svg>Secure in-app therapist calling</div>
+        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Shariah-grounded recovery approach</div>
+        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Dhikr as positive reinforcement</div>
+        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>5 daily prayers — structure and routine</div>
+        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Verified Muslim counselors</div>
+        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Duas for moments of temptation</div>
+        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c0 0 8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Private, safe and confidential</div>
         <!-- duplicate for loop -->
-        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Shariah-conscious design</div>
-        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Streak-based habit tracking</div>
-        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Accurate prayer times worldwide</div>
-        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Verified Muslim therapists</div>
-        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>All 114 Quran surahs with audio</div>
-        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07"/></svg>Secure in-app therapist calling</div>
+        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Shariah-grounded recovery approach</div>
+        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Dhikr as positive reinforcement</div>
+        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>5 daily prayers — structure and routine</div>
+        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Verified Muslim counselors</div>
+        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Duas for moments of temptation</div>
+        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c0 0 8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Private, safe and confidential</div>
       </div>
     </div>
   </div>
@@ -576,28 +739,30 @@
   <section class="features-section" id="features" aria-labelledby="features-heading">
     <div class="container">
       <div class="section-header">
-        <span class="section-label">Everything you need</span>
-        <h2 id="features-heading">Your complete spiritual toolkit</h2>
-        <p>Every tool a Muslim needs to nurture their spiritual health, always close at hand.</p>
+        <span class="section-label">Built for recovery</span>
+        <h2 id="features-heading">Your complete toolkit for the journey back</h2>
+        <p>Every Islamic practice, habit, and connection you need to overcome your desires and rebuild your life — one day at a time.</p>
       </div>
       <div class="features-grid">
 
         <article class="feature-card feature-card--teal-bg" data-reveal>
           <div class="feature-icon feature-icon-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
           <h3>Daily Dhikr</h3>
-          <p>Morning and evening adhkar with Arabic text, transliteration, audio, and a tasbih counter with haptic feedback.</p>
+          <p>Replace the urge with remembrance. Morning and evening adhkar with Arabic text, audio, and a tasbih counter — keeping your mind anchored to Allah when it needs it most.</p>
         </article>
 
         <article class="feature-card" data-reveal style="transition-delay:0.07s;">
+          <div class="feature-card-photo"><img src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=130&q=80&auto=format&fit=crop&crop=center" alt="" loading="lazy" /></div>
           <div class="feature-icon feature-icon-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
           <h3>Quran Recitations</h3>
-          <p>All 114 surahs with Arabic, English translation, and high-quality audio. Verse highlighting as you listen.</p>
+          <p>Let the Quran calm your nafs. All 114 surahs with Arabic, translation, and high-quality audio — your companion through every difficult hour, day or night.</p>
         </article>
 
         <article class="feature-card" data-reveal style="transition-delay:0.14s;">
+          <div class="feature-card-photo"><img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=130&q=80&auto=format&fit=crop&crop=top" alt="" loading="lazy" /></div>
           <div class="feature-icon feature-icon-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
           <h3>Prayer Times</h3>
-          <p>Accurate salah times based on your GPS location with a live countdown to the next prayer.</p>
+          <p>Structure is the foundation of recovery. Five daily prayers become five anchors in your day — accurate salah times, GPS-based, with a live countdown to refocus your mind.</p>
         </article>
 
         <article class="feature-card feature-card--wide" data-reveal style="transition-delay:0.21s;">
@@ -605,10 +770,10 @@
             <div class="ft">
               <div class="feature-icon feature-icon-gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
               <h3>Streak Tracking</h3>
-              <p>Build a consistent worship habit. Your streak grows every day you engage. Milestone celebrations at 7, 14, 30, and 100 days.</p>
+              <p>Celebrate every day you stayed strong. Your streak grows with every day you engage your deen. Milestone rewards at 7, 14, 30, and 100 days remind you how far you've come — and how much you're worth.</p>
             </div>
             <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:120px;gap:4px;padding:16px;" aria-hidden="true">
-              <div style="font-size:3rem;line-height:1;">🔥</div>
+              <div style="line-height:1;"><svg viewBox="0 0 24 24" width="52" height="52" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C12 2 7 7.5 7 13a5 5 0 0 0 10 0c0-2.5-1.5-4.5-2.5-5.5 0 2-1 3-1.5 3.5C12 9.5 12 2 12 2Z" fill="#F97316"/><path d="M12 16a2 2 0 0 1-2-2c0-1.5 2-3 2-3s2 1.5 2 3a2 2 0 0 1-2 2Z" fill="#FDE68A"/></svg></div>
               <div style="font-size:2.2rem;font-weight:900;color:var(--gold);letter-spacing:-0.03em;line-height:1.1;">42</div>
               <div style="font-size:0.75rem;color:var(--text-3);font-weight:500;">day streak</div>
             </div>
@@ -616,29 +781,30 @@
         </article>
 
         <article class="feature-card" data-reveal style="transition-delay:0.28s;">
+          <div class="feature-card-photo"><img src="https://images.unsplash.com/photo-1532712938310-34cb3982ef74?w=400&h=130&q=80&auto=format&fit=crop&crop=center" alt="" loading="lazy" /></div>
           <div class="feature-icon feature-icon-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
           <h3>Duas Library</h3>
-          <p>Curated duas for every occasion — morning, evening, anxiety, travel, and more. Bookmark your favourites.</p>
+          <p>A dua for every moment of weakness. Curated supplications for resisting the nafs, seeking tawbah, calming anxiety, and finding strength. Bookmark the ones that carry you through.</p>
         </article>
 
         <article class="feature-card feature-card--wide feature-card--gold-bg" data-reveal style="transition-delay:0.35s;">
           <div class="feature-card-wide-inner">
             <div class="ft">
               <div class="feature-icon feature-icon-gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.18 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 6 6l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
-              <h3>In-App Therapist Calls</h3>
-              <p>Connect face-to-face with a verified Muslim wellness professional via secure HD video calling. No booking required — just tap and call.</p>
+              <h3>Muslim Counselor Calls</h3>
+              <p>Connect with a verified Muslim counselor who understands addiction through an Islamic lens — combining professional support with the wisdom of the deen. No booking required, call when you need it most.</p>
               <span class="premium-pill"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Premium only</span>
             </div>
             <div class="therapist-pills" aria-hidden="true">
               <div class="therapist-pill">
                 <div class="therapist-pill-name">Dr. Fatima Hassan</div>
                 <div class="therapist-pill-spec">Anxiety · Grief · Spiritual Wellness</div>
-                <div class="therapist-pill-rating">★★★★★ 4.9</div>
+                <div class="therapist-pill-rating"><svg viewBox="0 0 24 24" width="11" height="11" fill="#C9933A"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24" width="11" height="11" fill="#C9933A"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24" width="11" height="11" fill="#C9933A"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24" width="11" height="11" fill="#C9933A"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24" width="11" height="11" fill="#C9933A"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> 4.9</div>
               </div>
               <div class="therapist-pill">
                 <div class="therapist-pill-name">Ustadh Yusuf Adeyemi</div>
                 <div class="therapist-pill-spec">Faith · Marriage · Purpose</div>
-                <div class="therapist-pill-rating">★★★★★ 5.0</div>
+                <div class="therapist-pill-rating"><svg viewBox="0 0 24 24" width="11" height="11" fill="#C9933A"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24" width="11" height="11" fill="#C9933A"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24" width="11" height="11" fill="#C9933A"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24" width="11" height="11" fill="#C9933A"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24" width="11" height="11" fill="#C9933A"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> 5.0</div>
               </div>
             </div>
           </div>
@@ -652,24 +818,49 @@
   <section class="how-section" id="how" aria-labelledby="how-heading">
     <div class="container">
       <div class="section-header">
-        <span class="section-label">Simple to start</span>
-        <h2 id="how-heading">Three steps to your spiritual journey</h2>
+        <span class="section-label">Simple to begin</span>
+        <h2 id="how-heading">Three steps to reclaiming your life</h2>
       </div>
       <div class="steps-grid" role="list">
         <div class="step" data-reveal role="listitem">
           <div class="step-number" aria-hidden="true">1</div>
-          <h3>Create your account</h3>
-          <p>Sign up as a daily user or a therapist. Tell us your goals and practice level so we can personalise your experience.</p>
+          <h3>Take the first step</h3>
+          <p>Sign up and tell us about your journey. There is no shame here — only tawbah and a new beginning. Your information is completely private and secure.</p>
         </div>
         <div class="step" data-reveal style="transition-delay:0.10s;" role="listitem">
           <div class="step-number" aria-hidden="true">2</div>
-          <h3>Build daily habits</h3>
-          <p>Engage with dhikr, duas, and Quran every day. Watch your streak grow and receive reminders before it breaks.</p>
+          <h3>Build your deen, day by day</h3>
+          <p>Engage with dhikr, duas, and Quran every day. Each day you stay strong, your streak grows. Gentle reminders keep you on track before the urge takes hold.</p>
         </div>
         <div class="step" data-reveal style="transition-delay:0.20s;" role="listitem">
           <div class="step-number" aria-hidden="true">3</div>
-          <h3>Connect with a therapist</h3>
-          <p>Upgrade to Premium and call a verified Muslim wellness professional whenever you need support.</p>
+          <h3>Reach out when it's hard</h3>
+          <p>Upgrade to Premium and call a verified Muslim counselor whenever temptation peaks. Someone who understands your deen and your struggle — available when you need them most.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ LIFESTYLE ══ -->
+  <section class="lifestyle-section" aria-label="App in real life">
+    <div class="container">
+      <div class="section-header" style="margin-bottom:52px;">
+        <span class="section-label">The path of recovery</span>
+        <h2>Every moment is a chance to return</h2>
+        <p>Recovery is not a single decision — it is the sum of a thousand small ones. Noor Companion gives you the tools to make each of those moments count.</p>
+      </div>
+      <div class="lifestyle-grid" data-reveal>
+        <div class="lifestyle-img">
+          <img src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=520&h=680&q=85&auto=format&fit=crop&crop=center" alt="Open book in warm morning light" loading="lazy" />
+          <div class="lifestyle-cap">Morning Adhkar</div>
+        </div>
+        <div class="lifestyle-img">
+          <img src="https://images.unsplash.com/photo-1495954222046-2c427ecb546d?w=440&h=580&q=85&auto=format&fit=crop&crop=top" alt="Peaceful sunrise over water" loading="lazy" />
+          <div class="lifestyle-cap">Fajr Prayer</div>
+        </div>
+        <div class="lifestyle-img">
+          <img src="https://images.unsplash.com/photo-1551836022-deb4988cc6c0?w=520&h=680&q=85&auto=format&fit=crop&crop=top" alt="Professional in a warm, focused conversation" loading="lazy" />
+          <div class="lifestyle-cap">Therapist Call</div>
         </div>
       </div>
     </div>
@@ -680,23 +871,23 @@
     <div class="container">
       <div class="section-header">
         <span class="section-label">Testimonials</span>
-        <h2 id="testimonials-heading">Loved by the ummah worldwide</h2>
+        <h2 id="testimonials-heading">Real journeys, real strength</h2>
       </div>
       <div class="testimonials-grid">
         <article class="testimonial-card" data-reveal>
           <div class="testimonial-stars" aria-label="5 stars"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-          <p class="testimonial-text">I've tried so many Islamic apps but Noor Companion is the first one that actually helped me build a consistent morning adhkar routine. The streak system keeps me coming back every single day.</p>
-          <div class="testimonial-author"><div class="testimonial-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div><p class="testimonial-name">Amina Yusuf</p><p class="testimonial-role">Lagos, Nigeria</p></div></div>
+          <p class="testimonial-text">I struggled in silence for years, too ashamed to ask for help. Noor Companion gave me a way back — the morning adhkar routine became my anchor. When the urge comes now, I open the app instead. Eight months clean, alhamdulillah.</p>
+          <div class="testimonial-author"><div class="testimonial-avatar"><img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=80&h=80&q=80&auto=format&fit=crop&crop=face" alt="Amina Yusuf" loading="lazy"></div><div><p class="testimonial-name">Amina Yusuf</p><p class="testimonial-role">Lagos, Nigeria · 8 months clean</p></div></div>
         </article>
         <article class="testimonial-card" data-reveal style="transition-delay:0.08s;">
           <div class="testimonial-stars" aria-label="5 stars"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-          <p class="testimonial-text">As a therapist on the platform I love how thoughtfully it was designed. The video quality is excellent, and the booking-free calling means I can help people right when they need it most.</p>
-          <div class="testimonial-author"><div class="testimonial-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div><p class="testimonial-name">Dr. Fatima Hassan</p><p class="testimonial-role">Verified Therapist · Abuja</p></div></div>
+          <p class="testimonial-text">As a Muslim counselor I've seen how isolation deepens addiction. This app bridges the gap between professional support and the deen. My clients who use it daily show measurably better outcomes — the spiritual dimension matters deeply in recovery.</p>
+          <div class="testimonial-author"><div class="testimonial-avatar"><img src="https://images.unsplash.com/photo-1607746882042-944635dfe10e?w=80&h=80&q=80&auto=format&fit=crop&crop=face" alt="Dr. Fatima Hassan" loading="lazy"></div><div><p class="testimonial-name">Dr. Fatima Hassan</p><p class="testimonial-role">Muslim Counselor · Abuja</p></div></div>
         </article>
         <article class="testimonial-card" data-reveal style="transition-delay:0.16s;">
           <div class="testimonial-stars" aria-label="5 stars"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-          <p class="testimonial-text">Being able to call a Muslim therapist who truly understood my faith context made all the difference during a difficult time in my life. I can't recommend this app enough.</p>
-          <div class="testimonial-author"><div class="testimonial-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div><p class="testimonial-name">Ibrahim Al-Rashid</p><p class="testimonial-role">Premium User · London</p></div></div>
+          <p class="testimonial-text">When cravings hit at 2am I used to give in. Now I open the app and make dhikr until they pass. Fourteen months clean. Islam gave me what no program alone ever could — a reason bigger than the desire.</p>
+          <div class="testimonial-author"><div class="testimonial-avatar"><img src="https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=80&h=80&q=80&auto=format&fit=crop&crop=face" alt="Ibrahim Al-Rashid" loading="lazy"></div><div><p class="testimonial-name">Ibrahim Al-Rashid</p><p class="testimonial-role">London · 14 months clean</p></div></div>
         </article>
       </div>
     </div>
@@ -706,12 +897,13 @@
   <section class="cta-section" aria-labelledby="cta-heading">
     <div class="container">
       <div class="cta-card">
-        <span class="badge" style="background:rgba(255,255,255,0.15);color:#fff;border-color:rgba(255,255,255,0.25);margin-bottom:20px;">Start your journey today</span>
-        <h2 id="cta-heading">Ready to light your way back?</h2>
-        <p>Join thousands of Muslims building stronger spiritual habits every day.</p>
+        <div class="cta-card-bg" aria-hidden="true"></div>
+        <span class="badge" style="background:rgba(255,255,255,0.15);color:#fff;border-color:rgba(255,255,255,0.25);margin-bottom:20px;">Your journey back starts today</span>
+        <h2 id="cta-heading">You are stronger than your desires</h2>
+        <p>Thousands of Muslims are reclaiming their lives through faith, daily habit, and support. You are not alone — and with Allah's help, recovery is within reach.</p>
         <div class="cta-btns">
-          <a href="#download" class="btn btn-white btn-lg">Download Free</a>
-          <a href="pricing.html" class="btn btn-white-outline btn-lg">View Pricing</a>
+          <a href="#download" class="btn btn-white btn-lg">Begin Your Journey</a>
+          <a href="pricing.html" class="btn btn-white-outline btn-lg">View Support Plans</a>
         </div>
       </div>
     </div>
@@ -726,7 +918,7 @@
             <div class="footer-logo-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
             <span class="footer-wordmark">Noor <span>Companion</span></span>
           </div>
-          <p>Light your way back. Your daily companion for Islamic spiritual wellness.</p>
+          <p>Light your way back. Your Islamic companion for recovery, mindfulness, and spiritual renewal.</p>
         </div>
         <nav class="footer-col" aria-label="Product"><h4>Product</h4><ul><li><a href="#features">Features</a></li><li><a href="pricing.html">Pricing</a></li><li><a href="#download">Download</a></li></ul></nav>
         <nav class="footer-col" aria-label="Company"><h4>Company</h4><ul><li><a href="mailto:therapists@noorcompanion.com">Join as Therapist</a></li><li><a href="mailto:support@noorcompanion.com">Contact</a></li></ul></nav>
@@ -740,6 +932,33 @@
   </footer>
 
   <script src="js/main.js"></script>
-  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Hamburger nav toggle
+    const hamburger = document.getElementById('navHamburger');
+    const mobileMenu = document.getElementById('navMobileMenu');
+    hamburger.addEventListener('click', () => {
+      const isOpen = mobileMenu.classList.toggle('open');
+      hamburger.classList.toggle('open', isOpen);
+      hamburger.setAttribute('aria-expanded', isOpen);
+    });
+    // Close on link click
+    mobileMenu.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        mobileMenu.classList.remove('open');
+        hamburger.classList.remove('open');
+        hamburger.setAttribute('aria-expanded', false);
+      });
+    });
+    // Close on outside click
+    document.addEventListener('click', e => {
+      if (!hamburger.contains(e.target) && !mobileMenu.contains(e.target)) {
+        mobileMenu.classList.remove('open');
+        hamburger.classList.remove('open');
+        hamburger.setAttribute('aria-expanded', false);
+      }
+    });
+  </script>
 </body>
 </html>
