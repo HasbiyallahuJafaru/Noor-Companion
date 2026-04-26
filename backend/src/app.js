@@ -14,6 +14,8 @@ const cors = require('cors');
 const { apiLimiter } = require('./middleware/rateLimiter');
 const { errorHandler, notFound } = require('./middleware/errorHandler');
 const usersRoutes = require('./routes/users.routes');
+const contentRoutes = require('./routes/content.routes');
+const islamicRoutes = require('./routes/islamic.routes');
 
 const app = express();
 
@@ -42,6 +44,8 @@ app.get('/health', (req, res) => {
 
 // ── API routes ────────────────────────────────────────────────────────────────
 app.use('/api/v1/users', usersRoutes);
+app.use('/api/v1/content', contentRoutes);
+app.use('/api/v1/islamic', islamicRoutes);
 
 // ── 404 + error handler — must be last ───────────────────────────────────────
 app.use(notFound);

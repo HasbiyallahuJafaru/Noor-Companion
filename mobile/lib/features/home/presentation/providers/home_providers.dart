@@ -1,79 +1,72 @@
 /// Riverpod providers for the home screen.
-/// streak_provider: days-clean counter (stub — real logic in Phase 3).
-/// tasks_provider: today's task list with completion state.
-/// Both use stub data until the backend is wired in Phase 2/3.
+/// All data derives from the authenticated user or existing content providers.
+/// Streak reads from the UserModel returned by GET /users/me.
 library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../domain/task_model.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../content/data/content_repository.dart';
+import '../../../content/domain/models/dhikr_model.dart';
 
-// ── Loading state ─────────────────────────────────────────────────────────────
+// ── User identity ─────────────────────────────────────────────────────────────
 
-/// True while home data is being fetched from the API.
-/// Defaults to false (stub data is immediate).
-/// Flipped to true in Phase 2/3 when real async calls are made.
-final homeIsLoadingProvider = Provider<bool>((_) => false);
+/// The authenticated user's first name. Returns empty string when loading.
+final currentUserFirstNameProvider = Provider<String>((ref) {
+  final auth = ref.watch(authProvider);
+  if (auth is AuthAuthenticated) return auth.user.firstName;
+  return '';
+});
 
 // ── Streak ────────────────────────────────────────────────────────────────────
 
-/// Stub streak provider — returns hardcoded days-clean count.
-/// Replaced with a real API-backed notifier in Phase 3.
-final streakProvider = Provider<int>((_) => 7);
+/// Current streak count from the authenticated user's profile.
+/// The UserModel includes streak data from GET /users/me.
+final currentStreakProvider = Provider<int>((ref) {
+  final auth = ref.watch(authProvider);
+  if (auth is AuthAuthenticated) {
+    return auth.user.streak?.currentStreak ?? 0;
+  }
+  return 0;
+});
 
-/// Whether today's streak milestone should show a gold glow.
-/// Milestones: 7, 30, 90, 180, 365 days.
+/// True on milestone days: 7, 14, 30, 100 (per FEATURES.md).
 final isMilestoneDayProvider = Provider<bool>((ref) {
   const milestones = {7, 30, 90, 180, 365};
-  return milestones.contains(ref.watch(streakProvider));
+  return milestones.contains(ref.watch(currentStreakProvider));
 });
 
-// ── Tasks ─────────────────────────────────────────────────────────────────────
+// ── Time-of-day tag ───────────────────────────────────────────────────────────
 
-/// Notifier that owns today's task list and completion toggles.
-class TasksNotifier extends Notifier<List<TaskModel>> {
-  @override
-  List<TaskModel> build() => _stubTasks;
+/// Returns 'morning' before Dhuhr (12:00), 'evening' after Asr (15:30),
+/// and 'general' in between. Used to filter the home screen content rows.
+final timeOfDayTagProvider = Provider<String>((_) {
+  final hour = DateTime.now().hour;
+  final minute = DateTime.now().minute;
+  final totalMinutes = hour * 60 + minute;
+  if (totalMinutes < 720) return 'morning';   // before 12:00
+  if (totalMinutes >= 930) return 'evening';  // after 15:30
+  return 'general';
+});
 
-  /// Toggles the completed state of a task by its [id].
-  void toggleComplete(String id) {
-    state = [
-      for (final task in state)
-        if (task.id == id) task.copyWith(isCompleted: !task.isCompleted)
-        else task,
-    ];
+// ── Featured dhikr ────────────────────────────────────────────────────────────
+
+/// The first dhikr item matching the current time-of-day tag.
+/// Shown as the daily highlight card on the home screen.
+final featuredDhikrProvider = StreamProvider<DhikrModel?>((ref) async* {
+  final tag = ref.watch(timeOfDayTagProvider);
+  final repo = ref.watch(contentRepositoryProvider);
+
+  await for (final items in repo.watchDhikr(tag: tag)) {
+    yield items.isNotEmpty ? items.first : null;
   }
-}
-
-final tasksProvider = NotifierProvider<TasksNotifier, List<TaskModel>>(
-  TasksNotifier.new,
-);
-
-/// Derived provider — true when all tasks for today are done.
-final allTasksDoneProvider = Provider<bool>((ref) {
-  final tasks = ref.watch(tasksProvider);
-  return tasks.isNotEmpty && tasks.every((t) => t.isCompleted);
 });
 
-// ── Stub data ─────────────────────────────────────────────────────────────────
+/// Morning adhkar list — shown in the home screen horizontal row.
+final morningDhikrProvider = StreamProvider<List<DhikrModel>>((ref) {
+  return ref.watch(contentRepositoryProvider).watchDhikr(tag: 'morning');
+});
 
-const _stubTasks = [
-  TaskModel(
-    id: 'tasbih',
-    label: 'Morning Tasbih',
-    category: TaskCategory.dhikr,
-    estimatedMinutes: 5,
-    targetCount: 99,
-  ),
-  TaskModel(
-    id: 'quran',
-    label: 'Read 1 page of Quran',
-    category: TaskCategory.quran,
-    estimatedMinutes: 10,
-  ),
-  TaskModel(
-    id: 'wudu',
-    label: 'Make wudu',
-    category: TaskCategory.physical,
-    estimatedMinutes: 3,
-  ),
-];
+/// Evening adhkar list — shown in the home screen horizontal row.
+final eveningDhikrProvider = StreamProvider<List<DhikrModel>>((ref) {
+  return ref.watch(contentRepositoryProvider).watchDhikr(tag: 'evening');
+});

@@ -1,6 +1,6 @@
-/// Streak display widget — shows the user's days-clean counter with a teal
-/// progress arc. On milestone days (7, 30, 90, 180, 365) the arc turns gold
-/// and a soft glow is applied to signal the achievement.
+/// Streak display widget — shows the user's "days of clarity" counter with a
+/// teal progress arc. On milestone days (7, 30, 90, 180, 365) the arc turns
+/// gold and a soft glow signals the achievement.
 library;
 
 import 'dart:math' as math;
@@ -20,8 +20,8 @@ class StreakDisplay extends ConsumerWidget {
     final isMilestone = ref.watch(isMilestoneDayProvider);
 
     final label = isMilestone
-        ? '$days days clean. Milestone reached.'
-        : '$days days clean.';
+        ? '$days days of clarity. Milestone reached.'
+        : '$days days of clarity.';
 
     return Semantics(
       label: label,
@@ -74,7 +74,7 @@ class StreakDisplay extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            isMilestone ? '✦ Milestone reached' : 'of clarity',
+            isMilestone ? '✦ Milestone reached' : 'days of clarity',
             style: AppTextStyles.bodySmall.copyWith(
               color: isMilestone ? AppColors.brandGold : AppColors.textMuted,
               fontWeight: isMilestone ? FontWeight.w600 : FontWeight.w400,

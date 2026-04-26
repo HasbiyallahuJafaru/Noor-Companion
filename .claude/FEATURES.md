@@ -65,9 +65,17 @@ First screen after login. Content adapts to time of day.
   - Evening Adhkar (shown after Asr)
   - Dua of the day
   - Quran recitation card
+- "I'm Struggling" panic button: full-width, always visible, never scrolls off
+  screen. Teal background, white bold text. Subtle pulse animation (scale 1.0
+  → 1.015 → 1.0, 2s loop). Tap → opens crisis intervention flow.
 - "Talk to a therapist" section (below the fold):
   - Paid users: therapist cards with "Call Now"
   - Free users: locked state with upgrade CTA
+
+### Streak Display
+- Days of clarity counter with teal progress arc
+- Milestone days: 7, 30, 90, 180, 365 → gold arc + glow
+- Label: "days of clarity" below the number
 
 ### Loading Strategy
 - Prayer times fetched with device location on mount (cached 1 hour)

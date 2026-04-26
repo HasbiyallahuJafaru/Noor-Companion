@@ -12,18 +12,18 @@ Backend built → backend tested → Flutter built → end-to-end tested on devi
 
 ## Phase Overview
 
-| # | Phase                | Deliverable                                       | Status     |
-|---|----------------------|---------------------------------------------------|------------|
-| 0 | Website              | Landing page + iOS payment page on Netlify        | TODO       |
-| 1 | Auth                 | Register, login, session — Flutter + backend      | TODO       |
-| 2 | Content              | Dhikr, duas, recitations, Islamic APIs            | TODO       |
-| 3 | Streaks              | Daily tracking, streak logic, risk notification   | TODO       |
-| 4 | Therapist Directory  | List, profile, approval flow                      | TODO       |
-| 5 | Calling              | Agora token, call screen, missed call             | TODO       |
-| 6 | Subscriptions        | iOS + Android Paystack flows, webhook             | TODO       |
-| 7 | Notifications        | FCM push, in-app feed, scheduled BullMQ job       | TODO       |
-| 8 | Admin Screens        | User mgmt, therapist approval, content, broadcast | TODO       |
-| 9 | Therapist Screens    | Dashboard, profile setup, incoming call           | TODO       |
+| # | Phase                | Deliverable                                       | Status        |
+|---|----------------------|---------------------------------------------------|---------------|
+| 0 | Website              | Landing page + iOS payment page on Netlify        | BUILT         |
+| 1 | Auth                 | Register, login, session — Flutter + backend      | BUILT         |
+| 2 | Content              | Dhikr, duas, recitations, Islamic APIs            | IN PROGRESS   |
+| 3 | Streaks              | Daily tracking, streak logic, risk notification   | TODO          |
+| 4 | Therapist Directory  | List, profile, approval flow                      | FLUTTER BUILT |
+| 5 | Calling              | Agora token, call screen, missed call             | TODO          |
+| 6 | Subscriptions        | iOS + Android Paystack flows, webhook             | TODO          |
+| 7 | Notifications        | FCM push, in-app feed, scheduled BullMQ job       | TODO          |
+| 8 | Admin Screens        | User mgmt, therapist approval, content, broadcast | TODO          |
+| 9 | Therapist Screens    | Dashboard, profile setup, incoming call           | TODO          |
 
 ---
 

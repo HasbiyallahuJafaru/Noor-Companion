@@ -22,6 +22,11 @@ import '../../features/onboarding/presentation/screens/onboarding_therapist_scre
 import '../../features/home/presentation/screens/return_screen.dart';
 import '../../features/progress/presentation/screens/milestone_screen.dart';
 import '../../features/therapists/presentation/screens/therapist_detail_screen.dart';
+import '../../features/dhikr/presentation/screens/dhikr_detail_screen.dart';
+import '../../features/duas/presentation/screens/dua_library_screen.dart';
+import '../../features/duas/presentation/screens/dua_detail_screen.dart';
+import '../../features/quran/presentation/screens/recitation_browser_screen.dart';
+import '../../features/quran/presentation/screens/surah_screen.dart';
 import '../shell/app_shell.dart';
 
 /// Named route path constants — always use these, never raw strings.
@@ -129,9 +134,9 @@ GoRouter buildAppRouter(WidgetRef ref) {
       ),
       GoRoute(
         path: AppRoutes.call,
-        builder: (_, s) => Scaffold(
+        builder: (_, state) => Scaffold(
           body: Center(
-            child: Text('Call ${s.pathParameters['sessionId']}'),
+            child: Text('Call ${state.pathParameters['sessionId']}'),
           ),
         ),
       ),
@@ -155,6 +160,6 @@ GoRouter buildAppRouter(WidgetRef ref) {
 /// Bridges Riverpod auth state changes into a [Listenable] for GoRouter.
 class _AuthChangeNotifier extends ChangeNotifier {
   _AuthChangeNotifier(WidgetRef ref) {
-    ref.listen(authProvider, (_, __) => notifyListeners());
+    ref.listen(authProvider, (_, _) => notifyListeners());
   }
 }

@@ -1,12 +1,11 @@
 /// Persistent app shell with bottom navigation bar.
-/// Owns the 4-tab structure: Home, Tasks, Progress, Therapists.
-/// Each tab preserves its navigation state across switches.
+/// Four tabs: Home, Dhikr, Quran, Therapists.
+/// Each tab preserves its navigation state across switches via IndexedStack.
 library;
 
 import 'package:flutter/material.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
-import '../../features/tasks/presentation/screens/tasks_screen.dart';
-import '../../features/progress/presentation/screens/progress_screen.dart';
+import '../../features/dhikr/presentation/screens/dhikr_library_screen.dart';
 import '../../features/therapists/presentation/screens/therapists_screen.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
@@ -23,10 +22,11 @@ class AppShell extends StatefulWidget {
 class _AppShellState extends State<AppShell> {
   int _currentIndex = 0;
 
+  // RecitationBrowserScreen is replaced with a stub until Phase 2 quran build.
   static const _tabs = [
     HomeScreen(),
-    TasksScreen(),
-    ProgressScreen(),
+    DhikrLibraryScreen(),
+    _QuranPlaceholder(),
     TherapistsScreen(),
   ];
 
@@ -50,7 +50,6 @@ class _AppShellState extends State<AppShell> {
 }
 
 /// Bottom navigation bar with teal active state.
-/// Separated from AppShell for clarity and testability.
 class _NoorBottomNav extends StatelessWidget {
   const _NoorBottomNav({
     required this.currentIndex,
@@ -82,14 +81,14 @@ class _NoorBottomNav extends StatelessWidget {
                 onTap: () => onTap(0),
               ),
               _NavItem(
-                icon: Icons.check_circle_outline_rounded,
-                label: 'Tasks',
+                icon: Icons.auto_awesome_rounded,
+                label: 'Dhikr',
                 isActive: currentIndex == 1,
                 onTap: () => onTap(1),
               ),
               _NavItem(
-                icon: Icons.bar_chart_rounded,
-                label: 'Progress',
+                icon: Icons.menu_book_rounded,
+                label: 'Quran',
                 isActive: currentIndex == 2,
                 onTap: () => onTap(2),
               ),
@@ -137,13 +136,25 @@ class _NavItem extends StatelessWidget {
               label,
               style: AppTextStyles.caption.copyWith(
                 color: color,
-                fontWeight:
-                    isActive ? FontWeight.w600 : FontWeight.w400,
+                fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Temporary placeholder for the Quran tab.
+/// Replaced with RecitationBrowserScreen during Phase 2 quran build.
+class _QuranPlaceholder extends StatelessWidget {
+  const _QuranPlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(child: Text('Quran — coming soon')),
     );
   }
 }
