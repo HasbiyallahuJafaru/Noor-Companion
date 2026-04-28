@@ -141,7 +141,7 @@ class _PendingList extends StatelessWidget {
     return ListView.separated(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
       itemCount: therapists.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      separatorBuilder: (_, _) => const SizedBox(height: 12),
       itemBuilder: (_, i) => _TherapistCard(
         therapist: therapists[i],
         onApprove: () => onApprove(therapists[i]),

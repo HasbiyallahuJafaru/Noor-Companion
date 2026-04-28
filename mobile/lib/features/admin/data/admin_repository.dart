@@ -34,7 +34,9 @@ class AdminRepository {
     final res = await _dio.get<Map<String, dynamic>>(
       '/admin/users',
       queryParameters: {
+        // ignore: use_null_aware_elements
         if (role != null) 'role': role,
+        // ignore: use_null_aware_elements
         if (subscriptionTier != null) 'subscriptionTier': subscriptionTier,
         if (search != null && search.isNotEmpty) 'search': search,
         'page': page,
@@ -70,8 +72,8 @@ class AdminRepository {
     await _dio.patch<void>(
       '/admin/users/$userId',
       data: {
-        if (isActive != null) 'isActive': isActive,
-        if (subscriptionTier != null) 'subscriptionTier': subscriptionTier,
+        'isActive': ?isActive,
+        'subscriptionTier': ?subscriptionTier,
       },
     );
   }
@@ -116,7 +118,7 @@ class AdminRepository {
     final res = await _dio.get<Map<String, dynamic>>(
       '/admin/content',
       queryParameters: {
-        if (category != null) 'category': category,
+        'category': ?category,
         'page': page,
         'limit': limit,
       },
@@ -152,7 +154,7 @@ class AdminRepository {
         'translation': translation,
         'category': category,
         'tags': tags,
-        if (audioUrl != null) 'audioUrl': audioUrl,
+        'audioUrl': ?audioUrl,
         'sortOrder': sortOrder,
       },
     );

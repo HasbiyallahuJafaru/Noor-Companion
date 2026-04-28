@@ -30,7 +30,6 @@ import '../../features/quran/presentation/screens/recitation_browser_screen.dart
 import '../../features/quran/presentation/screens/surah_screen.dart';
 import '../../features/subscription/presentation/screens/upgrade_screen.dart';
 import '../../features/notifications/presentation/screens/notifications_screen.dart';
-import '../../features/admin/presentation/screens/admin_dashboard_screen.dart';
 import '../../features/admin/presentation/screens/admin_users_screen.dart';
 import '../../features/admin/presentation/screens/admin_user_detail_screen.dart';
 import '../../features/admin/presentation/screens/admin_therapists_screen.dart';
