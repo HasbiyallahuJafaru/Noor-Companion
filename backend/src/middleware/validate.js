@@ -1,7 +1,7 @@
 /**
  * Zod validation middleware factory.
- * Validates req.body against the given Zod schema.
- * On success, replaces req.body with the parsed (typed) data.
+ * Validates req.body or req.query against the given Zod schema.
+ * On success, replaces the validated object with the parsed (coerced) data.
  * On failure, returns 400 with per-field error details.
  */
 
@@ -9,11 +9,12 @@
 
 /**
  * @param {import('zod').ZodSchema} schema
+ * @param {'body'|'query'} [source='body'] - Which request object to validate
  * @returns {import('express').RequestHandler}
  */
-function validate(schema) {
+function validate(schema, source = 'body') {
   return (req, res, next) => {
-    const result = schema.safeParse(req.body);
+    const result = schema.safeParse(req[source]);
 
     if (!result.success) {
       return res.status(400).json({
@@ -26,7 +27,7 @@ function validate(schema) {
       });
     }
 
-    req.body = result.data;
+    req[source] = result.data;
     next();
   };
 }

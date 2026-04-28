@@ -1,7 +1,7 @@
-/// Therapist detail screen — full profile with Call Now button.
-/// Call Now is enabled only when therapist isAvailable.
-/// Disabled state shows "Not available right now" label.
-/// Call flow (Agora RTC) is wired in Phase 5.
+/// Therapist detail screen — full profile with subscription-gated call button.
+/// Fetches the therapist from the backend via GET /api/v1/therapists/:id.
+/// Paid users see "Start Call" (stubbed for Phase 5).
+/// Free users see "Upgrade to Call" (stubbed for Phase 6).
 library;
 
 import 'package:flutter/material.dart';
@@ -10,6 +10,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../domain/therapist_model.dart';
 import '../providers/therapists_provider.dart';
 
@@ -20,21 +21,42 @@ class TherapistDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final therapist = ref.watch(therapistByIdProvider(therapistId));
+    final therapistAsync = ref.watch(therapistByIdProvider(therapistId));
 
-    if (therapist == null) {
-      return Scaffold(
+    return therapistAsync.when(
+      loading: () => const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(color: AppColors.brandTeal),
+        ),
+      ),
+      error: (e, _) => Scaffold(
         appBar: AppBar(),
         body: Center(
           child: Text(
-            'Therapist not found.',
+            'Could not load therapist.',
             style: AppTextStyles.body.copyWith(color: AppColors.textMuted),
           ),
         ),
-      );
-    }
+      ),
+      data: (therapist) => _DetailScaffold(therapist: therapist),
+    );
+  }
+}
+
+// ── Main scaffold ─────────────────────────────────────────────────────────────
+
+class _DetailScaffold extends ConsumerWidget {
+  const _DetailScaffold({required this.therapist});
+
+  final TherapistModel therapist;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final auth = ref.watch(authProvider);
+    final isPaid = auth is AuthAuthenticated && auth.user.isPaid;
 
     return Scaffold(
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -48,25 +70,52 @@ class TherapistDetailScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     _ProfileHeader(therapist: therapist),
-                    const SizedBox(height: 28),
-                    _InfoRow(therapist: therapist),
+                    const SizedBox(height: 20),
+                    _StatsRow(therapist: therapist),
                     const SizedBox(height: 24),
-                    Text('About', style: AppTextStyles.headingSmall),
-                    const SizedBox(height: 10),
-                    Text(therapist.bio, style: AppTextStyles.body),
-                    const SizedBox(height: 32),
-                    _AvailabilityBanner(isAvailable: therapist.isAvailable),
+                    _Section(
+                      title: 'About',
+                      child: Text(therapist.bio, style: AppTextStyles.body),
+                    ),
+                    const SizedBox(height: 20),
+                    _Section(
+                      title: 'Specialisations',
+                      child: _TagWrap(tags: therapist.specialisations),
+                    ),
+                    if (therapist.qualifications.isNotEmpty) ...[
+                      const SizedBox(height: 20),
+                      _Section(
+                        title: 'Qualifications',
+                        child: _BulletList(items: therapist.qualifications),
+                      ),
+                    ],
+                    const SizedBox(height: 20),
+                    _Section(
+                      title: 'Languages',
+                      child: _TagWrap(
+                        tags: therapist.languagesSpoken,
+                        color: AppColors.goldLight,
+                        textColor: AppColors.brandGoldDark,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    _Section(
+                      title: 'Session Details',
+                      child: _SessionDetails(therapist: therapist),
+                    ),
                   ],
                 ),
               ),
             ),
-            _CallButton(therapist: therapist),
+            _CallButton(therapist: therapist, isPaid: isPaid),
           ],
         ),
       ),
     );
   }
 }
+
+// ── Top bar ───────────────────────────────────────────────────────────────────
 
 class _TopBar extends StatelessWidget {
   @override
@@ -87,6 +136,8 @@ class _TopBar extends StatelessWidget {
   }
 }
 
+// ── Profile header ────────────────────────────────────────────────────────────
+
 class _ProfileHeader extends StatelessWidget {
   const _ProfileHeader({required this.therapist});
 
@@ -95,52 +146,19 @@ class _ProfileHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Large avatar
-        Container(
-          width: 80,
-          height: 80,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: AppColors.tealLight,
-            border: Border.all(color: AppColors.border, width: 2),
-          ),
-          child: therapist.avatarUrl != null
-              ? ClipOval(
-                  child: Image.network(
-                    therapist.avatarUrl!,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) =>
-                        _InitialsFallback(name: therapist.name),
-                  ),
-                )
-              : _InitialsFallback(name: therapist.name),
-        ),
+        _Avatar(therapist: therapist),
         const SizedBox(width: 16),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(therapist.name, style: AppTextStyles.headingMedium),
-              const SizedBox(height: 6),
-              _SpecialtyChip(specialty: therapist.specialty),
-              const SizedBox(height: 6),
-              Row(
-                children: [
-                  _AvailabilityDot(isAvailable: therapist.isAvailable),
-                  const SizedBox(width: 6),
-                  Text(
-                    therapist.isAvailable
-                        ? 'Available now'
-                        : 'Not available',
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: therapist.isAvailable
-                          ? AppColors.success
-                          : AppColors.textMuted,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
+              Text(therapist.fullName, style: AppTextStyles.headingMedium),
+              const SizedBox(height: 4),
+              Text(
+                '${therapist.yearsExperience} years experience',
+                style: AppTextStyles.bodySmall,
               ),
             ],
           ),
@@ -150,8 +168,37 @@ class _ProfileHeader extends StatelessWidget {
   }
 }
 
-class _InitialsFallback extends StatelessWidget {
-  const _InitialsFallback({required this.name});
+class _Avatar extends StatelessWidget {
+  const _Avatar({required this.therapist});
+
+  final TherapistModel therapist;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 80,
+      height: 80,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: AppColors.tealLight,
+        border: Border.all(color: AppColors.border, width: 2),
+      ),
+      child: therapist.avatarUrl != null
+          ? ClipOval(
+              child: Image.network(
+                therapist.avatarUrl!,
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) =>
+                    _Initials(name: therapist.fullName),
+              ),
+            )
+          : _Initials(name: therapist.fullName),
+    );
+  }
+}
+
+class _Initials extends StatelessWidget {
+  const _Initials({required this.name});
 
   final String name;
 
@@ -172,53 +219,10 @@ class _InitialsFallback extends StatelessWidget {
   }
 }
 
-class _SpecialtyChip extends StatelessWidget {
-  const _SpecialtyChip({required this.specialty});
+// ── Stats row ─────────────────────────────────────────────────────────────────
 
-  final TherapistSpecialty specialty;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: AppColors.tealXLight,
-        borderRadius: BorderRadius.circular(AppRadius.sm),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Text(
-        specialty == TherapistSpecialty.counsellor
-            ? 'Licensed Counsellor'
-            : 'Islamic Scholar',
-        style: AppTextStyles.caption.copyWith(
-          color: AppColors.brandTeal,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
-}
-
-class _AvailabilityDot extends StatelessWidget {
-  const _AvailabilityDot({required this.isAvailable});
-
-  final bool isAvailable;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 8,
-      height: 8,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: isAvailable ? AppColors.success : AppColors.textMuted,
-      ),
-    );
-  }
-}
-
-class _InfoRow extends StatelessWidget {
-  const _InfoRow({required this.therapist});
+class _StatsRow extends StatelessWidget {
+  const _StatsRow({required this.therapist});
 
   final TherapistModel therapist;
 
@@ -226,26 +230,26 @@ class _InfoRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        if (therapist.averageRating != null)
-          _InfoChip(
+        if (therapist.averageRating != null) ...[
+          _StatChip(
             icon: Icons.star_rounded,
             iconColor: AppColors.brandGold,
-            label:
-                '${therapist.averageRating!.toStringAsFixed(1)} rating',
+            label: '${therapist.averageRating!.toStringAsFixed(1)} rating',
           ),
-        if (therapist.averageRating != null) const SizedBox(width: 10),
-        _InfoChip(
+          const SizedBox(width: 10),
+        ],
+        _StatChip(
           icon: Icons.headset_mic_rounded,
           iconColor: AppColors.brandTeal,
-          label: '${therapist.sessionCount} sessions',
+          label: '${therapist.totalSessions} sessions',
         ),
       ],
     );
   }
 }
 
-class _InfoChip extends StatelessWidget {
-  const _InfoChip({
+class _StatChip extends StatelessWidget {
+  const _StatChip({
     required this.icon,
     required this.iconColor,
     required this.label,
@@ -282,72 +286,241 @@ class _InfoChip extends StatelessWidget {
   }
 }
 
-class _AvailabilityBanner extends StatelessWidget {
-  const _AvailabilityBanner({required this.isAvailable});
+// ── Section wrapper ───────────────────────────────────────────────────────────
 
-  final bool isAvailable;
+class _Section extends StatelessWidget {
+  const _Section({required this.title, required this.child});
+
+  final String title;
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    if (isAvailable) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: AppTextStyles.headingSmall),
+        const SizedBox(height: 10),
+        child,
+      ],
+    );
+  }
+}
 
+// ── Tag wrap ──────────────────────────────────────────────────────────────────
+
+class _TagWrap extends StatelessWidget {
+  const _TagWrap({
+    required this.tags,
+    this.color = AppColors.tealXLight,
+    this.textColor = AppColors.brandTeal,
+  });
+
+  final List<String> tags;
+  final Color color;
+  final Color textColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: tags.map((t) {
+        final display = t.isEmpty ? t : t[0].toUpperCase() + t.substring(1);
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(AppRadius.md),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Text(
+            display,
+            style: AppTextStyles.caption.copyWith(
+              color: textColor,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+
+// ── Bullet list ───────────────────────────────────────────────────────────────
+
+class _BulletList extends StatelessWidget {
+  const _BulletList({required this.items});
+
+  final List<String> items;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: items
+          .map(
+            (item) => Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6, right: 8),
+                    child: Container(
+                      width: 5,
+                      height: 5,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: AppColors.brandTeal,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(item, style: AppTextStyles.body),
+                  ),
+                ],
+              ),
+            ),
+          )
+          .toList(),
+    );
+  }
+}
+
+// ── Session details ───────────────────────────────────────────────────────────
+
+class _SessionDetails extends StatelessWidget {
+  const _SessionDetails({required this.therapist});
+
+  final TherapistModel therapist;
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.backgroundSecondary,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppRadius.md),
         border: Border.all(color: AppColors.border),
       ),
       child: Row(
         children: [
-          const Icon(Icons.info_outline_rounded,
-              color: AppColors.textMuted, size: 18),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              'This therapist is not available right now. '
-              'Check back later or choose another.',
-              style: AppTextStyles.bodySmall,
+          const Icon(Icons.payments_outlined,
+              color: AppColors.brandGold, size: 20),
+          const SizedBox(width: 12),
+          Text(
+            '₦${_formatRate(therapist.sessionRateNgn)} per session',
+            style: AppTextStyles.body.copyWith(
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
       ),
     );
   }
+
+  String _formatRate(int rate) {
+    if (rate >= 1000) {
+      return '${(rate / 1000).toStringAsFixed(rate % 1000 == 0 ? 0 : 1)}k';
+    }
+    return rate.toString();
+  }
 }
 
+// ── Call button ───────────────────────────────────────────────────────────────
+
 class _CallButton extends StatelessWidget {
-  const _CallButton({required this.therapist});
+  const _CallButton({required this.therapist, required this.isPaid});
 
   final TherapistModel therapist;
+  final bool isPaid;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-      child: ElevatedButton.icon(
-        onPressed: therapist.isAvailable
-            ? () {
-                // Agora call flow wired in Phase 5
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Calling — coming in Phase 5'),
-                    duration: Duration(seconds: 2),
-                  ),
-                );
-              }
-            : null,
-        icon: const Icon(Icons.call_rounded, size: 20),
-        label: Text(
-          therapist.isAvailable ? 'Call Now' : 'Not available right now',
-        ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.brandTeal,
-          disabledBackgroundColor: AppColors.border,
-          disabledForegroundColor: AppColors.textMuted,
-          minimumSize: const Size(double.infinity, 56),
-        ),
+      child: isPaid ? _PaidCallButton(therapist: therapist) : _UpgradeButton(),
+    );
+  }
+}
+
+class _PaidCallButton extends StatelessWidget {
+  const _PaidCallButton({required this.therapist});
+
+  final TherapistModel therapist;
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton.icon(
+      onPressed: () {
+        // Agora call flow wired in Phase 5
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Calling — coming in Phase 5'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      },
+      icon: const Icon(Icons.call_rounded, size: 20),
+      label: const Text('Start Call'),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.brandTeal,
+        minimumSize: const Size(double.infinity, 56),
       ),
+    );
+  }
+}
+
+class _UpgradeButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: AppColors.goldLight,
+            borderRadius: BorderRadius.circular(AppRadius.md),
+            border: Border.all(
+              color: AppColors.brandGold.withValues(alpha: 0.4),
+            ),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.lock_outline_rounded,
+                  color: AppColors.brandGold, size: 18),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Upgrade to Noor Companion Premium to call therapists.',
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.brandGoldDark,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+        ElevatedButton(
+          onPressed: () {
+            // Subscription flow wired in Phase 6
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Subscription flow — coming in Phase 6'),
+                duration: Duration(seconds: 2),
+              ),
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.brandGold,
+            minimumSize: const Size(double.infinity, 52),
+          ),
+          child: const Text('Upgrade to Call'),
+        ),
+      ],
     );
   }
 }

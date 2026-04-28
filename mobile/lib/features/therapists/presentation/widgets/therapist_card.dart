@@ -1,5 +1,5 @@
 /// Therapist profile card used in the therapists list.
-/// Shows avatar, name, specialty tag, availability dot, and rating.
+/// Shows avatar, name, top 2 specialisations, rating, and session rate.
 /// Tapping navigates to the therapist detail screen.
 library;
 
@@ -35,27 +35,15 @@ class TherapistCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          therapist.name,
-                          style: AppTextStyles.headingSmall,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      _AvailabilityDot(isAvailable: therapist.isAvailable),
-                    ],
+                  Text(
+                    therapist.fullName,
+                    style: AppTextStyles.headingSmall,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 4),
-                  _SpecialtyTag(specialty: therapist.specialty),
-                  if (therapist.averageRating != null) ...[
-                    const SizedBox(height: 6),
-                    _RatingRow(
-                      rating: therapist.averageRating!,
-                      sessions: therapist.sessionCount,
-                    ),
-                  ],
+                  const SizedBox(height: 5),
+                  _SpecialisationTags(tags: therapist.topSpecialisations),
+                  const SizedBox(height: 6),
+                  _MetaRow(therapist: therapist),
                 ],
               ),
             ),
@@ -71,6 +59,8 @@ class TherapistCard extends StatelessWidget {
     );
   }
 }
+
+// ── Avatar ────────────────────────────────────────────────────────────────────
 
 class _Avatar extends StatelessWidget {
   const _Avatar({required this.therapist});
@@ -92,10 +82,11 @@ class _Avatar extends StatelessWidget {
               child: Image.network(
                 therapist.avatarUrl!,
                 fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => _Initials(name: therapist.name),
+                errorBuilder: (_, _, _) =>
+                    _Initials(name: therapist.fullName),
               ),
             )
-          : _Initials(name: therapist.name),
+          : _Initials(name: therapist.fullName),
     );
   }
 }
@@ -126,34 +117,33 @@ class _Initials extends StatelessWidget {
   }
 }
 
-class _AvailabilityDot extends StatelessWidget {
-  const _AvailabilityDot({required this.isAvailable});
+// ── Specialisation tags ───────────────────────────────────────────────────────
 
-  final bool isAvailable;
+class _SpecialisationTags extends StatelessWidget {
+  const _SpecialisationTags({required this.tags});
+
+  final List<String> tags;
 
   @override
   Widget build(BuildContext context) {
-    return Semantics(
-      label: isAvailable ? 'Available now' : 'Not available',
-      child: Container(
-        width: 10,
-        height: 10,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: isAvailable ? AppColors.success : AppColors.textMuted,
-        ),
-      ),
+    return Wrap(
+      spacing: 6,
+      runSpacing: 4,
+      children: tags.map((t) => _Tag(label: t)).toList(),
     );
   }
 }
 
-class _SpecialtyTag extends StatelessWidget {
-  const _SpecialtyTag({required this.specialty});
+class _Tag extends StatelessWidget {
+  const _Tag({required this.label});
 
-  final TherapistSpecialty specialty;
+  final String label;
 
   @override
   Widget build(BuildContext context) {
+    final display = label.isEmpty
+        ? label
+        : label[0].toUpperCase() + label.substring(1);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
@@ -162,9 +152,7 @@ class _SpecialtyTag extends StatelessWidget {
         border: Border.all(color: AppColors.border),
       ),
       child: Text(
-        specialty == TherapistSpecialty.counsellor
-            ? 'Licensed Counsellor'
-            : 'Islamic Scholar',
+        display,
         style: AppTextStyles.caption.copyWith(
           color: AppColors.brandTeal,
           fontWeight: FontWeight.w600,
@@ -174,30 +162,48 @@ class _SpecialtyTag extends StatelessWidget {
   }
 }
 
-class _RatingRow extends StatelessWidget {
-  const _RatingRow({required this.rating, required this.sessions});
+// ── Meta row — rating + rate ──────────────────────────────────────────────────
 
-  final double rating;
-  final int sessions;
+class _MetaRow extends StatelessWidget {
+  const _MetaRow({required this.therapist});
+
+  final TherapistModel therapist;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const Icon(Icons.star_rounded, color: AppColors.brandGold, size: 13),
-        const SizedBox(width: 3),
+        if (therapist.averageRating != null) ...[
+          const Icon(Icons.star_rounded,
+              color: AppColors.brandGold, size: 13),
+          const SizedBox(width: 3),
+          Text(
+            therapist.averageRating!.toStringAsFixed(1),
+            style: AppTextStyles.caption.copyWith(
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          Text(
+            ' · ${therapist.totalSessions} sessions',
+            style: AppTextStyles.caption,
+          ),
+          const SizedBox(width: 10),
+        ],
         Text(
-          rating.toStringAsFixed(1),
+          '₦${_formatRate(therapist.sessionRateNgn)}/session',
           style: AppTextStyles.caption.copyWith(
             color: AppColors.textSecondary,
-            fontWeight: FontWeight.w600,
           ),
-        ),
-        Text(
-          ' · $sessions sessions',
-          style: AppTextStyles.caption,
         ),
       ],
     );
+  }
+
+  String _formatRate(int rate) {
+    if (rate >= 1000) {
+      return '${(rate / 1000).toStringAsFixed(rate % 1000 == 0 ? 0 : 1)}k';
+    }
+    return rate.toString();
   }
 }
