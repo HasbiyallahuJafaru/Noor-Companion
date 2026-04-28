@@ -35,6 +35,9 @@ final isMilestoneDayProvider = Provider<bool>((ref) {
   return milestones.contains(ref.watch(currentStreakProvider));
 });
 
+/// Alias used by StreakDisplay widget.
+final streakProvider = currentStreakProvider;
+
 // ── Time-of-day tag ───────────────────────────────────────────────────────────
 
 /// Returns 'morning' before Dhuhr (12:00), 'evening' after Asr (15:30),

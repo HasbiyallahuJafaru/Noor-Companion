@@ -6,6 +6,7 @@ library;
 import 'package:flutter/material.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/dhikr/presentation/screens/dhikr_library_screen.dart';
+import '../../features/quran/presentation/screens/recitation_browser_screen.dart';
 import '../../features/therapists/presentation/screens/therapists_screen.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
@@ -22,11 +23,10 @@ class AppShell extends StatefulWidget {
 class _AppShellState extends State<AppShell> {
   int _currentIndex = 0;
 
-  // RecitationBrowserScreen is replaced with a stub until Phase 2 quran build.
   static const _tabs = [
     HomeScreen(),
     DhikrLibraryScreen(),
-    _QuranPlaceholder(),
+    RecitationBrowserScreen(),
     TherapistsScreen(),
   ];
 

@@ -46,6 +46,11 @@ abstract final class AppRoutes {
   static const String call = '/call/:sessionId';
   static const String milestone = '/milestone/:days';
   static const String returnScreen = '/return';
+  static const String dhikrDetail = '/dhikr/:id';
+  static const String duas = '/duas';
+  static const String duaDetail = '/duas/:id';
+  static const String quran = '/quran';
+  static const String surah = '/quran/:surahNumber';
 }
 
 /// Unprotected routes — accessible without a session.
@@ -149,6 +154,31 @@ GoRouter buildAppRouter(WidgetRef ref) {
       GoRoute(
         path: AppRoutes.returnScreen,
         builder: (_, _) => const ReturnScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.dhikrDetail,
+        builder: (_, state) =>
+            DhikrDetailScreen(id: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: AppRoutes.duas,
+        builder: (_, _) => const DuaLibraryScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.duaDetail,
+        builder: (_, state) =>
+            DuaDetailScreen(id: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: AppRoutes.quran,
+        builder: (_, _) => const RecitationBrowserScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.surah,
+        builder: (_, state) => SurahScreen(
+          surahNumber:
+              int.tryParse(state.pathParameters['surahNumber'] ?? '') ?? 1,
+        ),
       ),
     ],
     errorBuilder: (_, state) => Scaffold(
