@@ -4,6 +4,7 @@
 /// Free users see "Upgrade to Call" (stubbed for Phase 6).
 library;
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -11,6 +12,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../calling/presentation/screens/call_screen.dart';
 import '../../domain/therapist_model.dart';
 import '../providers/therapists_provider.dart';
 
@@ -445,30 +447,73 @@ class _CallButton extends StatelessWidget {
   }
 }
 
-class _PaidCallButton extends StatelessWidget {
+class _PaidCallButton extends ConsumerStatefulWidget {
   const _PaidCallButton({required this.therapist});
 
   final TherapistModel therapist;
 
   @override
+  ConsumerState<_PaidCallButton> createState() => _PaidCallButtonState();
+}
+
+class _PaidCallButtonState extends ConsumerState<_PaidCallButton> {
+  bool _isLoading = false;
+
+  @override
   Widget build(BuildContext context) {
     return ElevatedButton.icon(
-      onPressed: () {
-        // Agora call flow wired in Phase 5
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Calling — coming in Phase 5'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-      },
-      icon: const Icon(Icons.call_rounded, size: 20),
-      label: const Text('Start Call'),
+      onPressed: _isLoading ? null : _startCall,
+      icon: _isLoading
+          ? const SizedBox(
+              width: 18,
+              height: 18,
+              child: CircularProgressIndicator(
+                color: Colors.white,
+                strokeWidth: 2,
+              ),
+            )
+          : const Icon(Icons.call_rounded, size: 20),
+      label: Text(_isLoading ? 'Connecting…' : 'Start Call'),
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.brandTeal,
         minimumSize: const Size(double.infinity, 56),
       ),
     );
+  }
+
+  Future<void> _startCall() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final dio = ref.read(apiClientProvider);
+      final res = await dio.post('/calls/token', data: {
+        'therapistProfileId': widget.therapist.id,
+      });
+
+      final data = res.data['data'] as Map<String, dynamic>;
+
+      if (!mounted) return;
+
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => CallScreen(
+            sessionId: data['sessionId'] as String,
+            channelName: data['channelName'] as String,
+            agoraToken: data['agoraToken'] as String,
+            therapistName: widget.therapist.fullName,
+          ),
+        ),
+      );
+    } on DioException catch (e) {
+      if (!mounted) return;
+      final msg = e.response?.data?['error']?['message'] as String? ??
+          'Could not start call. Please try again.';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(msg), duration: const Duration(seconds: 3)),
+      );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 }
 

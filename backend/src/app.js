@@ -19,6 +19,7 @@ const islamicRoutes = require('./routes/islamic.routes');
 const streaksRoutes = require('./routes/streaks.routes');
 const therapistsRoutes = require('./routes/therapists.routes');
 const adminRoutes = require('./routes/admin.routes');
+const callsRoutes = require('./routes/calls.routes');
 
 const app = express();
 
@@ -52,6 +53,7 @@ app.use('/api/v1/islamic', islamicRoutes);
 app.use('/api/v1/streaks', streaksRoutes);
 app.use('/api/v1/therapists', therapistsRoutes);
 app.use('/api/v1/admin', adminRoutes);
+app.use('/api/v1/calls', callsRoutes);
 
 // ── 404 + error handler — must be last ───────────────────────────────────────
 app.use(notFound);

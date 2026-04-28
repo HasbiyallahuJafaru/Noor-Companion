@@ -31,4 +31,16 @@ const writeLimiter = rateLimit({
   },
 });
 
-module.exports = { apiLimiter, writeLimiter };
+/** Strict limit for call initiation — 5 calls per minute per IP. */
+const callRateLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    error: { code: 'RATE_LIMITED', message: 'Too many call requests. Try again shortly.' },
+  },
+});
+
+module.exports = { apiLimiter, writeLimiter, callRateLimiter };

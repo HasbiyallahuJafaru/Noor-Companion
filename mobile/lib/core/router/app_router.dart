@@ -21,6 +21,7 @@ import '../../features/onboarding/presentation/screens/onboarding_stage_screen.d
 import '../../features/onboarding/presentation/screens/onboarding_therapist_screen.dart';
 import '../../features/home/presentation/screens/return_screen.dart';
 import '../../features/progress/presentation/screens/milestone_screen.dart';
+import '../../features/calling/presentation/screens/call_screen.dart';
 import '../../features/therapists/presentation/screens/therapist_detail_screen.dart';
 import '../../features/dhikr/presentation/screens/dhikr_detail_screen.dart';
 import '../../features/duas/presentation/screens/dua_library_screen.dart';
@@ -139,11 +140,15 @@ GoRouter buildAppRouter(WidgetRef ref) {
       ),
       GoRoute(
         path: AppRoutes.call,
-        builder: (_, state) => Scaffold(
-          body: Center(
-            child: Text('Call ${state.pathParameters['sessionId']}'),
-          ),
-        ),
+        builder: (_, state) {
+          final extra = state.extra as Map<String, String>? ?? {};
+          return CallScreen(
+            sessionId: state.pathParameters['sessionId']!,
+            channelName: extra['channelName'] ?? '',
+            agoraToken: extra['agoraToken'] ?? '',
+            therapistName: extra['therapistName'] ?? 'Therapist',
+          );
+        },
       ),
       GoRoute(
         path: AppRoutes.milestone,

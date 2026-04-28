@@ -12,9 +12,11 @@
     "db:studio": "npx prisma studio"
   },
   "dependencies": {
+    "@paralleldrive/cuid2": "^3.3.0",
     "@prisma/client": "^7.8.0",
     "@sentry/node": "^10.50.0",
     "@supabase/supabase-js": "^2.104.1",
+    "agora-token": "^2.0.5",
     "bullmq": "^5.76.2",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
