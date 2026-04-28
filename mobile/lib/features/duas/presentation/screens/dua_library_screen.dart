@@ -134,7 +134,7 @@ class _DuaListSkeleton extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
       physics: const NeverScrollableScrollPhysics(),
       itemCount: 6,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      separatorBuilder: (_, _) => const SizedBox(height: 12),
       itemBuilder: (_, _) => const ShimmerBox(width: double.infinity, height: 120),
     );
   }

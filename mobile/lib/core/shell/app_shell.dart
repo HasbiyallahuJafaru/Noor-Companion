@@ -146,15 +146,3 @@ class _NavItem extends StatelessWidget {
   }
 }
 
-/// Temporary placeholder for the Quran tab.
-/// Replaced with RecitationBrowserScreen during Phase 2 quran build.
-class _QuranPlaceholder extends StatelessWidget {
-  const _QuranPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: Text('Quran — coming soon')),
-    );
-  }
-}

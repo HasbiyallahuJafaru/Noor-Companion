@@ -6,20 +6,19 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../domain/task_model.dart';
-import '../providers/home_providers.dart';
 
-class TaskCard extends ConsumerWidget {
-  const TaskCard({super.key, required this.task});
+class TaskCard extends StatelessWidget {
+  const TaskCard({super.key, required this.task, required this.onToggle});
 
   final TaskModel task;
+  final VoidCallback onToggle;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return Semantics(
       button: true,
       checked: task.isCompleted,
@@ -28,7 +27,7 @@ class TaskCard extends ConsumerWidget {
       child: GestureDetector(
       onTap: () {
         HapticFeedback.lightImpact();
-        ref.read(tasksProvider.notifier).toggleComplete(task.id);
+        onToggle();
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),

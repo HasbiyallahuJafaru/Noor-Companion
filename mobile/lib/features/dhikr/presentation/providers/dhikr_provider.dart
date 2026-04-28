@@ -39,7 +39,7 @@ class DhikrCounterNotifier extends Notifier<int> {
 
 final dhikrCounterProvider =
     NotifierProvider.family<DhikrCounterNotifier, int, String>(
-  DhikrCounterNotifier.new,
+  (_) => DhikrCounterNotifier(),
 );
 
 // ── Progress recording ────────────────────────────────────────────────────────

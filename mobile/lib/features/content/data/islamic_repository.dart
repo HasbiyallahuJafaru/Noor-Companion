@@ -26,6 +26,7 @@ class IslamicRepository {
       queryParameters: {
         'lat': lat.toString(),
         'lng': lng.toString(),
+        // ignore: use_null_aware_elements
         if (date != null) 'date': date,
       },
     );

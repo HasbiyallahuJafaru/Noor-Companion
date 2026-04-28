@@ -58,8 +58,8 @@ class _TasbihCounterState extends State<TasbihCounter>
     final isComplete = widget.count + 1 >= widget.target;
     if (isComplete) {
       HapticFeedback.mediumImpact();
-      final hasVibrator = await Vibration.hasVibrator() ?? false;
-      if (hasVibrator) Vibration.vibrate(duration: 200, amplitude: 128);
+      final hasVibrator = await Vibration.hasVibrator();
+      if (hasVibrator == true) Vibration.vibrate(duration: 200, amplitude: 128);
     } else {
       HapticFeedback.lightImpact();
     }

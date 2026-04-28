@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../shared/widgets/skeletons.dart';
+import '../../../../shared/widgets/shimmer_box.dart';
 import '../providers/dhikr_provider.dart';
 import '../widgets/dhikr_card.dart';
 
@@ -45,7 +45,7 @@ class _DhikrLibraryScreenState extends ConsumerState<DhikrLibraryScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               scrollDirection: Axis.horizontal,
               itemCount: _kTags.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 8),
+              separatorBuilder: (_, _) => const SizedBox(width: 8),
               itemBuilder: (_, i) {
                 final tag = _kTags[i];
                 final isSelected = tag == _selectedTag;
@@ -132,7 +132,7 @@ class _DhikrGridSkeleton extends StatelessWidget {
         childAspectRatio: 0.85,
       ),
       itemCount: 6,
-      itemBuilder: (_, __) => const ShimmerBox(height: double.infinity),
+      itemBuilder: (_, _) => const ShimmerBox(width: double.infinity, height: double.infinity),
     );
   }
 }
