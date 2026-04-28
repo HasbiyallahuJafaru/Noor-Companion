@@ -28,6 +28,8 @@ import '../../features/duas/presentation/screens/dua_library_screen.dart';
 import '../../features/duas/presentation/screens/dua_detail_screen.dart';
 import '../../features/quran/presentation/screens/recitation_browser_screen.dart';
 import '../../features/quran/presentation/screens/surah_screen.dart';
+import '../../features/subscription/presentation/screens/upgrade_screen.dart';
+import '../../features/notifications/presentation/screens/notifications_screen.dart';
 import '../shell/app_shell.dart';
 
 /// Named route path constants — always use these, never raw strings.
@@ -52,6 +54,8 @@ abstract final class AppRoutes {
   static const String duaDetail = '/duas/:id';
   static const String quran = '/quran';
   static const String surah = '/quran/:surahNumber';
+  static const String subscriptionUpgrade = '/subscription/upgrade';
+  static const String notifications = '/notifications';
 }
 
 /// Unprotected routes — accessible without a session.
@@ -184,6 +188,14 @@ GoRouter buildAppRouter(WidgetRef ref) {
           surahNumber:
               int.tryParse(state.pathParameters['surahNumber'] ?? '') ?? 1,
         ),
+      ),
+      GoRoute(
+        path: AppRoutes.subscriptionUpgrade,
+        builder: (_, _) => const UpgradeScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.notifications,
+        builder: (_, _) => const NotificationsScreen(),
       ),
     ],
     errorBuilder: (_, state) => Scaffold(

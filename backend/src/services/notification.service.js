@@ -1,12 +1,12 @@
 /**
- * Notification service — sends FCM push notifications and persists
- * notification records for in-app display (Phase 7).
+ * notification.service.js — FCM push + in-app notification persistence.
  *
- * sendDirectPush: fire a push to a known FCM token.
- * sendToUser: look up a user's FCM token then fire the push.
+ * Every notification is both pushed to FCM and stored in the Notification
+ * table so the Flutter app can display a persistent in-app feed.
  *
- * Both methods are fire-and-forget safe — errors are captured in Sentry
- * and never propagate to the caller.
+ * sendDirectPush: fire a raw FCM push to a device token (no DB record).
+ * sendToUser:     persist + FCM push to a single user by their app User.id.
+ * broadcastToRole: persist + FCM push to all active users with a given role.
  */
 
 'use strict';
@@ -15,11 +15,16 @@ const Sentry = require('@sentry/node');
 const { admin } = require('../config/firebase');
 const { prisma } = require('../config/prisma');
 
+// FCM sends are batched at this size to stay within the API limit.
+const FCM_BATCH_SIZE = 500;
+
+// ── Direct push ───────────────────────────────────────────────────────────────
+
 /**
- * Sends an FCM push directly to a known device token.
- * Accepts any valid FCM message payload.
+ * Sends a raw FCM push to a known device token. No database record is created.
+ * Safe to call without awaiting — errors are captured in Sentry, never re-thrown.
  *
- * @param {string} fcmToken - Target device FCM registration token
+ * @param {string} fcmToken  - Target device FCM registration token
  * @param {{ notification?: { title: string, body: string }, data?: Record<string, string> }} payload
  * @returns {Promise<void>}
  */
@@ -38,32 +43,92 @@ async function sendDirectPush(fcmToken, payload) {
   }
 }
 
+// ── Send + persist to one user ────────────────────────────────────────────────
+
 /**
- * Looks up a user's FCM token then sends a push notification.
- * Silently skips if the user has no FCM token registered.
+ * Saves a Notification record to the database and sends an FCM push to the user.
+ * Silently skips the push if the user has no FCM token — the DB record is always saved.
  *
- * @param {string} userId - Prisma user ID
- * @param {{ type: string, title: string, body: string }} options
+ * @param {string} userId - App User.id (CUID)
+ * @param {{ type: string, title: string, body: string, data?: object }} options
  * @returns {Promise<void>}
  */
-async function sendToUser(userId, { type, title, body }) {
+async function sendToUser(userId, { type, title, body, data }) {
   try {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: { fcmToken: true },
     });
 
-    if (!user?.fcmToken) return;
+    if (!user) return;
 
-    await sendDirectPush(user.fcmToken, {
-      notification: { title, body },
-      data: { type },
+    await prisma.notification.create({
+      data: { userId, type, title, body, data: data ?? undefined },
     });
+
+    if (user.fcmToken) {
+      await sendDirectPush(user.fcmToken, {
+        notification: { title, body },
+        data: { type, ...(data ? { payload: JSON.stringify(data) } : {}) },
+      });
+    }
   } catch (err) {
     Sentry.captureException(err, { extra: { userId } });
   }
 }
 
-const notificationService = { sendDirectPush, sendToUser };
+// ── Broadcast to role ─────────────────────────────────────────────────────────
+
+/**
+ * Sends a notification to all active users with the given role.
+ * Persists one DB record per user and sends FCM in batches of 500.
+ *
+ * @param {string} role - 'user' | 'therapist' | 'admin'
+ * @param {{ type: string, title: string, body: string, data?: object }} options
+ * @returns {Promise<void>}
+ */
+async function broadcastToRole(role, { type, title, body, data }) {
+  try {
+    const users = await prisma.user.findMany({
+      where: { role, isActive: true },
+      select: { id: true, fcmToken: true },
+    });
+
+    if (users.length === 0) return;
+
+    await prisma.notification.createMany({
+      data: users.map((u) => ({
+        userId: u.id,
+        type,
+        title,
+        body,
+        data: data ?? undefined,
+      })),
+    });
+
+    const tokens = users
+      .map((u) => u.fcmToken)
+      .filter(Boolean);
+
+    for (let i = 0; i < tokens.length; i += FCM_BATCH_SIZE) {
+      const batch = tokens.slice(i, i + FCM_BATCH_SIZE);
+      try {
+        await admin.messaging().sendEachForMulticast({
+          tokens: batch,
+          notification: { title, body },
+          data: { type },
+          android: { priority: 'high' },
+          apns: { payload: { aps: { 'content-available': 1 } } },
+        });
+      } catch (err) {
+        Sentry.captureException(err, { extra: { batchStart: i } });
+      }
+    }
+  } catch (err) {
+    Sentry.captureException(err, { extra: { role } });
+  }
+}
+
+const notificationService = { sendDirectPush, sendToUser, broadcastToRole };
 
 module.exports = { notificationService };

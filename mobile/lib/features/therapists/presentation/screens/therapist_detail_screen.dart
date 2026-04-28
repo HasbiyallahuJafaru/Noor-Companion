@@ -550,15 +550,7 @@ class _UpgradeButton extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         ElevatedButton(
-          onPressed: () {
-            // Subscription flow wired in Phase 6
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Subscription flow — coming in Phase 6'),
-                duration: Duration(seconds: 2),
-              ),
-            );
-          },
+          onPressed: () => context.push('/subscription/upgrade'),
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.brandGold,
             minimumSize: const Size(double.infinity, 52),

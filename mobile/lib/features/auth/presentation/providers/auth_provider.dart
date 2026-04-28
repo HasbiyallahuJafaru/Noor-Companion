@@ -142,6 +142,10 @@ class AuthNotifier extends Notifier<AppAuthState> {
     await ref.read(supabaseClientProvider).auth.signOut();
   }
 
+  /// Refreshes the current user record from the backend.
+  /// Used after subscription upgrade to reflect the new tier immediately.
+  Future<void> refresh() => _loadUser();
+
   /// Clears an error state back to unauthenticated so the user can retry.
   void clearError() {
     if (state is AuthError) {

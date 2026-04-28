@@ -7,6 +7,7 @@
 
 const { Router } = require('express');
 const { getMe, updateMe, saveFcmToken } = require('../controllers/users.controller');
+const { generateSubscribeToken } = require('../controllers/subscribe_token.controller');
 const { authenticate } = require('../middleware/auth');
 const { validate } = require('../middleware/validate');
 const { writeLimiter } = require('../middleware/rateLimiter');
@@ -19,5 +20,6 @@ router.use(authenticate);
 router.get('/me', getMe);
 router.patch('/me', validate(updateProfileSchema), updateMe);
 router.post('/me/fcm-token', writeLimiter, validate(fcmTokenSchema), saveFcmToken);
+router.post('/me/subscribe-token', writeLimiter, generateSubscribeToken);
 
 module.exports = router;

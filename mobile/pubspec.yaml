@@ -50,6 +50,7 @@ dependencies:
   agora_rtc_engine: ^6.5.3
   just_audio: ^0.10.5
   geolocator: ^14.0.1
+  flutter_inappwebview: ^6.1.5
 
 dev_dependencies:
   flutter_test:

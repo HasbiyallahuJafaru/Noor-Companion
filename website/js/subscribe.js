@@ -87,6 +87,9 @@
       },
       callback: function () {
         showScreen(SCREENS.success);
+        // Signal the Android WebView to close and refresh tier.
+        // On iOS Safari this is a no-op (Safari ignores unknown schemes silently).
+        window.location.href = 'noorcompanion://payment-success';
       },
       onClose: function () {
         showScreen(SCREENS.cancelled);

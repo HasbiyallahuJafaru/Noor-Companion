@@ -1,26 +1,30 @@
 /// Persistent app shell with bottom navigation bar.
-/// Four tabs: Home, Dhikr, Quran, Therapists.
+/// Four main tabs: Home, Dhikr, Quran, Therapists.
+/// A notifications bell icon is shown at top-right of every tab with an unread badge.
 /// Each tab preserves its navigation state across switches via IndexedStack.
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/dhikr/presentation/screens/dhikr_library_screen.dart';
 import '../../features/quran/presentation/screens/recitation_browser_screen.dart';
 import '../../features/therapists/presentation/screens/therapists_screen.dart';
+import '../../features/notifications/presentation/providers/notifications_provider.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 
 /// The root scaffold that wraps all main-navigation screens.
 /// Uses [IndexedStack] to preserve state across tab switches.
-class AppShell extends StatefulWidget {
+class AppShell extends ConsumerStatefulWidget {
   const AppShell({super.key});
 
   @override
-  State<AppShell> createState() => _AppShellState();
+  ConsumerState<AppShell> createState() => _AppShellState();
 }
 
-class _AppShellState extends State<AppShell> {
+class _AppShellState extends ConsumerState<AppShell> {
   int _currentIndex = 0;
 
   static const _tabs = [
@@ -30,16 +34,39 @@ class _AppShellState extends State<AppShell> {
     TherapistsScreen(),
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    // Fetch notifications silently on shell mount to populate the badge.
+    Future.microtask(() => ref.read(notificationsProvider.notifier).load());
+  }
+
   void _onTabTapped(int index) {
     setState(() => _currentIndex = index);
   }
 
   @override
   Widget build(BuildContext context) {
+    final unreadCount = ref.watch(unreadCountProvider);
+
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _tabs,
+      body: Stack(
+        children: [
+          IndexedStack(
+            index: _currentIndex,
+            children: _tabs,
+          ),
+          // Notification bell — positioned top-right, above all tab content.
+          SafeArea(
+            child: Align(
+              alignment: Alignment.topRight,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 8, right: 12),
+                child: _NotificationBell(unreadCount: unreadCount),
+              ),
+            ),
+          ),
+        ],
       ),
       bottomNavigationBar: _NoorBottomNav(
         currentIndex: _currentIndex,
@@ -48,6 +75,87 @@ class _AppShellState extends State<AppShell> {
     );
   }
 }
+
+// ── Notification bell ─────────────────────────────────────────────────────────
+
+class _NotificationBell extends StatelessWidget {
+  const _NotificationBell({required this.unreadCount});
+
+  final int unreadCount;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => context.push('/notifications'),
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.textPrimary.withValues(alpha: 0.08),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Icon(
+              unreadCount > 0
+                  ? Icons.notifications_rounded
+                  : Icons.notifications_none_rounded,
+              color: unreadCount > 0
+                  ? AppColors.brandTeal
+                  : AppColors.textSecondary,
+              size: 22,
+            ),
+            if (unreadCount > 0)
+              Positioned(
+                top: 6,
+                right: 6,
+                child: _Badge(count: unreadCount),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Badge extends StatelessWidget {
+  const _Badge({required this.count});
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    final label = count > 9 ? '9+' : '$count';
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+      decoration: BoxDecoration(
+        color: const Color(0xFFE53E3E),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.surface, width: 1.5),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 9,
+          fontWeight: FontWeight.w800,
+          height: 1.2,
+        ),
+      ),
+    );
+  }
+}
+
+// ── Bottom nav ────────────────────────────────────────────────────────────────
 
 /// Bottom navigation bar with teal active state.
 class _NoorBottomNav extends StatelessWidget {
@@ -145,4 +253,3 @@ class _NavItem extends StatelessWidget {
     );
   }
 }
-
