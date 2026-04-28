@@ -1,5 +1,6 @@
 /// Persistent app shell with bottom navigation bar.
-/// Four main tabs: Home, Dhikr, Quran, Therapists.
+/// Four main tabs for users/therapists: Home, Dhikr, Quran, Therapists.
+/// Admin users get a fifth Admin tab instead of Therapists.
 /// A notifications bell icon is shown at top-right of every tab with an unread badge.
 /// Each tab preserves its navigation state across switches via IndexedStack.
 library;
@@ -11,9 +12,73 @@ import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/dhikr/presentation/screens/dhikr_library_screen.dart';
 import '../../features/quran/presentation/screens/recitation_browser_screen.dart';
 import '../../features/therapists/presentation/screens/therapists_screen.dart';
+import '../../features/admin/presentation/screens/admin_dashboard_screen.dart';
+import '../../features/auth/presentation/providers/auth_provider.dart';
 import '../../features/notifications/presentation/providers/notifications_provider.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
+
+// ── Tab definitions ────────────────────────────────────────────────────────────
+
+class _TabDef {
+  const _TabDef({
+    required this.icon,
+    required this.label,
+    required this.widget,
+  });
+
+  final IconData icon;
+  final String label;
+  final Widget widget;
+}
+
+const _userTabs = [
+  _TabDef(
+    icon: Icons.home_rounded,
+    label: 'Home',
+    widget: HomeScreen(),
+  ),
+  _TabDef(
+    icon: Icons.auto_awesome_rounded,
+    label: 'Dhikr',
+    widget: DhikrLibraryScreen(),
+  ),
+  _TabDef(
+    icon: Icons.menu_book_rounded,
+    label: 'Quran',
+    widget: RecitationBrowserScreen(),
+  ),
+  _TabDef(
+    icon: Icons.people_outline_rounded,
+    label: 'Therapists',
+    widget: TherapistsScreen(),
+  ),
+];
+
+const _adminTabs = [
+  _TabDef(
+    icon: Icons.home_rounded,
+    label: 'Home',
+    widget: HomeScreen(),
+  ),
+  _TabDef(
+    icon: Icons.auto_awesome_rounded,
+    label: 'Dhikr',
+    widget: DhikrLibraryScreen(),
+  ),
+  _TabDef(
+    icon: Icons.menu_book_rounded,
+    label: 'Quran',
+    widget: RecitationBrowserScreen(),
+  ),
+  _TabDef(
+    icon: Icons.admin_panel_settings_rounded,
+    label: 'Admin',
+    widget: AdminDashboardScreen(),
+  ),
+];
+
+// ── Shell ──────────────────────────────────────────────────────────────────────
 
 /// The root scaffold that wraps all main-navigation screens.
 /// Uses [IndexedStack] to preserve state across tab switches.
@@ -27,18 +92,17 @@ class AppShell extends ConsumerStatefulWidget {
 class _AppShellState extends ConsumerState<AppShell> {
   int _currentIndex = 0;
 
-  static const _tabs = [
-    HomeScreen(),
-    DhikrLibraryScreen(),
-    RecitationBrowserScreen(),
-    TherapistsScreen(),
-  ];
-
   @override
   void initState() {
     super.initState();
     // Fetch notifications silently on shell mount to populate the badge.
     Future.microtask(() => ref.read(notificationsProvider.notifier).load());
+  }
+
+  List<_TabDef> get _tabs {
+    final auth = ref.read(authProvider);
+    if (auth is AuthAuthenticated && auth.user.isAdmin) return _adminTabs;
+    return _userTabs;
   }
 
   void _onTabTapped(int index) {
@@ -48,13 +112,16 @@ class _AppShellState extends ConsumerState<AppShell> {
   @override
   Widget build(BuildContext context) {
     final unreadCount = ref.watch(unreadCountProvider);
+    final tabs = _tabs;
+    // Clamp index — admin/user tab counts differ, avoid out-of-bounds on role change.
+    final safeIndex = _currentIndex.clamp(0, tabs.length - 1);
 
     return Scaffold(
       body: Stack(
         children: [
           IndexedStack(
-            index: _currentIndex,
-            children: _tabs,
+            index: safeIndex,
+            children: tabs.map((t) => t.widget).toList(),
           ),
           // Notification bell — positioned top-right, above all tab content.
           SafeArea(
@@ -69,14 +136,15 @@ class _AppShellState extends ConsumerState<AppShell> {
         ],
       ),
       bottomNavigationBar: _NoorBottomNav(
-        currentIndex: _currentIndex,
+        tabs: tabs,
+        currentIndex: safeIndex,
         onTap: _onTabTapped,
       ),
     );
   }
 }
 
-// ── Notification bell ─────────────────────────────────────────────────────────
+// ── Notification bell ──────────────────────────────────────────────────────────
 
 class _NotificationBell extends StatelessWidget {
   const _NotificationBell({required this.unreadCount});
@@ -155,15 +223,16 @@ class _Badge extends StatelessWidget {
   }
 }
 
-// ── Bottom nav ────────────────────────────────────────────────────────────────
+// ── Bottom nav ─────────────────────────────────────────────────────────────────
 
-/// Bottom navigation bar with teal active state.
 class _NoorBottomNav extends StatelessWidget {
   const _NoorBottomNav({
+    required this.tabs,
     required this.currentIndex,
     required this.onTap,
   });
 
+  final List<_TabDef> tabs;
   final int currentIndex;
   final ValueChanged<int> onTap;
 
@@ -181,32 +250,15 @@ class _NoorBottomNav extends StatelessWidget {
         child: SizedBox(
           height: 60,
           child: Row(
-            children: [
-              _NavItem(
-                icon: Icons.home_rounded,
-                label: 'Home',
-                isActive: currentIndex == 0,
-                onTap: () => onTap(0),
+            children: List.generate(
+              tabs.length,
+              (i) => _NavItem(
+                icon: tabs[i].icon,
+                label: tabs[i].label,
+                isActive: currentIndex == i,
+                onTap: () => onTap(i),
               ),
-              _NavItem(
-                icon: Icons.auto_awesome_rounded,
-                label: 'Dhikr',
-                isActive: currentIndex == 1,
-                onTap: () => onTap(1),
-              ),
-              _NavItem(
-                icon: Icons.menu_book_rounded,
-                label: 'Quran',
-                isActive: currentIndex == 2,
-                onTap: () => onTap(2),
-              ),
-              _NavItem(
-                icon: Icons.people_outline_rounded,
-                label: 'Therapists',
-                isActive: currentIndex == 3,
-                onTap: () => onTap(3),
-              ),
-            ],
+            ),
           ),
         ),
       ),

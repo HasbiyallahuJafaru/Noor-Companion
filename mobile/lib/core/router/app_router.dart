@@ -30,6 +30,13 @@ import '../../features/quran/presentation/screens/recitation_browser_screen.dart
 import '../../features/quran/presentation/screens/surah_screen.dart';
 import '../../features/subscription/presentation/screens/upgrade_screen.dart';
 import '../../features/notifications/presentation/screens/notifications_screen.dart';
+import '../../features/admin/presentation/screens/admin_dashboard_screen.dart';
+import '../../features/admin/presentation/screens/admin_users_screen.dart';
+import '../../features/admin/presentation/screens/admin_user_detail_screen.dart';
+import '../../features/admin/presentation/screens/admin_therapists_screen.dart';
+import '../../features/admin/presentation/screens/admin_content_screen.dart';
+import '../../features/admin/presentation/screens/admin_content_add_screen.dart';
+import '../../features/admin/presentation/screens/admin_broadcast_screen.dart';
 import '../shell/app_shell.dart';
 
 /// Named route path constants — always use these, never raw strings.
@@ -56,6 +63,14 @@ abstract final class AppRoutes {
   static const String surah = '/quran/:surahNumber';
   static const String subscriptionUpgrade = '/subscription/upgrade';
   static const String notifications = '/notifications';
+
+  // Admin routes — accessible only to role = admin.
+  static const String adminUsers = '/admin/users';
+  static const String adminUserDetail = '/admin/users/:id';
+  static const String adminTherapists = '/admin/therapists';
+  static const String adminContent = '/admin/content';
+  static const String adminContentAdd = '/admin/content/add';
+  static const String adminBroadcast = '/admin/broadcast';
 }
 
 /// Unprotected routes — accessible without a session.
@@ -84,6 +99,12 @@ GoRouter buildAppRouter(WidgetRef ref) {
       // Authenticated user — redirect away from public routes.
       if (current is AuthAuthenticated) {
         if (_publicRoutes.contains(path)) return AppRoutes.home;
+
+        // Block non-admins from /admin/* routes.
+        if (path.startsWith('/admin') && !current.user.isAdmin) {
+          return AppRoutes.home;
+        }
+
         return null;
       }
 
@@ -196,6 +217,34 @@ GoRouter buildAppRouter(WidgetRef ref) {
       GoRoute(
         path: AppRoutes.notifications,
         builder: (_, _) => const NotificationsScreen(),
+      ),
+
+      // ── Admin routes ──────────────────────────────────────────────────────
+      GoRoute(
+        path: AppRoutes.adminUsers,
+        builder: (_, _) => const AdminUsersScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.adminUserDetail,
+        builder: (_, state) => AdminUserDetailScreen(
+          userId: state.pathParameters['id']!,
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.adminTherapists,
+        builder: (_, _) => const AdminTherapistsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.adminContent,
+        builder: (_, _) => const AdminContentScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.adminContentAdd,
+        builder: (_, _) => const AdminContentAddScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.adminBroadcast,
+        builder: (_, _) => const AdminBroadcastScreen(),
       ),
     ],
     errorBuilder: (_, state) => Scaffold(
