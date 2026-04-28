@@ -13,6 +13,8 @@ import '../../../content/domain/models/dhikr_model.dart';
 import '../providers/dhikr_audio_provider.dart';
 import '../providers/dhikr_provider.dart';
 import '../widgets/tasbih_counter.dart';
+import '../../../streaks/presentation/providers/streak_provider.dart';
+import '../../../streaks/presentation/widgets/milestone_overlay.dart';
 
 class DhikrDetailScreen extends ConsumerStatefulWidget {
   const DhikrDetailScreen({super.key, required this.id});
@@ -70,7 +72,11 @@ class _DhikrDetailScreenState extends ConsumerState<DhikrDetailScreen> {
     if (_completed) return;
     setState(() => _completed = true);
     try {
-      await recordDhikrProgress(ref, item.id);
+      final streak = await recordDhikrProgress(ref, item.id);
+      ref.read(streakNotifierProvider.notifier).applyProgressResult(streak);
+      if (mounted && streak.isMilestone) {
+        await MilestoneOverlay.show(context, days: streak.currentStreak);
+      }
     } catch (_) {
       if (mounted) setState(() => _completed = false);
     }

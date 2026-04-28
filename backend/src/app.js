@@ -16,6 +16,7 @@ const { errorHandler, notFound } = require('./middleware/errorHandler');
 const usersRoutes = require('./routes/users.routes');
 const contentRoutes = require('./routes/content.routes');
 const islamicRoutes = require('./routes/islamic.routes');
+const streaksRoutes = require('./routes/streaks.routes');
 
 const app = express();
 
@@ -46,6 +47,7 @@ app.get('/health', (req, res) => {
 app.use('/api/v1/users', usersRoutes);
 app.use('/api/v1/content', contentRoutes);
 app.use('/api/v1/islamic', islamicRoutes);
+app.use('/api/v1/streaks', streaksRoutes);
 
 // ── 404 + error handler — must be last ───────────────────────────────────────
 app.use(notFound);

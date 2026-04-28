@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../features/content/data/content_cache.dart';
 import '../../../../features/content/data/content_repository.dart';
 import '../../../../features/content/domain/models/dua_model.dart';
+import '../../../../features/content/domain/models/streak_model.dart';
 
 // ── List ──────────────────────────────────────────────────────────────────────
 
@@ -43,3 +44,11 @@ final duaBookmarkProvider =
     NotifierProvider<DuaBookmarkNotifier, Set<String>>(
   DuaBookmarkNotifier.new,
 );
+
+// ── Progress recording ────────────────────────────────────────────────────────
+
+/// Records a completed dua engagement for [contentId].
+/// Returns [StreakModel] on success so the UI can show streak updates.
+Future<StreakModel> recordDuaProgress(WidgetRef ref, String contentId) async {
+  return ref.read(contentRepositoryProvider).recordProgress(contentId);
+}

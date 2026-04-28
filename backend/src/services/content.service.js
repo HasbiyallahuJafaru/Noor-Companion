@@ -1,6 +1,7 @@
 /**
  * Content service — CRUD for platform-managed content (dhikr, duas, recitations).
- * Handles Redis caching, content progress recording, and streak updates.
+ * Handles Redis caching and content progress recording.
+ * Streak logic is delegated to streak.service.
  *
  * Cache strategy: lists are cached 24 hours per category+tag combination.
  * Cache is busted when admin creates or updates content (handled by admin service).
@@ -10,6 +11,7 @@
 
 const { prisma } = require('../config/prisma');
 const { redis } = require('../config/redis');
+const { updateStreak } = require('./streak.service');
 
 const CONTENT_CACHE_TTL = 86400; // 24 hours
 
@@ -111,61 +113,6 @@ async function recordProgress(userId, contentId) {
       longestStreak: streak.longestStreak,
     },
   };
-}
-
-/**
- * Calculates and persists the streak for a user based on last engagement.
- * Creates the streak record if it does not exist.
- *
- * @param {string} userId
- * @returns {Promise<import('@prisma/client').Streak>}
- */
-async function updateStreak(userId) {
-  const now = new Date();
-  const todayUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
-
-  const existing = await prisma.streak.findUnique({ where: { userId } });
-
-  if (!existing) {
-    return prisma.streak.create({
-      data: {
-        userId,
-        currentStreak: 1,
-        longestStreak: 1,
-        totalDays: 1,
-        lastEngagedAt: todayUTC,
-      },
-    });
-  }
-
-  const lastDate = existing.lastEngagedAt
-    ? new Date(Date.UTC(
-        existing.lastEngagedAt.getUTCFullYear(),
-        existing.lastEngagedAt.getUTCMonth(),
-        existing.lastEngagedAt.getUTCDate(),
-      ))
-    : null;
-
-  // Already engaged today — no change needed
-  if (lastDate && lastDate.getTime() === todayUTC.getTime()) {
-    return existing;
-  }
-
-  const yesterdayUTC = new Date(todayUTC.getTime() - 86400000);
-  const isConsecutive = lastDate && lastDate.getTime() === yesterdayUTC.getTime();
-
-  const newCurrent = isConsecutive ? existing.currentStreak + 1 : 1;
-  const newLongest = Math.max(existing.longestStreak, newCurrent);
-
-  return prisma.streak.update({
-    where: { userId },
-    data: {
-      currentStreak: newCurrent,
-      longestStreak: newLongest,
-      totalDays: { increment: 1 },
-      lastEngagedAt: todayUTC,
-    },
-  });
 }
 
 module.exports = { listContent, recordProgress };

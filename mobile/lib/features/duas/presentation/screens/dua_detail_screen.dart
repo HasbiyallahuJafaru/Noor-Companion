@@ -11,6 +11,8 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../shared/widgets/arabic_text_block.dart';
 import '../../../content/domain/models/dua_model.dart';
 import '../../../dhikr/presentation/providers/dhikr_audio_provider.dart';
+import '../../../streaks/presentation/providers/streak_provider.dart';
+import '../../../streaks/presentation/widgets/milestone_overlay.dart';
 import '../providers/duas_provider.dart';
 
 class DuaDetailScreen extends ConsumerStatefulWidget {
@@ -24,6 +26,7 @@ class DuaDetailScreen extends ConsumerStatefulWidget {
 
 class _DuaDetailScreenState extends ConsumerState<DuaDetailScreen> {
   DhikrAudioController? _audioController;
+  bool _completed = false;
 
   @override
   void dispose() {
@@ -36,6 +39,20 @@ class _DuaDetailScreenState extends ConsumerState<DuaDetailScreen> {
       return items.firstWhere((i) => i.id == widget.id);
     } catch (_) {
       return null;
+    }
+  }
+
+  Future<void> _recordProgress(DuaModel item) async {
+    if (_completed) return;
+    setState(() => _completed = true);
+    try {
+      final streak = await recordDuaProgress(ref, item.id);
+      ref.read(streakNotifierProvider.notifier).applyProgressResult(streak);
+      if (mounted && streak.isMilestone) {
+        await MilestoneOverlay.show(context, days: streak.currentStreak);
+      }
+    } catch (_) {
+      if (mounted) setState(() => _completed = false);
     }
   }
 
@@ -57,6 +74,8 @@ class _DuaDetailScreenState extends ConsumerState<DuaDetailScreen> {
         return _DetailScaffold(
           item: item,
           audioController: _audioController,
+          completed: _completed,
+          onComplete: () => _recordProgress(item),
         );
       },
     );
@@ -69,10 +88,14 @@ class _DetailScaffold extends ConsumerWidget {
   const _DetailScaffold({
     required this.item,
     required this.audioController,
+    required this.completed,
+    required this.onComplete,
   });
 
   final DuaModel item;
   final DhikrAudioController? audioController;
+  final bool completed;
+  final VoidCallback onComplete;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -152,6 +175,9 @@ class _DetailScaffold extends ConsumerWidget {
                       .toList(),
                 ),
               ],
+              // ── Mark as read ─────────────────────────────────────────────
+              const SizedBox(height: 32),
+              _MarkReadButton(completed: completed, onTap: onComplete),
             ],
           ),
         ),
@@ -347,6 +373,56 @@ class _TagChip extends StatelessWidget {
         style: AppTextStyles.caption.copyWith(
           color: AppColors.textSecondary,
         ),
+      ),
+    );
+  }
+}
+
+// ── Mark as read button ───────────────────────────────────────────────────────
+
+class _MarkReadButton extends StatelessWidget {
+  const _MarkReadButton({required this.completed, required this.onTap});
+
+  final bool completed;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    if (completed) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.tealLight,
+          borderRadius: BorderRadius.circular(AppRadius.md),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.check_circle_rounded,
+                color: AppColors.brandTeal, size: 20),
+            const SizedBox(width: 8),
+            Text(
+              'Recorded — Barakallahu feek',
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.brandTeal,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+          color: AppColors.brandTeal,
+          borderRadius: BorderRadius.circular(AppRadius.md),
+        ),
+        alignment: Alignment.center,
+        child: Text('Mark as Read', style: AppTextStyles.button),
       ),
     );
   }

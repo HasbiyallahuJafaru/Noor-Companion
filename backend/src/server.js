@@ -16,10 +16,13 @@ initFirebase();
 
 const { env } = require('./config/env');
 const { app } = require('./app');
+const { startStreakRiskWorker } = require('./workers/streakRisk.worker');
 
 const server = app.listen(env.PORT, () => {
   console.log(`✅  Noor Companion API running on port ${env.PORT} [${env.NODE_ENV}]`);
 });
+
+startStreakRiskWorker();
 
 process.on('SIGTERM', () => {
   console.log('SIGTERM received — shutting down gracefully');
