@@ -15,6 +15,7 @@ import '../../features/therapists/presentation/screens/therapists_screen.dart';
 import '../../features/admin/presentation/screens/admin_dashboard_screen.dart';
 import '../../features/therapist_dashboard/presentation/screens/therapist_dashboard_screen.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
+import '../services/permissions_service.dart';
 import '../../features/notifications/presentation/providers/notifications_provider.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
@@ -119,6 +120,10 @@ class _AppShellState extends ConsumerState<AppShell> {
   @override
   void initState() {
     super.initState();
+    // Request app-level permissions once after the user reaches the shell.
+    // Notifications and location are requested upfront; microphone is requested
+    // lazily just before Agora initialises (see calling_provider.dart).
+    Future.microtask(PermissionsService.requestAppPermissions);
     // Fetch notifications silently on shell mount to populate the badge.
     Future.microtask(() => ref.read(notificationsProvider.notifier).load());
   }

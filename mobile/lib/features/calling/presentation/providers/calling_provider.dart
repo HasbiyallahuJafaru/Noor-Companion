@@ -9,6 +9,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import '../../../../core/config/app_config.dart';
+import '../../../../core/services/permissions_service.dart';
 import '../../../../features/auth/presentation/providers/auth_provider.dart';
 import '../../domain/calling_state.dart';
 
@@ -45,6 +46,16 @@ class CallingNotifier extends Notifier<CallingState> {
     state = const CallingConnecting();
 
     try {
+      // Microphone permission must be granted before the engine is initialised.
+      // Agora will silently fail to capture audio if the permission is missing.
+      final hasMic = await PermissionsService.requestMicrophone();
+      if (!hasMic) {
+        state = const CallingError(
+          'Microphone permission is required for voice calls.',
+        );
+        return;
+      }
+
       _engine = createAgoraRtcEngine();
 
       await _engine!.initialize(RtcEngineContext(
@@ -52,6 +63,7 @@ class CallingNotifier extends Notifier<CallingState> {
         channelProfile: ChannelProfileType.channelProfileCommunication,
       ));
 
+      // Register event handler BEFORE joining — ensures no events are missed.
       _engine!.registerEventHandler(RtcEngineEventHandler(
         onJoinChannelSuccess: (connection, elapsed) {
           state = CallingActive(sessionId: sessionId);
@@ -69,8 +81,6 @@ class CallingNotifier extends Notifier<CallingState> {
           state = CallingError(message);
         },
       ));
-
-      await _engine!.enableAudio();
 
       await _engine!.joinChannel(
         token: token,
