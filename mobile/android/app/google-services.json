@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "787717492493",
+    "project_id": "noor-companion-2026",
+    "storage_bucket": "noor-companion-2026.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:787717492493:android:8c3170a5bb61f54a676a44",
+        "android_client_info": {
+          "package_name": "com.noorcompanion.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyApwFGs_VDZXgPi6BmfuIuRML4sc10pK2Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
