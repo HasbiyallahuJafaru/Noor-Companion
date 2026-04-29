@@ -15,6 +15,7 @@ const { validate } = require('../middleware/validate');
 const { callRateLimiter } = require('../middleware/rateLimiter');
 const { initiateCall, endCall, rateSession, getTherapistSessions } = require('../services/calling.service');
 const { initiateCallSchema, rateCallSchema } = require('../validators/calls.validator');
+const { prisma } = require('../config/prisma');
 
 const router = Router();
 
@@ -68,6 +69,50 @@ router.post('/:sessionId/rate', validate(rateCallSchema), async (req, res, next)
       success: false,
       error: { code: err.code, message: err.message },
     });
+    Sentry.captureException(err);
+    next(err);
+  }
+});
+
+// ── POST /api/v1/calls/:sessionId/renew-token ────────────────────────────────
+
+router.post('/:sessionId/renew-token', async (req, res, next) => {
+  try {
+    const session = await prisma.callSession.findUnique({
+      where: { id: req.params.sessionId },
+      select: { agoraChannelName: true, status: true, userId: true, therapistProfile: { select: { userId: true } } },
+    });
+
+    if (!session) {
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Session not found.' },
+      });
+    }
+
+    // Only the user or therapist in the session can renew the token.
+    const isParticipant =
+      session.userId === req.user.id ||
+      session.therapistProfile?.userId === req.user.id;
+
+    if (!isParticipant) {
+      return res.status(403).json({
+        success: false,
+        error: { code: 'FORBIDDEN', message: 'Not a participant in this session.' },
+      });
+    }
+
+    if (session.status === 'completed' || session.status === 'missed') {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'SESSION_ENDED', message: 'Session is no longer active.' },
+      });
+    }
+
+    const { generateRtcToken } = require('../utils/agora');
+    const agoraToken = generateRtcToken(session.agoraChannelName);
+    res.json({ success: true, data: { agoraToken } });
+  } catch (err) {
     Sentry.captureException(err);
     next(err);
   }

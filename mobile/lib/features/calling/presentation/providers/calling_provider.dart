@@ -32,12 +32,15 @@ class CallingNotifier extends Notifier<CallingState> {
     return const CallingIdle();
   }
 
+  // ── Join ───────────────────────────────────────────────────────────────────
+
   /// Initialises Agora and joins the call channel.
-  /// Call this immediately when the call screen mounts.
+  /// Requests microphone permission first — fails fast if denied.
+  /// Registers all event handlers BEFORE calling joinChannel per Agora docs.
   ///
-  /// @param token - Agora RTC token from the backend
+  /// @param token - Agora RTC token from the backend (1-hour expiry)
   /// @param channelName - Unique channel name for this session
-  /// @param sessionId - Database session ID used to end the session
+  /// @param sessionId - Database session ID used to end/renew the session
   Future<void> joinCall({
     required String token,
     required String channelName,
@@ -64,21 +67,37 @@ class CallingNotifier extends Notifier<CallingState> {
       ));
 
       // Register event handler BEFORE joining — ensures no events are missed.
+      // Audio is enabled by default in channelProfileCommunication — no
+      // explicit enableAudio() call needed (calling it would reset audio state).
       _engine!.registerEventHandler(RtcEngineEventHandler(
-        onJoinChannelSuccess: (connection, elapsed) {
+        onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
           state = CallingActive(sessionId: sessionId);
         },
-        onUserJoined: (connection, remoteUid, elapsed) {
+        onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
           final current = state;
           if (current is CallingActive) {
             state = current.copyWith(remoteUid: remoteUid);
           }
         },
-        onUserOffline: (connection, remoteUid, reason) {
+        onUserOffline: (
+          RtcConnection connection,
+          int remoteUid,
+          UserOfflineReasonType reason,
+        ) {
           endCall(sessionId);
         },
-        onError: (code, message) {
-          state = CallingError(message);
+        onError: (ErrorCodeType err, String msg) {
+          Sentry.captureMessage(
+            'Agora error: ${err.name} — $msg',
+            level: SentryLevel.error,
+          );
+          state = CallingError(msg);
+        },
+        // Fired 30 seconds before the 1-hour Agora token expires.
+        // Requests a fresh token from the backend and renews without
+        // interrupting the call.
+        onTokenPrivilegeWillExpire: (RtcConnection connection, String token) {
+          _renewToken(sessionId);
         },
       ));
 
@@ -97,6 +116,29 @@ class CallingNotifier extends Notifier<CallingState> {
       state = CallingError(e.toString());
     }
   }
+
+  // ── Token renewal ──────────────────────────────────────────────────────────
+
+  /// Requests a fresh Agora token from the backend and calls renewToken on the
+  /// engine. Called automatically when onTokenPrivilegeWillExpire fires.
+  /// Failure is captured in Sentry but does not end the call — Agora gives a
+  /// 30-second window so the user has time to retry or finish naturally.
+  ///
+  /// @param sessionId - Active session ID for the backend token endpoint
+  Future<void> _renewToken(String sessionId) async {
+    try {
+      final dio = ref.read(apiClientProvider);
+      final res = await dio.post('/calls/$sessionId/renew-token');
+      final newToken = res.data['data']['agoraToken'] as String;
+      await _engine?.renewToken(newToken);
+    } on DioException catch (e, stack) {
+      Sentry.captureException(e, stackTrace: stack);
+    } catch (e, stack) {
+      Sentry.captureException(e, stackTrace: stack);
+    }
+  }
+
+  // ── End call ───────────────────────────────────────────────────────────────
 
   /// Ends the call, leaves the Agora channel, and notifies the backend.
   /// Safe to call multiple times — guards against double-ending.
@@ -122,7 +164,10 @@ class CallingNotifier extends Notifier<CallingState> {
     state = CallingEnded(sessionId: sessionId, durationSeconds: durationSeconds);
   }
 
-  /// Toggles the local microphone mute state.
+  // ── Controls ───────────────────────────────────────────────────────────────
+
+  /// Stops or resumes publishing the local audio stream.
+  /// Does not affect audio capture — only remote users' reception changes.
   ///
   /// @param muted - true to mute, false to unmute
   Future<void> toggleMute({required bool muted}) async {
@@ -132,6 +177,8 @@ class CallingNotifier extends Notifier<CallingState> {
       Sentry.captureException(e, stackTrace: stack);
     }
   }
+
+  // ── Rating ─────────────────────────────────────────────────────────────────
 
   /// Submits a 1–5 star rating for the completed session.
   ///
