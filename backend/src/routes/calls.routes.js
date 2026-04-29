@@ -13,7 +13,7 @@ const Sentry = require('@sentry/node');
 const { authenticate } = require('../middleware/auth');
 const { validate } = require('../middleware/validate');
 const { callRateLimiter } = require('../middleware/rateLimiter');
-const { initiateCall, endCall, rateSession } = require('../services/calling.service');
+const { initiateCall, endCall, rateSession, getTherapistSessions } = require('../services/calling.service');
 const { initiateCallSchema, rateCallSchema } = require('../validators/calls.validator');
 
 const router = Router();
@@ -68,6 +68,26 @@ router.post('/:sessionId/rate', validate(rateCallSchema), async (req, res, next)
       success: false,
       error: { code: err.code, message: err.message },
     });
+    Sentry.captureException(err);
+    next(err);
+  }
+});
+
+// ── GET /api/v1/calls/my-sessions ────────────────────────────────────────────
+
+router.get('/my-sessions', async (req, res, next) => {
+  try {
+    if (req.user.role !== 'therapist') {
+      return res.status(403).json({
+        success: false,
+        error: { code: 'FORBIDDEN', message: 'Therapist role required.' },
+      });
+    }
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 20;
+    const data = await getTherapistSessions(req.user.id, { page, limit });
+    res.json({ success: true, data });
+  } catch (err) {
     Sentry.captureException(err);
     next(err);
   }

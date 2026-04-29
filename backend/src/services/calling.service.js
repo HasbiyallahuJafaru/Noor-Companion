@@ -197,4 +197,46 @@ function _throw(message, code, statusCode) {
   throw err;
 }
 
-module.exports = { initiateCall, endCall, rateSession, markSessionStarted };
+// ── Therapist session history ─────────────────────────────────────────────────
+
+/**
+ * Returns paginated call sessions for the authenticated therapist.
+ * Looks up the therapist profile by userId, then queries sessions.
+ *
+ * @param {string} userId - Therapist's Prisma User ID
+ * @param {{ page: number, limit: number }} params
+ * @returns {Promise<{ sessions: object[], pagination: object }>}
+ */
+async function getTherapistSessions(userId, { page = 1, limit = 20 } = {}) {
+  const profile = await prisma.therapistProfile.findUnique({
+    where: { userId },
+    select: { id: true },
+  });
+
+  if (!profile) return { sessions: [], pagination: { page, limit, total: 0 } };
+
+  const skip = (page - 1) * limit;
+
+  const [sessions, total] = await Promise.all([
+    prisma.callSession.findMany({
+      where: { therapistProfileId: profile.id },
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit,
+      select: {
+        id: true,
+        status: true,
+        durationSeconds: true,
+        createdAt: true,
+        endedAt: true,
+        user: { select: { firstName: true, lastName: true, avatarUrl: true } },
+        rating: { select: { rating: true, comment: true } },
+      },
+    }),
+    prisma.callSession.count({ where: { therapistProfileId: profile.id } }),
+  ]);
+
+  return { sessions, pagination: { page, limit, total } };
+}
+
+module.exports = { initiateCall, endCall, rateSession, markSessionStarted, getTherapistSessions };

@@ -36,6 +36,9 @@ import '../../features/admin/presentation/screens/admin_therapists_screen.dart';
 import '../../features/admin/presentation/screens/admin_content_screen.dart';
 import '../../features/admin/presentation/screens/admin_content_add_screen.dart';
 import '../../features/admin/presentation/screens/admin_broadcast_screen.dart';
+import '../../features/therapist_dashboard/presentation/screens/therapist_dashboard_screen.dart';
+import '../../features/therapist_dashboard/presentation/screens/therapist_session_history_screen.dart';
+import '../../features/therapist_dashboard/presentation/screens/incoming_call_screen.dart';
 import '../shell/app_shell.dart';
 
 /// Named route path constants — always use these, never raw strings.
@@ -70,6 +73,11 @@ abstract final class AppRoutes {
   static const String adminContent = '/admin/content';
   static const String adminContentAdd = '/admin/content/add';
   static const String adminBroadcast = '/admin/broadcast';
+
+  // Therapist routes — accessible only to role = therapist.
+  static const String therapistDashboard = '/therapist-dashboard';
+  static const String therapistSessions = '/therapist-dashboard/sessions';
+  static const String incomingCall = '/incoming-call';
 }
 
 /// Unprotected routes — accessible without a session.
@@ -101,6 +109,12 @@ GoRouter buildAppRouter(WidgetRef ref) {
 
         // Block non-admins from /admin/* routes.
         if (path.startsWith('/admin') && !current.user.isAdmin) {
+          return AppRoutes.home;
+        }
+
+        // Block non-therapists from /therapist-dashboard/* routes.
+        if (path.startsWith('/therapist-dashboard') &&
+            !current.user.isTherapist) {
           return AppRoutes.home;
         }
 
@@ -244,6 +258,28 @@ GoRouter buildAppRouter(WidgetRef ref) {
       GoRoute(
         path: AppRoutes.adminBroadcast,
         builder: (_, _) => const AdminBroadcastScreen(),
+      ),
+
+      // ── Therapist routes ───────────────────────────────────────────────────
+      GoRoute(
+        path: AppRoutes.therapistDashboard,
+        builder: (_, _) => const TherapistDashboardScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.therapistSessions,
+        builder: (_, _) => const TherapistSessionHistoryScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.incomingCall,
+        builder: (_, state) {
+          final extra = state.extra as Map<String, String>? ?? {};
+          return IncomingCallScreen(
+            sessionId: extra['sessionId'] ?? '',
+            channelName: extra['channelName'] ?? '',
+            agoraToken: extra['agoraToken'] ?? '',
+            callerName: extra['callerName'] ?? 'User',
+          );
+        },
       ),
     ],
     errorBuilder: (_, state) => Scaffold(

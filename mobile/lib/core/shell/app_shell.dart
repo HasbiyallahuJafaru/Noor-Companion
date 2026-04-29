@@ -13,6 +13,7 @@ import '../../features/dhikr/presentation/screens/dhikr_library_screen.dart';
 import '../../features/quran/presentation/screens/recitation_browser_screen.dart';
 import '../../features/therapists/presentation/screens/therapists_screen.dart';
 import '../../features/admin/presentation/screens/admin_dashboard_screen.dart';
+import '../../features/therapist_dashboard/presentation/screens/therapist_dashboard_screen.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
 import '../../features/notifications/presentation/providers/notifications_provider.dart';
 import '../theme/app_colors.dart';
@@ -52,6 +53,29 @@ const _userTabs = [
     icon: Icons.people_outline_rounded,
     label: 'Therapists',
     widget: TherapistsScreen(),
+  ),
+];
+
+const _therapistTabs = [
+  _TabDef(
+    icon: Icons.home_rounded,
+    label: 'Home',
+    widget: HomeScreen(),
+  ),
+  _TabDef(
+    icon: Icons.auto_awesome_rounded,
+    label: 'Dhikr',
+    widget: DhikrLibraryScreen(),
+  ),
+  _TabDef(
+    icon: Icons.menu_book_rounded,
+    label: 'Quran',
+    widget: RecitationBrowserScreen(),
+  ),
+  _TabDef(
+    icon: Icons.dashboard_rounded,
+    label: 'Dashboard',
+    widget: TherapistDashboardScreen(),
   ),
 ];
 
@@ -102,6 +126,7 @@ class _AppShellState extends ConsumerState<AppShell> {
   List<_TabDef> get _tabs {
     final auth = ref.read(authProvider);
     if (auth is AuthAuthenticated && auth.user.isAdmin) return _adminTabs;
+    if (auth is AuthAuthenticated && auth.user.isTherapist) return _therapistTabs;
     return _userTabs;
   }
 

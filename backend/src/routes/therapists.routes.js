@@ -17,6 +17,7 @@ const {
 const {
   listTherapists,
   getTherapistById,
+  getMyTherapistProfile,
   upsertTherapistProfile,
 } = require('../services/therapists.service');
 
@@ -41,6 +42,27 @@ router.get(
     }
   },
 );
+
+/**
+ * GET /api/v1/therapists/me
+ * Returns the authenticated therapist's own profile, including status.
+ * Role: therapist only
+ */
+router.get('/me', authenticate, roleGuard('therapist'), async (req, res, next) => {
+  try {
+    const profile = await getMyTherapistProfile(req.user.id);
+    return res.json({ success: true, data: profile });
+  } catch (err) {
+    if (err.statusCode) {
+      return res.status(err.statusCode).json({
+        success: false,
+        error: { code: err.code, message: err.message },
+      });
+    }
+    Sentry.captureException(err);
+    return next(err);
+  }
+});
 
 /**
  * GET /api/v1/therapists/:therapistProfileId

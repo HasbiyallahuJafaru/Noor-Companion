@@ -366,9 +366,39 @@ function _formatProfile(profile) {
   };
 }
 
+/**
+ * Returns the authenticated therapist's own profile including status.
+ * Unlike getTherapistById, this does NOT filter by status = active,
+ * so pending and rejected therapists can also view their profile.
+ *
+ * @param {string} userId - Therapist's Prisma User ID
+ * @returns {Promise<object>}
+ * @throws {{ code: 'NOT_FOUND', statusCode: 404 }}
+ */
+async function getMyTherapistProfile(userId) {
+  const profile = await prisma.therapistProfile.findUnique({
+    where: { userId },
+    select: {
+      ...THERAPIST_SELECT,
+      status: true,
+      rejectionReason: true,
+    },
+  });
+
+  if (!profile) {
+    const err = new Error('No therapist profile found.');
+    err.statusCode = 404;
+    err.code = 'NOT_FOUND';
+    throw err;
+  }
+
+  return { ..._formatProfile(profile), status: profile.status, rejectionReason: profile.rejectionReason ?? null };
+}
+
 module.exports = {
   listTherapists,
   getTherapistById,
+  getMyTherapistProfile,
   upsertTherapistProfile,
   approveTherapist,
   rejectTherapist,
