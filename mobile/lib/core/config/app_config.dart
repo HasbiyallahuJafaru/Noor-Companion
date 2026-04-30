@@ -20,21 +20,10 @@ abstract final class AppConfig {
   /// Agora App ID for RTC audio calling.
   static const String agoraAppId = String.fromEnvironment('AGORA_APP_ID');
 
-  /// Sentry DSN for error reporting.
-  static const String sentryDsn = String.fromEnvironment('SENTRY_DSN');
-
-  /// Deployment environment: development | staging | production.
-  static const String environment = String.fromEnvironment(
-    'ENVIRONMENT',
-    defaultValue: 'development',
-  );
-
   /// Netlify website URL — used for iOS payment redirect.
   static const String websiteUrl = String.fromEnvironment(
     'WEBSITE_URL',
     defaultValue: 'https://noorcompanion.netlify.app',
   );
 
-  /// Returns true when running in development mode.
-  static bool get isDevelopment => environment == 'development';
 }

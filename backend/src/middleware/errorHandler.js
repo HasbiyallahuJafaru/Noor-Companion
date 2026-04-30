@@ -6,8 +6,6 @@
 
 'use strict';
 
-const { Sentry } = require('../config/sentry');
-
 /**
  * Catches errors thrown or passed to next() anywhere in the app.
  *
@@ -24,7 +22,6 @@ function errorHandler(err, req, res, _next) {
     : err.message;
 
   if (statusCode >= 500) {
-    Sentry.captureException(err);
     console.error('[Error]', err);
   }
 

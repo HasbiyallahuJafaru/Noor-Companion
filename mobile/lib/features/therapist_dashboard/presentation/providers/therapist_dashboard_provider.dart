@@ -4,7 +4,7 @@ library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:flutter/foundation.dart';
 import '../../data/therapist_dashboard_repository.dart';
 import '../../domain/therapist_dashboard_models.dart';
 
@@ -44,13 +44,13 @@ class TherapistProfileNotifier extends Notifier<TherapistProfileState> {
       final profile = await repo.fetchMyProfile();
       state = TherapistProfileLoaded(profile);
     } on DioException catch (e, stack) {
-      Sentry.captureException(e, stackTrace: stack);
+      debugPrint('Error: $e\n$stack');
       state = TherapistProfileError(
         e.response?.data?['error']?['message'] as String? ??
             'Failed to load profile.',
       );
     } catch (e, stack) {
-      Sentry.captureException(e, stackTrace: stack);
+      debugPrint('Error: $e\n$stack');
       state = TherapistProfileError('Failed to load profile.');
     }
   }
@@ -79,11 +79,11 @@ class TherapistProfileNotifier extends Notifier<TherapistProfileState> {
       await load();
       return null;
     } on DioException catch (e, stack) {
-      Sentry.captureException(e, stackTrace: stack);
+      debugPrint('Error: $e\n$stack');
       return e.response?.data?['error']?['message'] as String? ??
           'Failed to update profile.';
     } catch (e, stack) {
-      Sentry.captureException(e, stackTrace: stack);
+      debugPrint('Error: $e\n$stack');
       return 'Failed to update profile.';
     }
   }
@@ -176,14 +176,14 @@ class SessionHistoryNotifier extends Notifier<SessionHistoryState> {
         page: page,
       );
     } on DioException catch (e, stack) {
-      Sentry.captureException(e, stackTrace: stack);
+      debugPrint('Error: $e\n$stack');
       state = state.copyWith(
         isLoading: false,
         errorMessage: e.response?.data?['error']?['message'] as String? ??
             'Failed to load sessions.',
       );
     } catch (e, stack) {
-      Sentry.captureException(e, stackTrace: stack);
+      debugPrint('Error: $e\n$stack');
       state = state.copyWith(
         isLoading: false,
         errorMessage: 'Failed to load sessions.',

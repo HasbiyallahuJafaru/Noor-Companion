@@ -24,7 +24,6 @@ const envSchema = z.object({
   FIREBASE_CLIENT_EMAIL: z.string().email(),
   RESEND_API_KEY: z.string().min(1),
   FROM_EMAIL: z.string().email(),
-  SENTRY_DSN: z.string().url(),
   WEBSITE_URL: z.string().url(),
 });
 

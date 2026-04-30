@@ -7,7 +7,7 @@ library;
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:flutter/foundation.dart';
 import '../../../../core/config/app_config.dart';
 import '../../../../core/services/permissions_service.dart';
 import '../../../../features/auth/presentation/providers/auth_provider.dart';
@@ -87,10 +87,7 @@ class CallingNotifier extends Notifier<CallingState> {
           endCall(sessionId);
         },
         onError: (ErrorCodeType err, String msg) {
-          Sentry.captureMessage(
-            'Agora error: ${err.name} — $msg',
-            level: SentryLevel.error,
-          );
+          debugPrint('Agora error: ${err.name} — $msg');
           state = CallingError(msg);
         },
         // Fired 30 seconds before the 1-hour Agora token expires.
@@ -112,7 +109,7 @@ class CallingNotifier extends Notifier<CallingState> {
         ),
       );
     } catch (e, stack) {
-      Sentry.captureException(e, stackTrace: stack);
+      debugPrint('Error: $e\n$stack');
       state = CallingError(e.toString());
     }
   }
@@ -132,9 +129,9 @@ class CallingNotifier extends Notifier<CallingState> {
       final newToken = res.data['data']['agoraToken'] as String;
       await _engine?.renewToken(newToken);
     } on DioException catch (e, stack) {
-      Sentry.captureException(e, stackTrace: stack);
+      debugPrint('Error: $e\n$stack');
     } catch (e, stack) {
-      Sentry.captureException(e, stackTrace: stack);
+      debugPrint('Error: $e\n$stack');
     }
   }
 
@@ -158,7 +155,7 @@ class CallingNotifier extends Notifier<CallingState> {
       final res = await dio.post('/calls/$sessionId/end');
       durationSeconds = res.data['data']['durationSeconds'] as int?;
     } on DioException catch (e, stack) {
-      Sentry.captureException(e, stackTrace: stack);
+      debugPrint('Error: $e\n$stack');
     }
 
     state = CallingEnded(sessionId: sessionId, durationSeconds: durationSeconds);
@@ -174,7 +171,7 @@ class CallingNotifier extends Notifier<CallingState> {
     try {
       await _engine?.muteLocalAudioStream(muted);
     } catch (e, stack) {
-      Sentry.captureException(e, stackTrace: stack);
+      debugPrint('Error: $e\n$stack');
     }
   }
 
@@ -193,7 +190,7 @@ class CallingNotifier extends Notifier<CallingState> {
         if (comment != null && comment.isNotEmpty) 'comment': comment,
       });
     } on DioException catch (e, stack) {
-      Sentry.captureException(e, stackTrace: stack);
+      debugPrint('Error: $e\n$stack');
     }
   }
 }

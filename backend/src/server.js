@@ -8,9 +8,6 @@
 
 require('dotenv').config();
 
-const { initSentry } = require('./config/sentry');
-initSentry();
-
 const { initFirebase } = require('./config/firebase');
 initFirebase();
 
