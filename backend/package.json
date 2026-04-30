@@ -6,10 +6,22 @@
   "scripts": {
     "dev": "node --watch src/server.js",
     "start": "node src/server.js",
+    "test": "jest --runInBand",
+    "test:watch": "jest --watch",
     "db:migrate": "npx prisma migrate dev",
     "db:deploy": "npx prisma migrate deploy",
     "db:generate": "npx prisma generate",
     "db:studio": "npx prisma studio"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/__tests__/**/*.test.js"
+    ],
+    "clearMocks": true,
+    "transformIgnorePatterns": [
+      "node_modules/(?!(@paralleldrive/cuid2)/)"
+    ]
   },
   "dependencies": {
     "@paralleldrive/cuid2": "^3.3.0",
@@ -30,6 +42,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "jest": "^30.3.0",
     "pg": "^8.20.0",
     "prisma": "^5.22.0"
   },
