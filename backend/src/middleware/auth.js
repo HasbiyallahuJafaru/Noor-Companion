@@ -50,7 +50,6 @@ async function authenticate(req, res, next) {
       where: { supabaseId: supabaseUser.id },
       create: {
         supabaseId: supabaseUser.id,
-        email: supabaseUser.email,
         firstName: meta.first_name ?? 'User',
         lastName: meta.last_name ?? '',
         role: meta.role ?? 'user',
