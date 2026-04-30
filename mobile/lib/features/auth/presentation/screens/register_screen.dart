@@ -54,6 +54,43 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     final isLoading = authState is AuthLoading;
     final errorMessage = authState is AuthError ? authState.message : null;
 
+    // Supabase required email confirmation — show success state.
+    if (authState is AuthAwaitingConfirmation) {
+      return Scaffold(
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.mark_email_read_rounded,
+                    size: 64, color: Color(0xFF0D7C6E)),
+                const SizedBox(height: 24),
+                Text('Check your email',
+                    style: AppTextStyles.headingLarge,
+                    textAlign: TextAlign.center),
+                const SizedBox(height: 12),
+                Text(
+                  'We sent a confirmation link to ${authState.email}. '
+                  'Open the link to activate your account, then sign in.',
+                  style: AppTextStyles.body,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 32),
+                ElevatedButton(
+                  onPressed: () {
+                    ref.read(authProvider.notifier).clearError();
+                    context.go(AppRoutes.login);
+                  },
+                  child: const Text('Go to sign in'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(

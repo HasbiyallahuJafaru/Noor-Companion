@@ -35,6 +35,13 @@ class AuthError extends AppAuthState {
   final String message;
 }
 
+/// Emitted after signUp() when Supabase requires email confirmation.
+/// The user must verify their email before they can sign in.
+class AuthAwaitingConfirmation extends AppAuthState {
+  const AuthAwaitingConfirmation(this.email);
+  final String email;
+}
+
 // ── Providers ─────────────────────────────────────────────────────────────────
 
 final supabaseClientProvider = Provider<SupabaseClient>((_) {
@@ -107,7 +114,7 @@ class AuthNotifier extends Notifier<AppAuthState> {
     state = const AuthLoading();
     try {
       final supabase = ref.read(supabaseClientProvider);
-      await supabase.auth.signUp(
+      final response = await supabase.auth.signUp(
         email: email,
         password: password,
         data: {
@@ -116,6 +123,13 @@ class AuthNotifier extends Notifier<AppAuthState> {
           'role': role,
         },
       );
+      // If session is null, Supabase requires email confirmation before login.
+      // Emit a specific state so the UI can show a confirmation message instead
+      // of leaving the spinner running indefinitely.
+      if (response.session == null) {
+        state = AuthAwaitingConfirmation(email);
+      }
+      // If session is not null, the auth stream fires and _loadUser() handles it.
     } on AuthException catch (e) {
       state = AuthError(e.message);
     } catch (e) {
@@ -146,9 +160,9 @@ class AuthNotifier extends Notifier<AppAuthState> {
   /// Used after subscription upgrade to reflect the new tier immediately.
   Future<void> refresh() => _loadUser();
 
-  /// Clears an error state back to unauthenticated so the user can retry.
+  /// Clears an error or confirmation state back to unauthenticated.
   void clearError() {
-    if (state is AuthError) {
+    if (state is AuthError || state is AuthAwaitingConfirmation) {
       state = const AuthUnauthenticated();
     }
   }
