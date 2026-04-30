@@ -3,14 +3,16 @@ allprojects {
         google()
         mavenCentral()
     }
+}
 
-    // Force all subprojects (including plugin dependencies like sentry_flutter)
-    // to compile with Kotlin language version 1.8+, since 1.6 is no longer supported.
-    plugins.withId("org.jetbrains.kotlin.android") {
-        extensions.configure<org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension> {
-            compilerOptions {
-                languageVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_1_9)
-                apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_1_9)
+// Override Kotlin language version for all subprojects after they evaluate themselves.
+// sentry_flutter hardcodes languageVersion = "1.6" which is no longer supported.
+subprojects {
+    afterEvaluate {
+        tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+            kotlinOptions {
+                languageVersion = "1.9"
+                apiVersion = "1.9"
             }
         }
     }
