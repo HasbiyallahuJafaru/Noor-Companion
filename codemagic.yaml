@@ -10,7 +10,7 @@ workflows:
         SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR0ZmlsdWdmdnRsbmdteHlubXJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwODAwNjcsImV4cCI6MjA4OTY1NjA2N30.w7NyXKqYr7YAuif03FxP0GoVyO7f9ApM7ySsM2jgaEs
         AGORA_APP_ID: 6ce3461bcc5c480c81f30209ebc759f8
         WEBSITE_URL: https://noorcompanion.netlify.app
-        SENTRY_DSN: ""
+        SENTRY_DSN: placeholder
     scripts:
       - name: Get Flutter packages
         script: flutter pub get
