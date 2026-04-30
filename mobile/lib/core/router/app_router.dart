@@ -121,7 +121,9 @@ GoRouter buildAppRouter(WidgetRef ref) {
         return null;
       }
 
-      // Unauthenticated — redirect to login unless on a public route.
+      // Unauthenticated — redirect splash to login (splash is passive, never
+      // navigates itself). Allow login and register to stay as-is.
+      if (path == AppRoutes.splash) return AppRoutes.login;
       if (_publicRoutes.contains(path)) return null;
       return AppRoutes.login;
     },
