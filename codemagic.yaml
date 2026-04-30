@@ -13,9 +13,12 @@ workflows:
         SENTRY_DSN: placeholder
     scripts:
       - name: Get Flutter packages
-        script: flutter pub get
+        script: |
+          cd mobile
+          flutter pub get
       - name: Build APK
         script: |
+          cd mobile
           flutter build apk --release \
             --dart-define=API_BASE_URL=$API_BASE_URL \
             --dart-define=SUPABASE_URL=$SUPABASE_URL \
@@ -24,4 +27,4 @@ workflows:
             --dart-define=SENTRY_DSN=$SENTRY_DSN \
             --dart-define=WEBSITE_URL=$WEBSITE_URL
     artifacts:
-      - build/app/outputs/flutter-apk/app-release.apk
+      - mobile/build/app/outputs/flutter-apk/app-release.apk
