@@ -42,8 +42,20 @@ async function authenticate(req, res, next) {
       });
     }
 
-    const appUser = await prisma.user.findUnique({
+    // Upsert the app user from Supabase metadata on every first-time login.
+    // This handles the case where Supabase Auth created the account but
+    // the backend users table has no matching row yet.
+    const meta = supabaseUser.user_metadata ?? {};
+    const appUser = await prisma.user.upsert({
       where: { supabaseId: supabaseUser.id },
+      create: {
+        supabaseId: supabaseUser.id,
+        email: supabaseUser.email,
+        firstName: meta.first_name ?? 'User',
+        lastName: meta.last_name ?? '',
+        role: meta.role ?? 'user',
+      },
+      update: {},
       select: {
         id: true,
         supabaseId: true,
@@ -56,10 +68,10 @@ async function authenticate(req, res, next) {
       },
     });
 
-    if (!appUser || !appUser.isActive) {
+    if (!appUser.isActive) {
       return res.status(401).json({
         success: false,
-        error: { code: 'UNAUTHORIZED', message: 'Account not found or suspended.' },
+        error: { code: 'UNAUTHORIZED', message: 'Account suspended.' },
       });
     }
 
