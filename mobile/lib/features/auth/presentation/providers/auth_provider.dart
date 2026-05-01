@@ -160,6 +160,18 @@ class AuthNotifier extends Notifier<AppAuthState> {
   /// Used after subscription upgrade to reflect the new tier immediately.
   Future<void> refresh() => _loadUser();
 
+  /// Sends a password reset email via Supabase Auth.
+  Future<void> resetPassword(String email) async {
+    try {
+      final supabase = ref.read(supabaseClientProvider);
+      await supabase.auth.resetPasswordForEmail(email);
+    } on AuthException catch (e) {
+      state = AuthError(e.message);
+    } catch (e) {
+      state = AuthError('Could not send reset email. Please try again.');
+    }
+  }
+
   /// Clears an error or confirmation state back to unauthenticated.
   void clearError() {
     if (state is AuthError || state is AuthAwaitingConfirmation) {

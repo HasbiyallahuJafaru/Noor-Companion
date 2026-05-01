@@ -1,5 +1,5 @@
-/// Home screen — Islamic content feed with prayer times, streak, featured
-/// dhikr, morning/evening adhkar rows, and the pinned "I'm Struggling" button.
+/// Home screen — premium light design with organic background,
+/// glass cards, mood selector, streak, and Islamic content feed.
 library;
 
 import 'package:flutter/material.dart';
@@ -8,7 +8,8 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/glass_card.dart';
+import '../../../../core/widgets/premium_background.dart';
 import '../../../../features/content/domain/models/dhikr_model.dart';
 import '../../../../shared/widgets/shimmer_box.dart';
 import '../providers/home_providers.dart';
@@ -16,11 +17,25 @@ import '../widgets/panic_button.dart';
 import '../widgets/prayer_time_banner.dart';
 import '../widgets/streak_display.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  int _moodIndex = -1;
+
+  static const _moods = [
+    ('😊', 'Great'),
+    ('😌', 'Good'),
+    ('😐', 'Okay'),
+    ('😔', 'Not good'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
     final firstName = ref.watch(currentUserFirstNameProvider);
     final timeTag = ref.watch(timeOfDayTagProvider);
     final featuredAsync = ref.watch(featuredDhikrProvider);
@@ -28,158 +43,172 @@ class HomeScreen extends ConsumerWidget {
     final eveningAsync = ref.watch(eveningDhikrProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        bottom: false,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              child: CustomScrollView(
-                physics: const BouncingScrollPhysics(),
-                slivers: [
-                  SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
-                    sliver: SliverList(
-                      delegate: SliverChildListDelegate([
-                        // ── Greeting ──────────────────────────────────────
-                        _Greeting(firstName: firstName),
-                        const SizedBox(height: 16),
-                        // ── Prayer times strip ────────────────────────────
-                        const PrayerTimeBanner(),
-                        const SizedBox(height: 24),
-                        // ── Streak display ────────────────────────────────
-                        const StreakDisplay(),
-                        const SizedBox(height: 28),
-                        // ── Featured dhikr ────────────────────────────────
-                        _SectionHeader(title: 'Daily Dhikr'),
-                        const SizedBox(height: 12),
-                        featuredAsync.when(
-                          loading: () => const ShimmerBox(
-                              width: double.infinity, height: 120),
-                          error: (_, _) => const SizedBox.shrink(),
-                          data: (item) => item != null
-                              ? _FeaturedDhikrCard(item: item)
-                              : const SizedBox.shrink(),
+      body: Stack(
+        children: [
+          const PremiumBackground(),
+          SafeArea(
+            bottom: false,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: CustomScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    slivers: [
+                      SliverPadding(
+                        padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                        sliver: SliverList(
+                          delegate: SliverChildListDelegate([
+                            _Header(firstName: firstName),
+                            const SizedBox(height: 16),
+                            const PrayerTimeBanner(),
+                            const SizedBox(height: 20),
+                            _MoodSelector(
+                              moods: _moods,
+                              selectedIndex: _moodIndex,
+                              onSelect: (i) => setState(() => _moodIndex = i),
+                            ),
+                            const SizedBox(height: 20),
+                            const StreakDisplay(),
+                            const SizedBox(height: 24),
+                            _SectionLabel(title: 'Daily Dhikr'),
+                            const SizedBox(height: 12),
+                            featuredAsync.when(
+                              loading: () => const ShimmerBox(width: double.infinity, height: 130),
+                              error: (_, _) => const SizedBox.shrink(),
+                              data: (item) => item != null
+                                  ? _FeaturedDhikrCard(item: item)
+                                  : const SizedBox.shrink(),
+                            ),
+                            const SizedBox(height: 24),
+                            if (timeTag == 'morning' || timeTag == 'general') ...[
+                              _SectionLabel(title: 'Morning Adhkar'),
+                              const SizedBox(height: 12),
+                              _DhikrRow(streamAsync: morningAsync),
+                              const SizedBox(height: 24),
+                            ],
+                            if (timeTag == 'evening' || timeTag == 'general') ...[
+                              _SectionLabel(title: 'Evening Adhkar'),
+                              const SizedBox(height: 12),
+                              _DhikrRow(streamAsync: eveningAsync),
+                              const SizedBox(height: 24),
+                            ],
+                            _SectionLabel(title: 'Explore'),
+                            const SizedBox(height: 12),
+                            _QuickAccessRow(
+                              onQuran: () => context.push(AppRoutes.quran),
+                              onDuas: () => context.push(AppRoutes.duas),
+                            ),
+                            const SizedBox(height: 100),
+                          ]),
                         ),
-                        const SizedBox(height: 28),
-                        // ── Morning adhkar row ────────────────────────────
-                        if (timeTag == 'morning' || timeTag == 'general') ...[
-                          _SectionHeader(
-                            title: 'Morning Adhkar',
-                            onSeeAll: () => context.push(AppRoutes.home),
-                          ),
-                          const SizedBox(height: 12),
-                          _DhikrHorizontalRow(streamAsync: morningAsync),
-                          const SizedBox(height: 28),
-                        ],
-                        // ── Evening adhkar row ────────────────────────────
-                        if (timeTag == 'evening' || timeTag == 'general') ...[
-                          _SectionHeader(
-                            title: 'Evening Adhkar',
-                            onSeeAll: () => context.push(AppRoutes.home),
-                          ),
-                          const SizedBox(height: 12),
-                          _DhikrHorizontalRow(streamAsync: eveningAsync),
-                          const SizedBox(height: 28),
-                        ],
-                        // ── Quran card ────────────────────────────────────
-                        _SectionHeader(title: 'Quran'),
-                        const SizedBox(height: 12),
-                        _QuranCard(
-                          onTap: () => context.push(AppRoutes.quran),
-                        ),
-                        const SizedBox(height: 28),
-                        // ── Duas card ─────────────────────────────────────
-                        _SectionHeader(title: 'Duas'),
-                        const SizedBox(height: 12),
-                        _DuasCard(
-                          onTap: () => context.push(AppRoutes.duas),
-                        ),
-                        const SizedBox(height: 40),
-                      ]),
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+                  child: const PanicButton(),
+                ),
+              ],
             ),
-            // ── Panic button — always visible ──────────────────────────────
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
-              child: const PanicButton(),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
 
-// ── Greeting ──────────────────────────────────────────────────────────────────
+// ── Header ────────────────────────────────────────────────────────────────────
 
-class _Greeting extends StatelessWidget {
-  const _Greeting({required this.firstName});
-
+class _Header extends StatelessWidget {
+  const _Header({required this.firstName});
   final String firstName;
 
   @override
   Widget build(BuildContext context) {
+    final hour = DateTime.now().hour;
+    final greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
     final name = firstName.isNotEmpty ? ', $firstName' : '';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Assalamu Alaikum$name',
-          style: AppTextStyles.headingLarge,
-        ),
-        const SizedBox(height: 2),
-        Text(
-          _subGreeting(),
-          style: AppTextStyles.bodySmall.copyWith(
-            color: AppColors.textSecondary,
-          ),
-        ),
+        Text('$greeting$name 👋', style: AppTextStyles.headingLarge),
+        const SizedBox(height: 4),
+        Text('How are you feeling today?', style: AppTextStyles.bodySmall),
       ],
     );
   }
-
-  String _subGreeting() {
-    final hour = DateTime.now().hour;
-    if (hour < 6) return 'May your night be full of peace.';
-    if (hour < 12) return 'Start your day with remembrance.';
-    if (hour < 15) return 'Keep the remembrance in your heart.';
-    if (hour < 18) return 'Evening adhkar time is approaching.';
-    return 'End your day with gratitude.';
-  }
 }
 
-// ── Section header ────────────────────────────────────────────────────────────
+// ── Mood selector ─────────────────────────────────────────────────────────────
 
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.title, this.onSeeAll});
+class _MoodSelector extends StatelessWidget {
+  const _MoodSelector({
+    required this.moods,
+    required this.selectedIndex,
+    required this.onSelect,
+  });
 
-  final String title;
-  final VoidCallback? onSeeAll;
+  final List<(String, String)> moods;
+  final int selectedIndex;
+  final ValueChanged<int> onSelect;
 
   @override
   Widget build(BuildContext context) {
     return Row(
-      children: [
-        Text(title, style: AppTextStyles.headingSmall),
-        const Spacer(),
-        if (onSeeAll != null)
-          GestureDetector(
-            onTap: onSeeAll,
-            child: Text(
-              'See all',
-              style: AppTextStyles.caption.copyWith(
-                color: AppColors.brandTeal,
-                fontWeight: FontWeight.w600,
+      children: List.generate(moods.length, (i) {
+        final selected = selectedIndex == i;
+        final (emoji, label) = moods[i];
+        return Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(right: i < moods.length - 1 ? 8 : 0),
+            child: GestureDetector(
+              onTap: () => onSelect(i),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(14),
+                  color: selected
+                      ? AppColors.brandTeal.withValues(alpha: 0.12)
+                      : Colors.white.withValues(alpha: 0.6),
+                  border: Border.all(
+                    color: selected ? AppColors.brandTeal : AppColors.border,
+                    width: selected ? 1.5 : 1,
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Text(emoji, style: const TextStyle(fontSize: 18)),
+                    const SizedBox(height: 4),
+                    Text(
+                      label,
+                      style: AppTextStyles.caption.copyWith(
+                        color: selected ? AppColors.brandTeal : AppColors.textMuted,
+                        fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-      ],
+        );
+      }),
     );
+  }
+}
+
+// ── Section label ─────────────────────────────────────────────────────────────
+
+class _SectionLabel extends StatelessWidget {
+  const _SectionLabel({required this.title});
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(title, style: AppTextStyles.headingSmall);
   }
 }
 
@@ -187,56 +216,56 @@ class _SectionHeader extends StatelessWidget {
 
 class _FeaturedDhikrCard extends StatelessWidget {
   const _FeaturedDhikrCard({required this.item});
-
   final DhikrModel item;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => context.push('/dhikr/${item.id}'),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: AppColors.brandTeal,
-          borderRadius: BorderRadius.circular(AppRadius.lg),
-          boxShadow: AppShadows.md,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+      child: GlassCard(
+        child: Row(
           children: [
-            Text(
-              item.arabicText,
-              textAlign: TextAlign.right,
-              style: AppTextStyles.arabicLarge.copyWith(
-                fontSize: 24,
-                color: Colors.white,
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 10),
-            Text(
-              item.translation,
-              style: AppTextStyles.bodySmall.copyWith(
-                color: Colors.white.withAlpha(204),
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Text(
-                  '${item.targetCount}× · ${item.title}',
-                  style: AppTextStyles.caption.copyWith(
-                    color: Colors.white.withAlpha(179),
-                    fontWeight: FontWeight.w600,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    item.arabicText,
+                    textAlign: TextAlign.right,
+                    style: AppTextStyles.arabicLarge.copyWith(fontSize: 22),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                const Spacer(),
-                const Icon(Icons.arrow_forward_rounded,
-                    color: Colors.white, size: 16),
-              ],
+                  const SizedBox(height: 8),
+                  Text(
+                    item.translation,
+                    style: AppTextStyles.bodySmall,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppColors.brandTeal.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(99),
+                        ),
+                        child: Text(
+                          '${item.targetCount}× · ${item.title}',
+                          style: AppTextStyles.caption.copyWith(
+                            color: AppColors.brandTeal,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      const Spacer(),
+                      const Icon(Icons.arrow_forward_rounded, color: AppColors.brandTeal, size: 16),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -247,9 +276,8 @@ class _FeaturedDhikrCard extends StatelessWidget {
 
 // ── Dhikr horizontal row ──────────────────────────────────────────────────────
 
-class _DhikrHorizontalRow extends StatelessWidget {
-  const _DhikrHorizontalRow({required this.streamAsync});
-
+class _DhikrRow extends StatelessWidget {
+  const _DhikrRow({required this.streamAsync});
   final AsyncValue<List<DhikrModel>> streamAsync;
 
   @override
@@ -260,16 +288,15 @@ class _DhikrHorizontalRow extends StatelessWidget {
         loading: () => ListView.separated(
           scrollDirection: Axis.horizontal,
           itemCount: 4,
-          separatorBuilder: (_, _) => const SizedBox(width: 12),
-          itemBuilder: (_, _) =>
-              const ShimmerBox(width: 120, height: 130),
+          separatorBuilder: (_, _) => const SizedBox(width: 10),
+          itemBuilder: (_, _) => const ShimmerBox(width: 110, height: 130),
         ),
         error: (_, _) => const SizedBox.shrink(),
         data: (items) => ListView.separated(
           scrollDirection: Axis.horizontal,
           physics: const BouncingScrollPhysics(),
           itemCount: items.length,
-          separatorBuilder: (_, _) => const SizedBox(width: 12),
+          separatorBuilder: (_, _) => const SizedBox(width: 10),
           itemBuilder: (_, i) => _SmallDhikrCard(item: items[i]),
         ),
       ),
@@ -279,158 +306,95 @@ class _DhikrHorizontalRow extends StatelessWidget {
 
 class _SmallDhikrCard extends StatelessWidget {
   const _SmallDhikrCard({required this.item});
-
   final DhikrModel item;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => context.push('/dhikr/${item.id}'),
-      child: Container(
-        width: 120,
+      child: GlassCard(
         padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          border: Border.all(color: AppColors.border),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              item.arabicText,
-              textAlign: TextAlign.right,
-              style: AppTextStyles.arabicLarge.copyWith(fontSize: 16),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const Spacer(),
-            Text(
-              item.title,
-              style: AppTextStyles.caption.copyWith(
-                fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+        borderRadius: 16,
+        child: SizedBox(
+          width: 110,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                item.arabicText,
+                textAlign: TextAlign.right,
+                style: AppTextStyles.arabicLarge.copyWith(fontSize: 16),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 2),
-            Text(
-              '${item.targetCount}×',
-              style: AppTextStyles.caption.copyWith(
-                color: AppColors.brandTeal,
+              const Spacer(),
+              Text(
+                item.title,
+                style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-            ),
-          ],
+              Text('${item.targetCount}×', style: AppTextStyles.caption.copyWith(color: AppColors.brandTeal)),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-// ── Quran entry card ──────────────────────────────────────────────────────────
+// ── Quick access row ──────────────────────────────────────────────────────────
 
-class _QuranCard extends StatelessWidget {
-  const _QuranCard({required this.onTap});
-
-  final VoidCallback onTap;
+class _QuickAccessRow extends StatelessWidget {
+  const _QuickAccessRow({required this.onQuran, required this.onDuas});
+  final VoidCallback onQuran;
+  final VoidCallback onDuas;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(AppRadius.lg),
-          border: Border.all(color: AppColors.border),
-          boxShadow: AppShadows.sm,
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: AppColors.tealLight,
-                borderRadius: BorderRadius.circular(AppRadius.md),
-              ),
-              child: const Icon(Icons.menu_book_rounded,
-                  color: AppColors.brandTeal, size: 22),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Quran Recitations',
-                      style: AppTextStyles.body.copyWith(
-                          fontWeight: FontWeight.w600)),
-                  const SizedBox(height: 2),
-                  Text('Browse all 114 surahs',
-                      style: AppTextStyles.caption.copyWith(
-                          color: AppColors.textMuted)),
-                ],
-              ),
-            ),
-            const Icon(Icons.arrow_forward_ios_rounded,
-                size: 14, color: AppColors.textMuted),
-          ],
-        ),
-      ),
+    return Row(
+      children: [
+        Expanded(child: _QuickCard(icon: Icons.menu_book_rounded, label: 'Quran', sub: '114 surahs', onTap: onQuran)),
+        const SizedBox(width: 12),
+        Expanded(child: _QuickCard(icon: Icons.volunteer_activism_rounded, label: 'Duas', sub: 'Every occasion', onTap: onDuas)),
+      ],
     );
   }
 }
 
-// ── Duas entry card ───────────────────────────────────────────────────────────
-
-class _DuasCard extends StatelessWidget {
-  const _DuasCard({required this.onTap});
-
+class _QuickCard extends StatelessWidget {
+  const _QuickCard({required this.icon, required this.label, required this.sub, required this.onTap});
+  final IconData icon;
+  final String label;
+  final String sub;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(AppRadius.lg),
-          border: Border.all(color: AppColors.border),
-          boxShadow: AppShadows.sm,
-        ),
+      child: GlassCard(
+        padding: const EdgeInsets.all(16),
         child: Row(
           children: [
             Container(
-              width: 44,
-              height: 44,
+              width: 40, height: 40,
               decoration: BoxDecoration(
-                color: AppColors.tealLight,
-                borderRadius: BorderRadius.circular(AppRadius.md),
+                color: AppColors.brandTeal.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(Icons.volunteer_activism_rounded,
-                  color: AppColors.brandTeal, size: 22),
+              child: Icon(icon, color: AppColors.brandTeal, size: 20),
             ),
-            const SizedBox(width: 14),
+            const SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Duas',
-                      style: AppTextStyles.body.copyWith(
-                          fontWeight: FontWeight.w600)),
-                  const SizedBox(height: 2),
-                  Text('Supplications for every occasion',
-                      style: AppTextStyles.caption.copyWith(
-                          color: AppColors.textMuted)),
+                  Text(label, style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+                  Text(sub, style: AppTextStyles.caption),
                 ],
               ),
             ),
-            const Icon(Icons.arrow_forward_ios_rounded,
-                size: 14, color: AppColors.textMuted),
           ],
         ),
       ),
