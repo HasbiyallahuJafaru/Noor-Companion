@@ -16,9 +16,9 @@ services:
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
       - key: DATABASE_URL
-        value: postgresql://postgres:Genryuusai%401@db.dtfilugfvtlngmxynmrd.supabase.co:5432/postgres
+        value: postgresql://postgres.dtfilugfvtlngmxynmrd:Genryuusai%401@aws-0-eu-west-1.pooler.supabase.com:6543/postgres?pgbouncer=true
       - key: DIRECT_DATABASE_URL
-        value: postgresql://postgres:Genryuusai%401@db.dtfilugfvtlngmxynmrd.supabase.co:5432/postgres
+        value: postgresql://postgres.dtfilugfvtlngmxynmrd:Genryuusai%401@aws-0-eu-west-1.pooler.supabase.com:5432/postgres
       - key: SUBSCRIPTION_TOKEN_SECRET
         sync: false
       - key: UPSTASH_REDIS_URL
