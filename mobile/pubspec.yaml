@@ -42,7 +42,7 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   google_fonts: ^8.0.2
-url_launcher: ^6.3.2
+  url_launcher: ^6.3.2
   vibration: ^3.1.8
   firebase_core: ^4.7.0
   firebase_messaging: ^16.2.0
