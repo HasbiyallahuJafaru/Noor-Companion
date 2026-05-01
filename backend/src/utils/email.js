@@ -8,7 +8,6 @@
 'use strict';
 
 const { Resend } = require('resend');
-const Sentry = require('@sentry/node');
 const { env } = require('../config/env');
 
 const resend = new Resend(env.RESEND_API_KEY);
@@ -28,7 +27,7 @@ async function sendTherapistApprovedEmail({ toEmail, firstName }) {
       html: _approvedHtml(firstName),
     });
   } catch (err) {
-    Sentry.captureException(err);
+    // error already logged below
     console.error('[email] Failed to send approval email:', err.message);
   }
 }
@@ -48,7 +47,7 @@ async function sendTherapistRejectedEmail({ toEmail, firstName, reason }) {
       html: _rejectedHtml(firstName, reason),
     });
   } catch (err) {
-    Sentry.captureException(err);
+    // error already logged below
     console.error('[email] Failed to send rejection email:', err.message);
   }
 }

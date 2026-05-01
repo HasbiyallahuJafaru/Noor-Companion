@@ -8,7 +8,6 @@
 const { Router } = require('express');
 const { authenticate } = require('../middleware/auth');
 const { getUserStreak } = require('../services/streak.service');
-const Sentry = require('@sentry/node');
 
 const router = Router();
 
@@ -26,7 +25,7 @@ router.get('/me', authenticate, async (req, res, next) => {
     const streak = await getUserStreak(req.user.id);
     return res.json({ success: true, data: streak });
   } catch (err) {
-    Sentry.captureException(err);
+
     return next(err);
   }
 });

@@ -11,7 +11,6 @@
 
 'use strict';
 
-const Sentry = require('@sentry/node');
 const { admin } = require('../config/firebase');
 const { prisma } = require('../config/prisma');
 
@@ -39,7 +38,7 @@ async function sendDirectPush(fcmToken, payload) {
       apns: { payload: { aps: { 'content-available': 1 } } },
     });
   } catch (err) {
-    Sentry.captureException(err, { extra: { fcmToken: '[redacted]' } });
+    console.error('[notification] sendDirectPush error:', err.message);
   }
 }
 
@@ -73,7 +72,7 @@ async function sendToUser(userId, { type, title, body, data }) {
       });
     }
   } catch (err) {
-    Sentry.captureException(err, { extra: { userId } });
+    console.error('[notification] sendToUser error:', err.message);
   }
 }
 
@@ -121,11 +120,11 @@ async function broadcastToRole(role, { type, title, body, data }) {
           apns: { payload: { aps: { 'content-available': 1 } } },
         });
       } catch (err) {
-        Sentry.captureException(err, { extra: { batchStart: i } });
+        console.error('[notification] broadcastToRole batch error:', err.message);
       }
     }
   } catch (err) {
-    Sentry.captureException(err, { extra: { role } });
+    console.error('[notification] broadcastToRole error:', err.message);
   }
 }
 

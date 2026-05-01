@@ -9,7 +9,6 @@
 'use strict';
 
 const { Router } = require('express');
-const Sentry = require('@sentry/node');
 const { authenticate } = require('../middleware/auth');
 const { validate } = require('../middleware/validate');
 const { callRateLimiter } = require('../middleware/rateLimiter');
@@ -32,7 +31,7 @@ router.post('/token', callRateLimiter, validate(initiateCallSchema), async (req,
       success: false,
       error: { code: err.code, message: err.message },
     });
-    Sentry.captureException(err);
+
     next(err);
   }
 });
@@ -48,7 +47,7 @@ router.post('/:sessionId/end', async (req, res, next) => {
       success: false,
       error: { code: err.code, message: err.message },
     });
-    Sentry.captureException(err);
+
     next(err);
   }
 });
@@ -69,7 +68,7 @@ router.post('/:sessionId/rate', validate(rateCallSchema), async (req, res, next)
       success: false,
       error: { code: err.code, message: err.message },
     });
-    Sentry.captureException(err);
+
     next(err);
   }
 });
@@ -113,7 +112,7 @@ router.post('/:sessionId/renew-token', async (req, res, next) => {
     const agoraToken = generateRtcToken(session.agoraChannelName);
     res.json({ success: true, data: { agoraToken } });
   } catch (err) {
-    Sentry.captureException(err);
+
     next(err);
   }
 });
@@ -133,7 +132,7 @@ router.get('/my-sessions', async (req, res, next) => {
     const data = await getTherapistSessions(req.user.id, { page, limit });
     res.json({ success: true, data });
   } catch (err) {
-    Sentry.captureException(err);
+
     next(err);
   }
 });

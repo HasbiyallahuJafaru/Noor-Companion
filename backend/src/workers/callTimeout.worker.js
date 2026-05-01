@@ -10,7 +10,6 @@
 'use strict';
 
 const { Queue, Worker } = require('bullmq');
-const Sentry = require('@sentry/node');
 const { redis } = require('../config/redis');
 const { prisma } = require('../config/prisma');
 const { notificationService } = require('../services/notification.service');
@@ -73,7 +72,7 @@ function startCallTimeoutWorker() {
   });
 
   worker.on('failed', (job, err) => {
-    Sentry.captureException(err, { extra: { jobId: job?.id } });
+    console.error('[callTimeout] Job error:', err.message);
     console.error(`[callTimeout] Job failed: ${err.message}`);
   });
 

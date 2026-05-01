@@ -7,7 +7,6 @@
 
 const { prisma } = require('../config/prisma');
 const { admin } = require('../config/firebase');
-const Sentry = require('@sentry/node');
 const { sendTherapistApprovedEmail, sendTherapistRejectedEmail } = require('../utils/email');
 
 /** Fields selected for every therapist in the directory listing. */
@@ -285,7 +284,7 @@ async function _getSupabaseEmail(userId) {
     const { data } = await supabase.auth.admin.getUserById(user.supabaseId);
     return data?.user?.email ?? '';
   } catch (err) {
-    Sentry.captureException(err);
+    console.error('[therapists]', err.message);
     return '';
   }
 }
@@ -309,7 +308,7 @@ async function _sendApprovalPush(fcmToken, firstName) {
       data: { type: 'therapist_approved' },
     });
   } catch (err) {
-    Sentry.captureException(err);
+    console.error('[therapists]', err.message);
   }
 }
 
@@ -333,7 +332,7 @@ async function _sendRejectionPush(fcmToken, firstName, reason) {
       data: { type: 'therapist_rejected', reason },
     });
   } catch (err) {
-    Sentry.captureException(err);
+    console.error('[therapists]', err.message);
   }
 }
 

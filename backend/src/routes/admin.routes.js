@@ -7,7 +7,6 @@
 'use strict';
 
 const { Router } = require('express');
-const Sentry = require('@sentry/node');
 const { authenticate } = require('../middleware/auth');
 const { roleGuard } = require('../middleware/roleGuard');
 const { validate } = require('../middleware/validate');
@@ -51,7 +50,7 @@ router.get('/analytics', async (req, res, next) => {
     const data = await getAnalytics();
     return res.json({ success: true, data });
   } catch (err) {
-    Sentry.captureException(err);
+
     return next(err);
   }
 });
@@ -70,7 +69,7 @@ router.get(
       const data = await listUsers(req.query);
       return res.json({ success: true, data });
     } catch (err) {
-      Sentry.captureException(err);
+  
       return next(err);
     }
   },
@@ -85,7 +84,7 @@ router.get('/users/:userId', async (req, res, next) => {
     const user = await getUserById(req.params.userId);
     return res.json({ success: true, data: user });
   } catch (err) {
-    Sentry.captureException(err);
+
     return next(err);
   }
 });
@@ -102,7 +101,7 @@ router.patch(
       const updated = await updateUser(req.params.userId, req.body, req.user.id);
       return res.json({ success: true, data: updated });
     } catch (err) {
-      Sentry.captureException(err);
+  
       return next(err);
     }
   },
@@ -119,7 +118,7 @@ router.get('/therapists/pending', async (req, res, next) => {
     const pending = await listPendingTherapists();
     return res.json({ success: true, data: pending });
   } catch (err) {
-    Sentry.captureException(err);
+
     return next(err);
   }
 });
@@ -135,7 +134,7 @@ router.post(
       await approveTherapist(req.params.therapistProfileId, req.user.id);
       return res.json({ success: true, data: { message: 'Therapist approved.' } });
     } catch (err) {
-      Sentry.captureException(err);
+  
       return next(err);
     }
   },
@@ -153,7 +152,7 @@ router.post(
       await rejectTherapist(req.params.therapistProfileId, req.body.reason);
       return res.json({ success: true, data: { message: 'Therapist rejected.' } });
     } catch (err) {
-      Sentry.captureException(err);
+  
       return next(err);
     }
   },
@@ -173,7 +172,7 @@ router.get(
       const data = await listAllContent(req.query);
       return res.json({ success: true, data });
     } catch (err) {
-      Sentry.captureException(err);
+  
       return next(err);
     }
   },
@@ -191,7 +190,7 @@ router.post(
       const item = await createContent(req.body);
       return res.status(201).json({ success: true, data: item });
     } catch (err) {
-      Sentry.captureException(err);
+  
       return next(err);
     }
   },
@@ -209,7 +208,7 @@ router.patch(
       const item = await updateContent(req.params.contentId, req.body);
       return res.json({ success: true, data: item });
     } catch (err) {
-      Sentry.captureException(err);
+  
       return next(err);
     }
   },
@@ -230,7 +229,7 @@ router.post(
       const result = await broadcastNotification(title, body, targetRole);
       return res.json({ success: true, data: result });
     } catch (err) {
-      Sentry.captureException(err);
+  
       return next(err);
     }
   },

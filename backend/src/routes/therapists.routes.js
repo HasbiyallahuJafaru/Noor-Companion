@@ -6,7 +6,6 @@
 'use strict';
 
 const { Router } = require('express');
-const Sentry = require('@sentry/node');
 const { authenticate } = require('../middleware/auth');
 const { roleGuard } = require('../middleware/roleGuard');
 const { validate } = require('../middleware/validate');
@@ -37,7 +36,7 @@ router.get(
       const result = await listTherapists(req.query);
       return res.json({ success: true, data: result });
     } catch (err) {
-      Sentry.captureException(err);
+
       return next(err);
     }
   },
@@ -59,7 +58,6 @@ router.get('/me', authenticate, roleGuard('therapist'), async (req, res, next) =
         error: { code: err.code, message: err.message },
       });
     }
-    Sentry.captureException(err);
     return next(err);
   }
 });
@@ -74,7 +72,6 @@ router.get('/:therapistProfileId', authenticate, async (req, res, next) => {
     const therapist = await getTherapistById(req.params.therapistProfileId);
     return res.json({ success: true, data: therapist });
   } catch (err) {
-    Sentry.captureException(err);
     return next(err);
   }
 });
@@ -94,7 +91,7 @@ router.post(
       const profile = await upsertTherapistProfile(req.user.id, req.body);
       return res.json({ success: true, data: profile });
     } catch (err) {
-      Sentry.captureException(err);
+
       return next(err);
     }
   },

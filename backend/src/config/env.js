@@ -18,13 +18,13 @@ const envSchema = z.object({
   UPSTASH_REDIS_URL: z.string().min(1),
   PAYSTACK_SECRET_KEY: z.string().min(1),
   AGORA_APP_ID: z.string().min(1),
-  AGORA_APP_CERTIFICATE: z.string().min(1),
+  AGORA_APP_CERTIFICATE: z.string().default(''),
   FIREBASE_PROJECT_ID: z.string().min(1),
   FIREBASE_PRIVATE_KEY: z.string().min(1),
   FIREBASE_CLIENT_EMAIL: z.string().email(),
-  RESEND_API_KEY: z.string().min(1),
-  FROM_EMAIL: z.string().email(),
-  WEBSITE_URL: z.string().url(),
+  RESEND_API_KEY: z.string().default(''),
+  FROM_EMAIL: z.string().default('noreply@noorcompanion.com'),
+  WEBSITE_URL: z.string().default('https://noorcompanion.netlify.app'),
 });
 
 const parsed = envSchema.safeParse(process.env);

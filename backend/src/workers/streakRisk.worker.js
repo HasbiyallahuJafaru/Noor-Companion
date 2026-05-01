@@ -12,7 +12,6 @@
 'use strict';
 
 const { Queue, Worker } = require('bullmq');
-const Sentry = require('@sentry/node');
 const { redis } = require('../config/redis');
 const { findStreakRiskUsers } = require('../services/streak.service');
 const { admin } = require('../config/firebase');
@@ -77,7 +76,7 @@ async function _sendBatch(batch) {
       }
     });
   } catch (err) {
-    Sentry.captureException(err);
+    console.error('[streakRisk] Error:', err.message);
     console.error('[streakRisk] FCM multicast error:', err.message);
   }
 }
@@ -122,12 +121,12 @@ function startStreakRiskWorker() {
   });
 
   worker.on('failed', (job, err) => {
-    Sentry.captureException(err);
+    console.error('[streakRisk] Error:', err.message);
     console.error(`[streakRisk] Job failed: ${err.message}`);
   });
 
   _scheduleRepeatingJob(queue).catch((err) => {
-    Sentry.captureException(err);
+    console.error('[streakRisk] Error:', err.message);
     console.error('[streakRisk] Failed to schedule job:', err.message);
   });
 

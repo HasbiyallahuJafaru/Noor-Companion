@@ -6,7 +6,6 @@
 
 'use strict';
 
-const Sentry = require('@sentry/node');
 const logger = console; // Replace with pino if added later
 const paymentsService = require('../services/payments.service');
 
@@ -61,7 +60,7 @@ async function handleWebhook(req, res) {
   try {
     event = JSON.parse(req.body.toString());
   } catch (err) {
-    Sentry.captureException(err, { extra: { context: 'webhook JSON parse' } });
+    logger.error('[webhook] JSON parse error:', err.message);
     return;
   }
 
@@ -70,9 +69,7 @@ async function handleWebhook(req, res) {
       await paymentsService.processSuccessfulPayment(event.data);
     }
   } catch (err) {
-    Sentry.captureException(err, {
-      extra: { webhookEvent: event.event, paystackEventId: event.data?.id },
-    });
+    logger.error('[webhook] processSuccessfulPayment error:', err.message);
   }
 }
 

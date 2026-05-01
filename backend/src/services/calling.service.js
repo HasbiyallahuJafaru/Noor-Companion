@@ -10,7 +10,6 @@
 'use strict';
 
 const { createId } = require('@paralleldrive/cuid2');
-const Sentry = require('@sentry/node');
 const { prisma } = require('../config/prisma');
 const { generateRtcToken } = require('../utils/agora');
 const { notificationService } = require('./notification.service');
@@ -177,7 +176,7 @@ async function _notifyTherapist(therapist, sessionId, channelName, agoraToken, c
       },
     });
   } catch (err) {
-    Sentry.captureException(err, { extra: { sessionId } });
+    console.error('[calling] error:', err.message);
   }
 }
 
@@ -186,7 +185,7 @@ async function _scheduleTimeoutCheck(sessionId) {
     const queue = getCallTimeoutQueue();
     await queue.add(CALL_TIMEOUT_JOB, { sessionId }, { delay: 60_000 });
   } catch (err) {
-    Sentry.captureException(err, { extra: { sessionId } });
+    console.error('[calling] error:', err.message);
   }
 }
 

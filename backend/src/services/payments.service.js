@@ -12,7 +12,6 @@
 
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
-const Sentry = require('@sentry/node');
 const { prisma } = require('../config/prisma');
 const { redis } = require('../config/redis');
 const { supabase } = require('../config/supabase');
@@ -142,9 +141,7 @@ async function processSuccessfulPayment(chargeData) {
   const userId = metadata?.userId;
 
   if (!userId) {
-    Sentry.captureMessage('charge.success webhook missing userId in metadata', {
-      extra: { paystackEventId },
-    });
+    console.warn('[payments] charge.success webhook missing userId, paystackEventId:', paystackEventId);
     return;
   }
 
