@@ -27,12 +27,7 @@ function validate(schema, source = 'body') {
       });
     }
 
-    if (source === 'query') {
-      Object.keys(req.query).forEach(k => delete req.query[k]);
-      Object.assign(req.query, result.data);
-    } else {
-      req[source] = result.data;
-    }
+    req[source] = result.data;
     next();
   };
 }

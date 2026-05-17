@@ -1,5 +1,6 @@
 /// Persistent app shell with floating glass bottom navigation bar.
 /// Role-based tabs: user, therapist, admin — all with Profile tab.
+/// Tab switches crossfade. Nav items scale-bounce on tap.
 /// Notification bell pinned top-right across all tabs.
 library;
 
@@ -61,6 +62,9 @@ class AppShell extends ConsumerStatefulWidget {
 class _AppShellState extends ConsumerState<AppShell> {
   int _currentIndex = 0;
 
+  /// Drives the crossfade when switching tabs.
+  double _contentOpacity = 1.0;
+
   @override
   void initState() {
     super.initState();
@@ -75,6 +79,18 @@ class _AppShellState extends ConsumerState<AppShell> {
     return _userTabs;
   }
 
+  void _onTabTap(int i) {
+    if (i == _currentIndex) return;
+    // Flash content opacity to 0 then back on the next frame — quick crossfade.
+    setState(() {
+      _contentOpacity = 0.0;
+      _currentIndex = i;
+    });
+    Future.microtask(() {
+      if (mounted) setState(() => _contentOpacity = 1.0);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final unreadCount = ref.watch(unreadCountProvider);
@@ -84,11 +100,17 @@ class _AppShellState extends ConsumerState<AppShell> {
     return Scaffold(
       body: Stack(
         children: [
-          IndexedStack(
-            index: safeIndex,
-            children: tabs.map((t) => t.widget).toList(),
+          // ── Tab content with crossfade ──────────────────────────────────
+          AnimatedOpacity(
+            opacity: _contentOpacity,
+            duration: const Duration(milliseconds: 160),
+            curve: Curves.easeOut,
+            child: IndexedStack(
+              index: safeIndex,
+              children: tabs.map((t) => t.widget).toList(),
+            ),
           ),
-          // Notification bell overlay
+          // ── Notification bell ───────────────────────────────────────────
           SafeArea(
             child: Align(
               alignment: Alignment.topRight,
@@ -101,7 +123,7 @@ class _AppShellState extends ConsumerState<AppShell> {
               ),
             ),
           ),
-          // Floating glass nav
+          // ── Floating glass nav ──────────────────────────────────────────
           Positioned(
             left: 20,
             right: 20,
@@ -109,7 +131,7 @@ class _AppShellState extends ConsumerState<AppShell> {
             child: _FloatingNav(
               tabs: tabs,
               currentIndex: safeIndex,
-              onTap: (i) => setState(() => _currentIndex = i),
+              onTap: _onTabTap,
             ),
           ),
         ],
@@ -153,44 +175,115 @@ class _FloatingNav extends StatelessWidget {
           ),
           child: Row(
             children: List.generate(tabs.length, (i) {
-              final active = i == currentIndex;
               return Expanded(
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
+                child: _NavItem(
+                  icon: tabs[i].icon,
+                  label: tabs[i].label,
+                  isActive: i == currentIndex,
                   onTap: () => onTap(i),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    curve: Curves.easeOut,
-                    margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-                    decoration: active
-                        ? BoxDecoration(
-                            color: AppColors.brandTeal.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(18),
-                          )
-                        : null,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          tabs[i].icon,
-                          size: active ? 22 : 20,
-                          color: active ? AppColors.brandTeal : AppColors.textMuted,
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          tabs[i].label,
-                          style: AppTextStyles.caption.copyWith(
-                            fontSize: 10,
-                            color: active ? AppColors.brandTeal : AppColors.textMuted,
-                            fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
                 ),
               );
             }),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Nav item with scale-bounce feedback ───────────────────────────────────────
+
+class _NavItem extends StatefulWidget {
+  const _NavItem({
+    required this.icon,
+    required this.label,
+    required this.isActive,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final bool isActive;
+  final VoidCallback onTap;
+
+  @override
+  State<_NavItem> createState() => _NavItemState();
+}
+
+class _NavItemState extends State<_NavItem>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl;
+  late final Animation<double> _scale;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
+      reverseDuration: const Duration(milliseconds: 180),
+    );
+    _scale = Tween<double>(begin: 1.0, end: 0.88).animate(
+      CurvedAnimation(parent: _ctrl, curve: Curves.easeIn),
+    );
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  void _handleTapDown(_) => _ctrl.forward();
+  void _handleTapUp(_) => _ctrl.reverse().then((_) => widget.onTap());
+  void _handleTapCancel() => _ctrl.reverse();
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTapDown: _handleTapDown,
+      onTapUp: _handleTapUp,
+      onTapCancel: _handleTapCancel,
+      child: ScaleTransition(
+        scale: _scale,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOut,
+          margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+          decoration: widget.isActive
+              ? BoxDecoration(
+                  color: AppColors.brandTeal.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(18),
+                )
+              : null,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                child: Icon(
+                  widget.icon,
+                  key: ValueKey(widget.isActive),
+                  size: widget.isActive ? 22 : 20,
+                  color: widget.isActive
+                      ? AppColors.brandTeal
+                      : AppColors.textMuted,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                widget.label,
+                style: AppTextStyles.caption.copyWith(
+                  fontSize: 10,
+                  color: widget.isActive
+                      ? AppColors.brandTeal
+                      : AppColors.textMuted,
+                  fontWeight:
+                      widget.isActive ? FontWeight.w700 : FontWeight.w500,
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -225,8 +318,12 @@ class _NotificationBell extends StatelessWidget {
               alignment: Alignment.center,
               children: [
                 Icon(
-                  unreadCount > 0 ? Icons.notifications_rounded : Icons.notifications_none_rounded,
-                  color: unreadCount > 0 ? AppColors.brandTeal : AppColors.textSecondary,
+                  unreadCount > 0
+                      ? Icons.notifications_rounded
+                      : Icons.notifications_none_rounded,
+                  color: unreadCount > 0
+                      ? AppColors.brandTeal
+                      : AppColors.textSecondary,
                   size: 20,
                 ),
                 if (unreadCount > 0)

@@ -1,8 +1,6 @@
 /// Application router for Noor Companion.
 /// Uses GoRouter with auth-state-driven redirect guards.
-/// Unauthenticated users are sent to /login.
-/// Authenticated users are sent to /home (or onboarding on first launch).
-/// Role guards prevent users from accessing admin/therapist routes.
+/// All sub-screens use slide-fade transitions; auth screens use fade-only.
 library;
 
 import 'package:flutter/material.dart';
@@ -40,6 +38,7 @@ import '../../features/therapist_dashboard/presentation/screens/therapist_dashbo
 import '../../features/therapist_dashboard/presentation/screens/therapist_session_history_screen.dart';
 import '../../features/therapist_dashboard/presentation/screens/incoming_call_screen.dart';
 import '../shell/app_shell.dart';
+import 'page_transitions.dart';
 
 /// Named route path constants — always use these, never raw strings.
 abstract final class AppRoutes {
@@ -65,16 +64,12 @@ abstract final class AppRoutes {
   static const String surah = '/quran/:surahNumber';
   static const String subscriptionUpgrade = '/subscription/upgrade';
   static const String notifications = '/notifications';
-
-  // Admin routes — accessible only to role = admin.
   static const String adminUsers = '/admin/users';
   static const String adminUserDetail = '/admin/users/:id';
   static const String adminTherapists = '/admin/therapists';
   static const String adminContent = '/admin/content';
   static const String adminContentAdd = '/admin/content/add';
   static const String adminBroadcast = '/admin/broadcast';
-
-  // Therapist routes — accessible only to role = therapist.
   static const String therapistDashboard = '/therapist-dashboard';
   static const String therapistSessions = '/therapist-dashboard/sessions';
   static const String incomingCall = '/incoming-call';
@@ -88,41 +83,30 @@ const _publicRoutes = {
 };
 
 /// Builds the GoRouter instance with a Riverpod [ref] for auth state.
-/// Pass the ref from [NoorApp] so the router refreshes on auth changes.
 GoRouter buildAppRouter(WidgetRef ref) {
   return GoRouter(
     initialLocation: AppRoutes.splash,
-    // Refresh when auth state changes so redirects fire.
     refreshListenable: _AuthChangeNotifier(ref),
     redirect: (context, state) {
       final current = ref.read(authProvider);
       final path = state.matchedLocation;
 
-      // While resolving auth, stay on splash.
       if (current is AuthLoading) {
         return path == AppRoutes.splash ? null : AppRoutes.splash;
       }
 
-      // Authenticated user — redirect away from public routes.
       if (current is AuthAuthenticated) {
         if (_publicRoutes.contains(path)) return AppRoutes.home;
-
-        // Block non-admins from /admin/* routes.
         if (path.startsWith('/admin') && !current.user.isAdmin) {
           return AppRoutes.home;
         }
-
-        // Block non-therapists from /therapist-dashboard/* routes.
         if (path.startsWith('/therapist-dashboard') &&
             !current.user.isTherapist) {
           return AppRoutes.home;
         }
-
         return null;
       }
 
-      // Unauthenticated — redirect splash to login (splash is passive, never
-      // navigates itself). Allow login and register to stay as-is.
       if (path == AppRoutes.splash) return AppRoutes.login;
       if (_publicRoutes.contains(path)) return null;
       return AppRoutes.login;
@@ -130,156 +114,194 @@ GoRouter buildAppRouter(WidgetRef ref) {
     routes: [
       GoRoute(
         path: AppRoutes.splash,
-        builder: (_, _) => const SplashScreen(),
+        pageBuilder: (_, s) => fadePage(state: s, child: const SplashScreen()),
       ),
       GoRoute(
         path: AppRoutes.login,
-        builder: (_, _) => const LoginScreen(),
+        pageBuilder: (_, s) => fadePage(state: s, child: const LoginScreen()),
       ),
       GoRoute(
         path: AppRoutes.register,
-        builder: (_, _) => const RegisterScreen(),
+        pageBuilder: (_, s) => fadePage(state: s, child: const RegisterScreen()),
       ),
       GoRoute(
         path: AppRoutes.home,
-        builder: (_, _) => const AppShell(),
+        pageBuilder: (_, s) =>
+            NoTransitionPage(key: s.pageKey, child: const AppShell()),
       ),
       GoRoute(
         path: AppRoutes.onboardingAddiction,
-        builder: (_, _) => const OnboardingAddictionScreen(),
+        pageBuilder: (_, s) =>
+            slideFadePage(state: s, child: const OnboardingAddictionScreen()),
       ),
       GoRoute(
         path: AppRoutes.onboardingStage,
-        builder: (_, _) => const OnboardingStageScreen(),
+        pageBuilder: (_, s) =>
+            slideFadePage(state: s, child: const OnboardingStageScreen()),
       ),
       GoRoute(
         path: AppRoutes.onboardingTherapist,
-        builder: (_, _) => const OnboardingTherapistScreen(),
+        pageBuilder: (_, s) =>
+            slideFadePage(state: s, child: const OnboardingTherapistScreen()),
       ),
       GoRoute(
         path: AppRoutes.intervention,
-        builder: (_, _) => const InterventionDuaScreen(),
+        pageBuilder: (_, s) =>
+            slideFadePage(state: s, child: const InterventionDuaScreen()),
       ),
       GoRoute(
         path: AppRoutes.interventionBreathing,
-        builder: (_, _) => const InterventionBreathingScreen(),
+        pageBuilder: (_, s) =>
+            slideFadePage(state: s, child: const InterventionBreathingScreen()),
       ),
       GoRoute(
         path: AppRoutes.interventionTask,
-        builder: (_, _) => const InterventionTaskScreen(),
+        pageBuilder: (_, s) =>
+            slideFadePage(state: s, child: const InterventionTaskScreen()),
       ),
       GoRoute(
         path: AppRoutes.interventionAffirm,
-        builder: (_, _) => const InterventionAffirmScreen(),
+        pageBuilder: (_, s) =>
+            slideFadePage(state: s, child: const InterventionAffirmScreen()),
       ),
       GoRoute(
         path: AppRoutes.therapistDetail,
-        builder: (_, state) => TherapistDetailScreen(
-          therapistId: state.pathParameters['id']!,
+        pageBuilder: (_, state) => slideFadePage(
+          state: state,
+          child: TherapistDetailScreen(
+            therapistId: state.pathParameters['id']!,
+          ),
         ),
       ),
       GoRoute(
         path: AppRoutes.call,
-        builder: (_, state) {
+        pageBuilder: (_, state) {
           final extra = state.extra as Map<String, String>? ?? {};
-          return CallScreen(
-            sessionId: state.pathParameters['sessionId']!,
-            channelName: extra['channelName'] ?? '',
-            agoraToken: extra['agoraToken'] ?? '',
-            therapistName: extra['therapistName'] ?? 'Therapist',
+          return slideFadePage(
+            state: state,
+            child: CallScreen(
+              sessionId: state.pathParameters['sessionId']!,
+              channelName: extra['channelName'] ?? '',
+              agoraToken: extra['agoraToken'] ?? '',
+              therapistName: extra['therapistName'] ?? 'Therapist',
+            ),
           );
         },
       ),
       GoRoute(
         path: AppRoutes.milestone,
-        builder: (_, state) => MilestoneScreen(
-          days: int.tryParse(state.pathParameters['days'] ?? '') ?? 7,
+        pageBuilder: (_, state) => slideFadePage(
+          state: state,
+          child: MilestoneScreen(
+            days: int.tryParse(state.pathParameters['days'] ?? '') ?? 7,
+          ),
         ),
       ),
       GoRoute(
         path: AppRoutes.returnScreen,
-        builder: (_, _) => const ReturnScreen(),
+        pageBuilder: (_, s) =>
+            slideFadePage(state: s, child: const ReturnScreen()),
       ),
       GoRoute(
         path: AppRoutes.dhikrDetail,
-        builder: (_, state) =>
-            DhikrDetailScreen(id: state.pathParameters['id']!),
+        pageBuilder: (_, state) => slideFadePage(
+          state: state,
+          child: DhikrDetailScreen(id: state.pathParameters['id']!),
+        ),
       ),
       GoRoute(
         path: AppRoutes.duas,
-        builder: (_, _) => const DuaLibraryScreen(),
+        pageBuilder: (_, s) =>
+            slideFadePage(state: s, child: const DuaLibraryScreen()),
       ),
       GoRoute(
         path: AppRoutes.duaDetail,
-        builder: (_, state) =>
-            DuaDetailScreen(id: state.pathParameters['id']!),
+        pageBuilder: (_, state) => slideFadePage(
+          state: state,
+          child: DuaDetailScreen(id: state.pathParameters['id']!),
+        ),
       ),
       GoRoute(
         path: AppRoutes.quran,
-        builder: (_, _) => const RecitationBrowserScreen(),
+        pageBuilder: (_, s) =>
+            slideFadePage(state: s, child: const RecitationBrowserScreen()),
       ),
       GoRoute(
         path: AppRoutes.surah,
-        builder: (_, state) => SurahScreen(
-          surahNumber:
-              int.tryParse(state.pathParameters['surahNumber'] ?? '') ?? 1,
+        pageBuilder: (_, state) => slideFadePage(
+          state: state,
+          child: SurahScreen(
+            surahNumber:
+                int.tryParse(state.pathParameters['surahNumber'] ?? '') ?? 1,
+          ),
         ),
       ),
       GoRoute(
         path: AppRoutes.subscriptionUpgrade,
-        builder: (_, _) => const UpgradeScreen(),
+        pageBuilder: (_, s) =>
+            slideFadePage(state: s, child: const UpgradeScreen()),
       ),
       GoRoute(
         path: AppRoutes.notifications,
-        builder: (_, _) => const NotificationsScreen(),
+        pageBuilder: (_, s) =>
+            slideFadePage(state: s, child: const NotificationsScreen()),
       ),
-
-      // ── Admin routes ──────────────────────────────────────────────────────
       GoRoute(
         path: AppRoutes.adminUsers,
-        builder: (_, _) => const AdminUsersScreen(),
+        pageBuilder: (_, s) =>
+            slideFadePage(state: s, child: const AdminUsersScreen()),
       ),
       GoRoute(
         path: AppRoutes.adminUserDetail,
-        builder: (_, state) => AdminUserDetailScreen(
-          userId: state.pathParameters['id']!,
+        pageBuilder: (_, state) => slideFadePage(
+          state: state,
+          child: AdminUserDetailScreen(userId: state.pathParameters['id']!),
         ),
       ),
       GoRoute(
         path: AppRoutes.adminTherapists,
-        builder: (_, _) => const AdminTherapistsScreen(),
+        pageBuilder: (_, s) =>
+            slideFadePage(state: s, child: const AdminTherapistsScreen()),
       ),
       GoRoute(
         path: AppRoutes.adminContent,
-        builder: (_, _) => const AdminContentScreen(),
+        pageBuilder: (_, s) =>
+            slideFadePage(state: s, child: const AdminContentScreen()),
       ),
       GoRoute(
         path: AppRoutes.adminContentAdd,
-        builder: (_, _) => const AdminContentAddScreen(),
+        pageBuilder: (_, s) =>
+            slideFadePage(state: s, child: const AdminContentAddScreen()),
       ),
       GoRoute(
         path: AppRoutes.adminBroadcast,
-        builder: (_, _) => const AdminBroadcastScreen(),
+        pageBuilder: (_, s) =>
+            slideFadePage(state: s, child: const AdminBroadcastScreen()),
       ),
-
-      // ── Therapist routes ───────────────────────────────────────────────────
       GoRoute(
         path: AppRoutes.therapistDashboard,
-        builder: (_, _) => const TherapistDashboardScreen(),
+        pageBuilder: (_, s) =>
+            slideFadePage(state: s, child: const TherapistDashboardScreen()),
       ),
       GoRoute(
         path: AppRoutes.therapistSessions,
-        builder: (_, _) => const TherapistSessionHistoryScreen(),
+        pageBuilder: (_, s) => slideFadePage(
+          state: s,
+          child: const TherapistSessionHistoryScreen(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.incomingCall,
-        builder: (_, state) {
+        pageBuilder: (_, state) {
           final extra = state.extra as Map<String, String>? ?? {};
-          return IncomingCallScreen(
-            sessionId: extra['sessionId'] ?? '',
-            channelName: extra['channelName'] ?? '',
-            agoraToken: extra['agoraToken'] ?? '',
-            callerName: extra['callerName'] ?? 'User',
+          return slideFadePage(
+            state: state,
+            child: IncomingCallScreen(
+              sessionId: extra['sessionId'] ?? '',
+              channelName: extra['channelName'] ?? '',
+              agoraToken: extra['agoraToken'] ?? '',
+              callerName: extra['callerName'] ?? 'User',
+            ),
           );
         },
       ),

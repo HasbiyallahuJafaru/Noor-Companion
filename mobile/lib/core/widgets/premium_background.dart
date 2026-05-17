@@ -37,11 +37,15 @@ class _PremiumBackgroundState extends State<PremiumBackground>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _anim,
-      builder: (_, _) => CustomPaint(
-        painter: _BlobPainter(_anim.value),
-        child: const SizedBox.expand(),
+    // RepaintBoundary isolates the animating canvas from the widget tree,
+    // preventing the blobs from triggering repaints on scroll content above.
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: _anim,
+        builder: (_, _) => CustomPaint(
+          painter: _BlobPainter(_anim.value),
+          child: const SizedBox.expand(),
+        ),
       ),
     );
   }

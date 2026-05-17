@@ -40,6 +40,84 @@
       "source": "julianoczkowski/designer-skills",
       "sourceType": "github",
       "computedHash": "35b6a262d1fd0492804d00fada1400f3f54eadd008fad28ac506991cdedc6061"
+    },
+    "vgv-accessibility": {
+      "source": "VeryGoodOpenSource/vgv-ai-flutter-plugin",
+      "sourceType": "github",
+      "skillPath": "skills/accessibility/SKILL.md",
+      "computedHash": "832033cd33a3de58d24960381a20969b0534efba36b0052cd0d54d91340df55a"
+    },
+    "vgv-bloc": {
+      "source": "VeryGoodOpenSource/vgv-ai-flutter-plugin",
+      "sourceType": "github",
+      "skillPath": "skills/bloc/SKILL.md",
+      "computedHash": "0e0557b05bb2244137961258a74533dbc5ce27f126d621b0ef50a4d5dec0ac92"
+    },
+    "vgv-create-project": {
+      "source": "VeryGoodOpenSource/vgv-ai-flutter-plugin",
+      "sourceType": "github",
+      "skillPath": "skills/create-project/SKILL.md",
+      "computedHash": "a084c05c5a6748ab7b30bc65bedd3045522335badcc8f0a17c7892fe30b55301"
+    },
+    "vgv-dart-flutter-sdk-upgrade": {
+      "source": "VeryGoodOpenSource/vgv-ai-flutter-plugin",
+      "sourceType": "github",
+      "skillPath": "skills/dart-flutter-sdk-upgrade/SKILL.md",
+      "computedHash": "92341bb5bd3e0d4faa09da451496128f3a20adf98da8b58a8e33a7f9e37972cf"
+    },
+    "vgv-internationalization": {
+      "source": "VeryGoodOpenSource/vgv-ai-flutter-plugin",
+      "sourceType": "github",
+      "skillPath": "skills/internationalization/SKILL.md",
+      "computedHash": "bdc8ce105dc4cda442a98e6f8a392646ab866fcb7a185eded78be1017097330d"
+    },
+    "vgv-layered-architecture": {
+      "source": "VeryGoodOpenSource/vgv-ai-flutter-plugin",
+      "sourceType": "github",
+      "skillPath": "skills/layered-architecture/SKILL.md",
+      "computedHash": "34327dca1a46c7995368e17b5a979ed6fd244c254435a26687339b3c68607241"
+    },
+    "vgv-license-compliance": {
+      "source": "VeryGoodOpenSource/vgv-ai-flutter-plugin",
+      "sourceType": "github",
+      "skillPath": "skills/license-compliance/SKILL.md",
+      "computedHash": "afc5bd3599a38564d4509d3f9de24b1429b9e168ed2f3eaa2dbbb1446b44dc96"
+    },
+    "vgv-material-theming": {
+      "source": "VeryGoodOpenSource/vgv-ai-flutter-plugin",
+      "sourceType": "github",
+      "skillPath": "skills/material-theming/SKILL.md",
+      "computedHash": "64f1dd62c0c7c9a17818940838a9bd711fc4c35edeab968344e1473e95256a60"
+    },
+    "vgv-navigation": {
+      "source": "VeryGoodOpenSource/vgv-ai-flutter-plugin",
+      "sourceType": "github",
+      "skillPath": "skills/navigation/SKILL.md",
+      "computedHash": "4e8356d0e1631dbf670b19467956188e5b00ddf7e0209c2bb1e9f18436684b1b"
+    },
+    "vgv-static-security": {
+      "source": "VeryGoodOpenSource/vgv-ai-flutter-plugin",
+      "sourceType": "github",
+      "skillPath": "skills/static-security/SKILL.md",
+      "computedHash": "877f5742d3dd7f7d8c77ecaa520b5415324bfdb90c411aee5b5e825b8d216381"
+    },
+    "vgv-testing": {
+      "source": "VeryGoodOpenSource/vgv-ai-flutter-plugin",
+      "sourceType": "github",
+      "skillPath": "skills/testing/SKILL.md",
+      "computedHash": "f8c1a6ce9a3354eb8df3f6b2cbd9d111c9f14f3aebeddbcc44f8aaccd65ae991"
+    },
+    "vgv-ui-package": {
+      "source": "VeryGoodOpenSource/vgv-ai-flutter-plugin",
+      "sourceType": "github",
+      "skillPath": "skills/ui-package/SKILL.md",
+      "computedHash": "51941cb29f22e9857c91ff06fb2c239fbe7042fa3316570e48af70bf472318a4"
+    },
+    "vgv-very-good-analysis-upgrade": {
+      "source": "VeryGoodOpenSource/vgv-ai-flutter-plugin",
+      "sourceType": "github",
+      "skillPath": "skills/very-good-analysis-upgrade/SKILL.md",
+      "computedHash": "0b6662b0e6a7b4dfdf45c057f02e36af16a17f3654e0c9dbdab08b6498122a16"
     }
   }
 }

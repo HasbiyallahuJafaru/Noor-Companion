@@ -17,10 +17,14 @@ class ContentRepository {
 
   final Dio _dio;
 
-  /// Streams dhikr list — emits cached data first, then fresh from the API.
+  /// Streams dhikr list — emits cached data first (unfiltered only), then API.
+  /// Tag-filtered fetches skip the cache entirely to prevent corrupting the
+  /// shared "all dhikr" cache with a subset of items.
   Stream<List<DhikrModel>> watchDhikr({String? tag}) async* {
-    final cached = getCachedDhikr();
-    if (cached.isNotEmpty) yield cached;
+    if (tag == null) {
+      final cached = getCachedDhikr();
+      if (cached.isNotEmpty) yield cached;
+    }
 
     try {
       final response = await _dio.get(
@@ -28,17 +32,21 @@ class ContentRepository {
         queryParameters: tag != null ? {'tag': tag} : null,
       );
       final items = _parseList(response, DhikrModel.fromJson);
-      await saveDhikr(items);
+      if (tag == null) await saveDhikr(items);
       yield items;
     } catch (_) {
+      if (tag != null) rethrow;
+      final cached = getCachedDhikr();
       if (cached.isEmpty) rethrow;
     }
   }
 
-  /// Streams duas list — emits cached data first, then fresh from the API.
+  /// Streams duas list — emits cached data first (unfiltered only), then API.
   Stream<List<DuaModel>> watchDuas({String? tag}) async* {
-    final cached = getCachedDuas();
-    if (cached.isNotEmpty) yield cached;
+    if (tag == null) {
+      final cached = getCachedDuas();
+      if (cached.isNotEmpty) yield cached;
+    }
 
     try {
       final response = await _dio.get(
@@ -46,9 +54,11 @@ class ContentRepository {
         queryParameters: tag != null ? {'tag': tag} : null,
       );
       final items = _parseList(response, DuaModel.fromJson);
-      await saveDuas(items);
+      if (tag == null) await saveDuas(items);
       yield items;
     } catch (_) {
+      if (tag != null) rethrow;
+      final cached = getCachedDuas();
       if (cached.isEmpty) rethrow;
     }
   }

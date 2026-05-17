@@ -63,10 +63,13 @@ class _FiltersNotifier extends Notifier<TherapistFilters> {
 
 class TherapistsNotifier extends AsyncNotifier<List<TherapistModel>> {
   @override
-  Future<List<TherapistModel>> build() => _fetch();
-
-  Future<List<TherapistModel>> _fetch() {
+  Future<List<TherapistModel>> build() {
+    // Watching here establishes reactivity — rebuild fires when filters change.
     final filters = ref.watch(therapistFiltersProvider);
+    return _fetchWithFilters(filters);
+  }
+
+  Future<List<TherapistModel>> _fetchWithFilters(TherapistFilters filters) {
     return ref.read(therapistRepositoryProvider).fetchTherapists(
           specialisation: filters.specialisation,
           language: filters.language,
@@ -76,7 +79,9 @@ class TherapistsNotifier extends AsyncNotifier<List<TherapistModel>> {
   /// Re-fetches the list — used on pull-to-refresh.
   Future<void> refresh() async {
     state = const AsyncLoading();
-    state = await AsyncValue.guard(_fetch);
+    // Use ref.read so we don't accumulate extra watch subscriptions.
+    final filters = ref.read(therapistFiltersProvider);
+    state = await AsyncValue.guard(() => _fetchWithFilters(filters));
   }
 }
 

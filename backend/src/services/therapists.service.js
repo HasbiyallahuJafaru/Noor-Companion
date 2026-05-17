@@ -12,6 +12,7 @@ const { sendTherapistApprovedEmail, sendTherapistRejectedEmail } = require('../u
 /** Fields selected for every therapist in the directory listing. */
 const THERAPIST_SELECT = {
   id: true,
+  status: true,
   bio: true,
   specialisations: true,
   qualifications: true,

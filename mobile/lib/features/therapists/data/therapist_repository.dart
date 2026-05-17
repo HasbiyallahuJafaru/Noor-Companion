@@ -2,6 +2,7 @@
 /// Supports optional specialisation and language filters.
 library;
 
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../auth/presentation/providers/auth_provider.dart';
 import '../domain/therapist_model.dart';
@@ -9,7 +10,7 @@ import '../domain/therapist_model.dart';
 class TherapistRepository {
   const TherapistRepository(this._dio);
 
-  final dynamic _dio;
+  final Dio _dio;
 
   /// Fetches a page of active therapists.
   /// [specialisation] and [language] are optional filter values.

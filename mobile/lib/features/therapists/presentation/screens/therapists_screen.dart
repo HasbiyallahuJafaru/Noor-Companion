@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/widgets/premium_background.dart';
+import '../../../../core/widgets/animated_list_item.dart';
 import '../providers/therapists_provider.dart';
 import '../widgets/therapist_card.dart';
 
@@ -21,7 +23,10 @@ class TherapistsScreen extends ConsumerWidget {
     final languages = ref.watch(availableLanguagesProvider);
 
     return Scaffold(
-      body: SafeArea(
+      body: Stack(
+        children: [
+          const PremiumBackground(),
+          SafeArea(
         child: RefreshIndicator(
           color: AppColors.brandTeal,
           onRefresh: () => ref.read(therapistsNotifierProvider.notifier).refresh(),
@@ -102,14 +107,18 @@ class TherapistsScreen extends ConsumerWidget {
                         sliver: SliverList.separated(
                           itemCount: therapists.length,
                           separatorBuilder: (_, _) => const SizedBox(height: 10),
-                          itemBuilder: (_, i) =>
-                              TherapistCard(therapist: therapists[i]),
+                          itemBuilder: (_, i) => AnimatedListItem(
+                                index: i,
+                                child: TherapistCard(therapist: therapists[i]),
+                              ),
                         ),
                       ),
               ),
             ],
           ),
         ),
+          ),
+        ],
       ),
     );
   }
