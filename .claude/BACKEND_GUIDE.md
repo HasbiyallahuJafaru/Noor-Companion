@@ -340,7 +340,7 @@ const envSchema = z.object({
   SUPABASE_URL: z.string().url(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
   SUBSCRIPTION_TOKEN_SECRET: z.string().min(32),
-  UPSTASH_REDIS_URL: z.string().url(),
+  REDIS_URL: z.string().min(1),
   PAYSTACK_SECRET_KEY: z.string().min(1),
   AGORA_APP_ID: z.string().min(1),
   AGORA_APP_CERTIFICATE: z.string().min(1),

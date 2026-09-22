@@ -6,7 +6,7 @@ jest.mock('../config/env', () => ({
   env: {
     AGORA_APP_ID: 'test-app-id',
     AGORA_APP_CERTIFICATE: 'test-cert',
-    UPSTASH_REDIS_URL: 'redis://localhost:6379',
+    REDIS_URL: 'redis://localhost:6379',
   },
 }));
 

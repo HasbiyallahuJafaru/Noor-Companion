@@ -20,7 +20,10 @@ const envSchema = z.object({
   SUPABASE_JWT_SECRET: z.string().default(''),
   SENTRY_DSN: z.string().default(''),
   SUBSCRIPTION_TOKEN_SECRET: z.string().min(32),
-  UPSTASH_REDIS_URL: z.string().min(1),
+  // Railway Redis. Use the private internal URL at runtime
+  // (redis://redis.railway.internal:6379); the public proxy URL is
+  // rediss:// and TLS is auto-detected by scheme.
+  REDIS_URL: z.string().min(1),
   PAYSTACK_SECRET_KEY: z.string().min(1),
   AGORA_APP_ID: z.string().min(1),
   AGORA_APP_CERTIFICATE: z.string().default(''),

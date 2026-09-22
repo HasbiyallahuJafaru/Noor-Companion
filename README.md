@@ -44,10 +44,10 @@ Noor Companion brings together daily Islamic practice and professional mental we
 | Runtime | Node.js |
 | Framework | Express.js |
 | ORM | Prisma |
-| Database | Supabase PostgreSQL |
-| Auth | Supabase Auth |
+| Database | Railway PostgreSQL |
+| Auth | Supabase Auth (Railway Postgres for data) |
 | Storage | Supabase Storage |
-| Cache / Queues | Upstash Redis + BullMQ |
+| Cache / Queues | Railway Redis + BullMQ |
 | Validation | Zod |
 | Push Notifications | Firebase Admin SDK (FCM) |
 | Error Tracking | Sentry |
@@ -75,10 +75,10 @@ Noor Companion brings together daily Islamic practice and professional mental we
 
 | Service | Provider |
 |---|---|
-| Database | Supabase |
+| Database | Railway PostgreSQL |
 | Backend Hosting | Railway |
-| Redis | Upstash |
-| Website Hosting | Netlify |
+| Redis | Railway Redis |
+| Website Hosting | Railway (static) |
 | Voice Calling | Agora.io |
 | Payments | Paystack |
 | Push Notifications | Firebase FCM |
@@ -107,7 +107,7 @@ noor-companion/
 |       +-- core/             App config, router, theme, network client, services
 |       +-- features/         Feature modules (auth, dhikr, duas, quran, etc.)
 |       +-- shared/           Shared widgets and utilities
-+-- website/                  Static Netlify site (landing + Paystack redirect page)
++-- website/                  Static site on Railway (landing + Paystack redirect page)
 +-- .claude/                  Project documentation for AI-assisted development
 ```
 

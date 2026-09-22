@@ -26,9 +26,9 @@ DIRECT_DATABASE_URL=postgresql://postgres.[project-ref]:[password]@aws-0-eu-west
 # Direct connection — use this for Prisma migrations only (port 5432)
 # Get from same location, remove pgbouncer param
 
-# ─── Upstash Redis ─────────────────────────────────────────
-UPSTASH_REDIS_URL=rediss://default:[password]@[hostname].upstash.io:6379
-# Get from: Upstash dashboard → your database → Connect → ioredis
+# ─── Railway Redis ─────────────────────────────────────────
+REDIS_URL=${{Redis.REDIS_URL}}
+# Reference the Redis service variable in the Railway dashboard
 
 # ─── Payments (Paystack) ──────────────────────────────────
 PAYSTACK_SECRET_KEY=sk_live_...
@@ -129,18 +129,54 @@ Before starting development:
 
 ## Railway Setup Checklist (Backend)
 
-- [ ] Create service from the GitHub repo (root railway.json drives build/deploy)
-- [ ] Environment variables: add all vars from the list above in the Railway dashboard (never in git)
+- [ ] Create the API service from the GitHub repo (root railway.json drives build/deploy)
+- [ ] Add Railway Postgres: New → Database → PostgreSQL
+- [ ] Add Railway Redis: New → Database → Redis
+- [ ] Reference the private URLs as API service variables (fast, no egress):
+  - `DATABASE_URL` = `${{Postgres.DATABASE_URL}}`
+  - `DIRECT_DATABASE_URL` = `${{Postgres.DATABASE_URL}}`
+  - `REDIS_URL` = `${{Redis.REDIS_URL}}`
+- [ ] Add the remaining env vars from the list above in the Railway dashboard (never in git)
 - [ ] PORT is injected by Railway automatically — do not set it manually
 - [ ] Health check path /health is preconfigured in railway.json
 - [ ] Set the generated Railway domain as API_BASE_URL in codemagic.yaml for release builds
 
-## Netlify Setup Checklist (Website)
+### Migrating data off Supabase Postgres (one-time)
 
-- [ ] Connect git repo, set publish directory to website/
-- [ ] No build command needed (static files)
-- [ ] Set custom domain if available
-- [ ] Verify HTTPS is active
+```
+# 1. Create the schema in Railway Postgres (happens automatically on deploy)
+# 2. Copy the data — from Supabase into Railway:
+pg_dump --data-only --no-owner --no-privileges \
+  "postgresql://postgres.<ref>:<password>@aws-1-eu-west-1.pooler.supabase.com:5432/postgres" \
+  | psql "<RAILWAY_DATABASE_URL>"
+# 3. Keep the old Supabase DB paused (not deleted) for a week as a backup.
+```
+
+Supabase Auth keeps its own internal tables — auth users do NOT move.
+The app User table mirrors them via supabaseId, so auth keeps working
+against the new database unchanged.
+
+## Railway Setup Checklist (Website)
+
+- [ ] New service from the same repo, Root Directory = /website
+- [ ] Config file path (service settings): website/railway.json
+- [ ] website/server.js serves static files, clean URLs, and the security
+      headers the old netlify.toml carried (incl. the Paystack CSP on
+      /subscribe) — nothing else to configure
+- [ ] Optional env vars: NOOR_API_URL and NOOR_PAYSTACK_PUBLIC_KEY are
+      injected into the subscribe page at serve time (%%NOOR_API_URL%%
+      placeholder — this was silently broken on Netlify, it never
+      substituted tokens)
+- [ ] Point WEBSITE_URL (API) and the app's payment redirect at the new domain
+
+## What stays off Railway (no equivalent service)
+
+- Supabase — Auth only (login, JWTs, password reset)
+- Firebase — FCM push notifications
+- Agora — voice/video calling
+- Resend — transactional email
+- Paystack — payments
+- Sentry — error tracking
 
 ## Pre-Production Security Checklist
 
@@ -150,4 +186,4 @@ Before starting development:
 - [ ] SUPABASE_SERVICE_ROLE_KEY is only in the backend — never in Flutter
 - [ ] SUPABASE_ANON_KEY is in Flutter — this is safe (it is public by design)
 - [ ] SENTRY_DSN points to production Sentry project
-- [ ] WEBSITE_URL is the live Netlify URL
+- [ ] WEBSITE_URL is the live Railway website URL

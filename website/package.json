@@ -1,0 +1,9 @@
+{
+  "name": "noor-companion-website",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Noor Companion marketing + payment site (static, served by server.js on Railway)",
+  "scripts": {
+    "start": "node server.js"
+  }
+}

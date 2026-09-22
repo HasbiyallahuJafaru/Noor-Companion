@@ -37,7 +37,7 @@ noor-companion/
 │   └── PHASES.md          ← Build order — current phase and checklist
 ├── backend/               ← Node.js + Express + Prisma
 ├── mobile/                ← Flutter application
-└── website/               ← Static HTML/CSS — Netlify
+└── website/               ← Static HTML/CSS — Railway (static server)
 ```
 
 ---
@@ -66,11 +66,11 @@ Every session, no exceptions:
 |-----------------|---------------------------------------------|
 | Runtime         | Node.js                                     |
 | Framework       | Express.js                                  |
-| ORM             | Prisma (pointed at Supabase PostgreSQL)     |
-| Database        | Supabase PostgreSQL                         |
+| ORM             | Prisma (pointed at Railway PostgreSQL)      |
+| Database        | Railway PostgreSQL                          |
 | Auth            | Supabase Auth (owns login/register/session) |
 | Storage         | Supabase Storage (audio files, avatars)     |
-| Cache / Queues  | Upstash Redis + BullMQ                      |
+| Cache / Queues  | Railway Redis + BullMQ                      |
 | Validation      | Zod                                         |
 | Push notifs     | Firebase Admin SDK (FCM)                    |
 | Error tracking  | Sentry (@sentry/node)                       |
@@ -88,7 +88,7 @@ Every session, no exceptions:
 | Offline cache   | Hive                                        |
 | Push notifs     | firebase_messaging                          |
 | Calling         | agora_rtc_engine                            |
-| Payments iOS    | url_launcher → Safari → Netlify page        |
+| Payments iOS    | url_launcher → Safari → website (Railway)   |
 | Payments Android| flutter_inappwebview (Paystack WebView)     |
 | Error tracking  | Sentry Flutter SDK                          |
 | Design system   | hasbiy-flutter skill conventions            |
@@ -100,8 +100,8 @@ Every session, no exceptions:
 | Auth            | Supabase                                    |
 | Storage         | Supabase                                    |
 | Backend hosting | Railway (Nixpacks, railway.json)            |
-| Redis           | Upstash                                     |
-| Website hosting | Netlify (static)                            |
+| Redis           | Railway Redis                               |
+| Website hosting | Railway (static server.js)                  |
 | Calling         | Agora.io                                    |
 | Payments        | Paystack                                    |
 | Push notifs     | Firebase FCM                                |
@@ -177,7 +177,7 @@ This is the compliant workaround:
 1. User taps "Upgrade" on iOS
 2. Backend generates a short-lived signed token (10 min)
 3. App opens: https://noorcompanion.netlify.app/subscribe?token=JWT&plan=paid
-4. User pays via Paystack on the Netlify page
+4. User pays via Paystack on the Railway-hosted page
 5. Paystack webhook fires to the backend
 6. Backend verifies signature, updates user.subscriptionTier = paid in Supabase
 7. App polls GET /api/v1/users/me on return to confirm upgrade

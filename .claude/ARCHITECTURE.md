@@ -264,7 +264,7 @@ immediately after a successful Paystack webhook.
 | Service            | Free Tier Limit                      | Paid from          |
 |--------------------|--------------------------------------|--------------------|
 | Supabase           | 500MB DB, 1GB storage, 50k MAU auth  | $25/month          |
-| Railway (backend)  | $5 trial credit (usage-based)        | ~$5-10/month Hobby |
+| Railway (backend, DB, Redis, website) | $5 trial credit (usage-based) | ~$10-20/month Hobby |
 | Upstash Redis      | 10k commands/day                     | ~$0.2/100k cmds    |
 | Netlify (website)  | 100GB bandwidth, 300 build min       | $19/month          |
 | Firebase FCM       | Unlimited push notifications         | Free               |

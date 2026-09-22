@@ -1,6 +1,8 @@
 /**
- * Upstash Redis client using ioredis.
- * Used for caching API responses and as BullMQ queue backing store.
+ * Redis client using ioredis — Railway Redis.
+ * Backs response caching and the BullMQ queues (streak risk, call timeout).
+ * Point REDIS_URL at Railway's private internal URL at runtime; TLS is
+ * enabled automatically when the URL uses rediss:// (e.g. the public proxy).
  */
 
 'use strict';
@@ -8,9 +10,9 @@
 const Redis = require('ioredis');
 const { env } = require('./env');
 
-const redis = new Redis(env.UPSTASH_REDIS_URL, {
+const redis = new Redis(env.REDIS_URL, {
   maxRetriesPerRequest: null, // Required by BullMQ
-  tls: env.UPSTASH_REDIS_URL.startsWith('rediss://') ? {} : undefined,
+  tls: env.REDIS_URL.startsWith('rediss://') ? {} : undefined,
 });
 
 redis.on('error', (err) => {
