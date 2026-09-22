@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } fr
 import { router } from 'expo-router';
 import { supabase } from '../../src/lib/supabase';
 import { useTheme } from '../../src/theme';
-import { AuroraBackground } from '../../src/components/core/AuroraBackground';
+import { AppBackground } from '../../src/components/core/AppBackground';
 import { GlassCard, Input, Button, PressableScale, Chip } from '../../src/components';
 
 export default function Register() {
@@ -52,7 +52,7 @@ export default function Register() {
   if (needsConfirmation) {
     return (
       <View style={[styles.fill, { backgroundColor: palette.background }]}>
-        <AuroraBackground />
+        <AppBackground variant="sanctuary" />
         <View style={styles.centerWrap}>
           <GlassCard animate={false} padding={24}>
             <Text style={type.heading(palette.text)}>Check your email</Text>
@@ -70,7 +70,7 @@ export default function Register() {
 
   return (
     <View style={[styles.fill, { backgroundColor: palette.background }]}>
-      <AuroraBackground />
+      <AppBackground variant="sanctuary" />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.fill}>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled" bounces={false}>
           <View style={styles.header}>

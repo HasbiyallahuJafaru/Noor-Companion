@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { router } from 'expo-router';
 import { HeartHandshake, CalendarClock } from 'lucide-react-native';
 import { useTheme } from '../../src/theme';
-import { AuroraBackground } from '../../src/components/core/AuroraBackground';
+import { AppBackground } from '../../src/components/core/AppBackground';
 import { Button, SelectableCard, GlassCard } from '../../src/components';
 import { useAuthStore } from '../../src/lib/auth-store';
 import { OnboardingProgress, OnboardingHeading } from '../../src/components/shared/OnboardingParts';
@@ -20,7 +20,7 @@ export default function OnboardingTherapist() {
 
   return (
     <View style={[styles.fill, { backgroundColor: palette.background }]}>
-      <AuroraBackground />
+      <AppBackground variant="sanctuary" />
       <OnboardingProgress step={3} />
       <ScrollView contentContainerStyle={styles.scroll} bounces={false} showsVerticalScrollIndicator={false}>
         <OnboardingHeading title="Would you like access to a therapist?" subtitle="Verified Muslim therapists are one call away, whenever you're ready." />

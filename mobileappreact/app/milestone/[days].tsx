@@ -19,7 +19,7 @@ export default function MilestoneScreen() {
   }, []);
 
   return (
-    <Screen close onClose={() => router.replace('/(tabs)')} chrome>
+    <Screen close onClose={() => router.replace('/(tabs)')} chrome backdrop="sanctuary">
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false} bounces={false}>
         <Confetti />
         <Animated.View entering={ZoomIn.springify().damping(12)} style={styles.badge}>
@@ -29,8 +29,10 @@ export default function MilestoneScreen() {
             </View>
           </LinearGradient>
         </Animated.View>
-        <Text style={[type.heading(palette.text), styles.title]}>{milestone.englishName}</Text>
-        <Text style={[type.headingSmall(palette.gold), { marginTop: 4 }]}>{milestone.days} days of clarity</Text>
+        <Text style={[type.display(palette.text), styles.title]}>{milestone.englishName}</Text>
+        <Text style={[type.eyebrow(palette.gold), styles.dayCount]}>
+          {milestone.days} DAYS OF CLARITY
+        </Text>
         <ArabicBlock
           index={1}
           arabic={milestone.arabicAyah}
@@ -39,7 +41,7 @@ export default function MilestoneScreen() {
           reference={milestone.reference}
           style={{ marginTop: 28 }}
         />
-        <Text style={[type.body(palette.textSecondary), styles.closing]}>
+        <Text style={[type.quote(16, palette.textSecondary), styles.closing]}>
           This milestone belongs to every quiet battle you chose not to lose. Carry it gently.
         </Text>
         <View style={{ marginTop: 30 }}>
@@ -61,6 +63,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  title: { textAlign: 'center', marginTop: 22 },
+  title: { textAlign: 'center', marginTop: 24 },
+  dayCount: { textAlign: 'center', marginTop: 10 },
   closing: { textAlign: 'center', marginTop: 20 },
 });

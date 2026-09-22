@@ -11,7 +11,7 @@ import { useAuthStore } from '../../src/lib/auth-store';
 import { Screen, GlassCard, Card, Button, Skeleton, ErrorState, Avatar, Badge, PressableScale } from '../../src/components';
 import { formatNgnShort } from '../../src/lib/format';
 
-const AURORA = require('../../src/components/core/AuroraBackground').AuroraBackground;
+const AURORA = require('../../src/components/core/AppBackground').AppBackground;
 
 export default function TherapistDashboard() {
   const { palette, type, radius } = useTheme();

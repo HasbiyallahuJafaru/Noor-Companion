@@ -1,7 +1,8 @@
 import { Redirect } from 'expo-router';
 import { useAuthStore } from '../src/lib/auth-store';
-import { AuroraBackground } from '../src/components/core/AuroraBackground';
+import { AppBackground } from '../src/components/core/AppBackground';
 import { Text, StyleSheet, View } from 'react-native';
+import { FONT_ARABIC_BOLD } from '../src/theme/typography';
 
 /**
  * Entry gate. Mirrors the Flutter router redirects:
@@ -14,7 +15,7 @@ export default function Index() {
   if (status === 'loading') {
     return (
       <View style={[styles.fill, { backgroundColor: '#10122A' }]}>
-        <AuroraBackground />
+        <AppBackground variant="sanctuary" />
         <View style={styles.brand}>
           <Text style={styles.arabic}>نور</Text>
         </View>
@@ -30,5 +31,5 @@ export default function Index() {
 const styles = StyleSheet.create({
   fill: { flex: 1 },
   brand: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  arabic: { fontSize: 72, color: '#FFFFFF', fontWeight: '700' },
+  arabic: { fontFamily: FONT_ARABIC_BOLD, fontSize: 76, lineHeight: 120, color: '#F0B355' },
 });

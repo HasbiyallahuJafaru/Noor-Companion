@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, RefreshControl } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { Bell, Flame, PhoneCall, CheckCircle2, Sparkles, BadgeCheck, XCircle } from 'lucide-react-native';
+import { ChevronLeft, Bell, Flame, PhoneCall, CheckCircle2, Sparkles, BadgeCheck, XCircle } from 'lucide-react-native';
 import { useTheme } from '../src/theme';
 import { useNotifications } from '../src/lib/queries';
 import { useAuthStore } from '../src/lib/auth-store';
@@ -52,7 +52,7 @@ export default function NotificationsScreen() {
       <AURORA />
       <View style={styles.header}>
         <PressableScale haptic="light" pressScale={0.9} onPress={() => router.back()} style={[styles.back, { backgroundColor: palette.surface, borderColor: palette.border }]}>
-          <Text style={type.headingSmall(palette.text)}>←</Text>
+          <ChevronLeft size={22} color={palette.text} strokeWidth={2.2} />
         </PressableScale>
         <Text style={type.headingMedium(palette.text)}>Notifications</Text>
         <View style={{ width: 42 }} />
@@ -128,7 +128,7 @@ function NotificationRow({ item, index }: { item: NotificationModel; index: numb
   );
 }
 
-const AURORA = require('../src/components/core/AuroraBackground').AuroraBackground;
+const AURORA = require('../src/components/core/AppBackground').AppBackground;
 
 const styles = StyleSheet.create({
   fill: { flex: 1 },

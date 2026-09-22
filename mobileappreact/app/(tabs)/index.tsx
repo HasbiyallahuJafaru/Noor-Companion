@@ -15,19 +15,20 @@ import { useAuthStore } from '../../src/lib/auth-store';
 import { useDhikr, useStreak, useNotifications } from '../../src/lib/queries';
 import { usePrayerTimes, useNextPrayer } from '../../src/lib/prayer';
 import { greeting, timeTag } from '../../src/lib/format';
-import { GlassCard, Skeleton, StreakRing, PressableScale } from '../../src/components';
+import { GlassCard, Skeleton, StreakRing, PressableScale, MoodFace } from '../../src/components';
+import { MOOD_SCALE } from '../../src/components/core/MoodFace';
 import { haptic } from '../../src/lib/haptics';
 import { enterList } from '../../src/theme/motion';
 import type { PrayerTimesModel } from '../../src/lib/types';
 
-const MOODS = [
-  { emoji: '😊', label: 'Great' },
-  { emoji: '😌', label: 'Good' },
-  { emoji: '😐', label: 'Okay' },
-  { emoji: '😔', label: 'Not good' },
-];
+const AURORA = require('../../src/components/core/AppBackground').AppBackground;
 
-const AURORA = require('../../src/components/core/AuroraBackground').AuroraBackground;
+/** Card artwork. Each is dark and low-contrast so the label reads over it. */
+const CARD_ART = {
+  dhikr: require('../../assets/cards/dhikr.jpg'),
+  quran: require('../../assets/cards/quran.jpg'),
+  duas: require('../../assets/cards/duas.jpg'),
+};
 
 export default function HomeScreen() {
   const { palette, type, radius, shadows } = useTheme();
@@ -99,9 +100,9 @@ export default function HomeScreen() {
               ]}
             >
               <Clock size={17} color={palette.tealDeep} strokeWidth={2} />
-              <Text style={[type.headingSmall(palette.tealDeep), { fontSize: 13.5 }]}>Next: {nextPrayer.name}</Text>
+              <Text style={[type.caption(palette.tealDeep), styles.prayerName]}>Next: {nextPrayer.name}</Text>
               <View style={{ flex: 1 }} />
-              <Text style={type.headingSmall(palette.tealDeep)}>{nextPrayer.countdown}</Text>
+              <Text style={type.figure(14, palette.tealDeep)}>{nextPrayer.countdown}</Text>
             </View>
           ) : prayer.status.state === 'denied' ? (
             <PressableScale haptic="light" onPress={prayer.reload}>
@@ -113,7 +114,7 @@ export default function HomeScreen() {
               >
                 <MapPinOff size={17} color={palette.textMuted} strokeWidth={2} />
                 <Text style={[type.bodySmall(palette.textSecondary), { flex: 1 }]}>Prayer times need location access</Text>
-                <Text style={[type.bodySmall(palette.teal), { fontWeight: '700' }]}>Enable</Text>
+                <Text style={type.title(palette.teal)}>Enable</Text>
               </View>
             </PressableScale>
           ) : (
@@ -123,11 +124,14 @@ export default function HomeScreen() {
 
         {/* Mood */}
         <Animated.View entering={enterList(1)} style={styles.moodRow}>
-          {MOODS.map((m) => {
+          {MOOD_SCALE.map((m) => {
             const selected = mood === m.label;
             return (
               <Pressable
                 key={m.label}
+                accessibilityRole="button"
+                accessibilityLabel={`Feeling ${m.label.toLowerCase()}`}
+                accessibilityState={{ selected }}
                 onPress={() => {
                   haptic.light();
                   setMood(m.label);
@@ -141,7 +145,12 @@ export default function HomeScreen() {
                   shadows.sm,
                 ]}
               >
-                <Text style={{ fontSize: 20 }}>{m.emoji}</Text>
+                <MoodFace
+                  mood={m.mood}
+                  size={24}
+                  color={selected ? palette.teal : palette.textMuted}
+                  strokeWidth={selected ? 1.9 : 1.6}
+                />
                 <Text style={type.micro(selected ? palette.teal : palette.textMuted)}>{m.label}</Text>
               </Pressable>
             );
@@ -202,21 +211,27 @@ export default function HomeScreen() {
             <Skeleton height={150} radius={radius.lg} />
           ) : featured ? (
             <PressableScale haptic="medium" onPress={() => router.push(`/dhikr/${featured.id}`)}>
-              <GlassCard animate={false} padding={20} style={{ marginTop: 12 }}>
-                <Text style={[type.arabic(21, palette.text), styles.arabicClamp]} numberOfLines={2}>
+              <GlassCard
+                animate={false}
+                padding={20}
+                style={{ marginTop: 12 }}
+                image={CARD_ART.dhikr}
+                imageAnchor="full"
+              >
+                <Text style={[type.arabic(21, '#F6F3EC'), styles.arabicClamp]} numberOfLines={2}>
                   {featured.arabicText}
                 </Text>
-                <Text style={[type.bodySmall(palette.textSecondary), styles.translationClamp]} numberOfLines={2}>
+                <Text style={[type.quote(14, 'rgba(246,243,236,0.82)'), styles.translationClamp]} numberOfLines={2}>
                   {featured.translation}
                 </Text>
                 <View style={styles.featuredFooter}>
-                  <View style={[styles.countPill, { backgroundColor: palette.tealSoft }]}>
-                    <Text style={type.caption(palette.tealDeep)}>
+                  <View style={[styles.countPill, styles.countPillOnArt]}>
+                    <Text style={type.caption('#F6F3EC')}>
                       {featured.targetCount}x · {featured.title}
                     </Text>
                   </View>
                   <View style={{ flex: 1 }} />
-                  <ChevronRight size={18} color={palette.textMuted} strokeWidth={2} />
+                  <ChevronRight size={18} color="rgba(246,243,236,0.7)" strokeWidth={2} />
                 </View>
               </GlassCard>
             </PressableScale>
@@ -259,24 +274,34 @@ export default function HomeScreen() {
         </View>
         <View style={styles.exploreRow}>
           <PressableScale haptic="medium" onPress={() => router.push('/(tabs)/quran')} style={{ flex: 1 }}>
-            <GlassCard index={5} padding={18} style={{ height: 116, justifyContent: 'space-between' }}>
-              <View style={[styles.exploreIcon, { backgroundColor: `${palette.teal}1A` }]}>
-                <BookOpen size={20} color={palette.teal} strokeWidth={1.75} />
+            <GlassCard
+              index={5}
+              padding={18}
+              style={styles.exploreCard}
+              image={CARD_ART.quran}
+            >
+              <View style={[styles.exploreIcon, styles.exploreIconOnArt]}>
+                <BookOpen size={20} color="#F6F3EC" strokeWidth={1.75} />
               </View>
               <View>
-                <Text style={type.headingSmall(palette.text)}>Quran</Text>
-                <Text style={type.micro(palette.textMuted)}>114 surahs</Text>
+                <Text style={type.titleSerif('#F6F3EC')}>Quran</Text>
+                <Text style={type.micro('rgba(246,243,236,0.72)')}>114 surahs</Text>
               </View>
             </GlassCard>
           </PressableScale>
           <PressableScale haptic="medium" onPress={() => router.push('/duas')} style={{ flex: 1 }}>
-            <GlassCard index={6} padding={18} style={{ height: 116, justifyContent: 'space-between' }}>
-              <View style={[styles.exploreIcon, { backgroundColor: `${palette.gold}1F` }]}>
-                <HandHeart size={20} color={palette.gold} strokeWidth={1.75} />
+            <GlassCard
+              index={6}
+              padding={18}
+              style={styles.exploreCard}
+              image={CARD_ART.duas}
+            >
+              <View style={[styles.exploreIcon, styles.exploreIconOnArt]}>
+                <HandHeart size={20} color="#F0B355" strokeWidth={1.75} />
               </View>
               <View>
-                <Text style={type.headingSmall(palette.text)}>Duas</Text>
-                <Text style={type.micro(palette.textMuted)}>Every occasion</Text>
+                <Text style={type.titleSerif('#F6F3EC')}>Duas</Text>
+                <Text style={type.micro('rgba(246,243,236,0.72)')}>Every occasion</Text>
               </View>
             </GlassCard>
           </PressableScale>
@@ -313,7 +338,7 @@ function PanicButton() {
     >
       <View style={styles.panicRow}>
         <Heart size={20} color="#FFFFFF" strokeWidth={2.2} />
-        <Text style={[type.headingSmall('#FFFFFF'), { fontSize: 16.5 }]}>I'm Struggling</Text>
+        <Text style={type.title('#FFFFFF')}>I'm Struggling</Text>
       </View>
     </Animated.View>
   );
@@ -367,6 +392,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1.4,
   },
+  prayerName: { letterSpacing: 0 },
   streakRow: { flexDirection: 'row', alignItems: 'center' },
   streakMeta: { flexDirection: 'row', alignItems: 'center' },
   sectionHeader: {
@@ -395,6 +421,12 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 999,
   },
+  countPillOnArt: {
+    backgroundColor: 'rgba(255,255,255,0.16)',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(255,255,255,0.22)',
+  },
+  exploreCard: { height: 130, justifyContent: 'space-between' },
   rail: { paddingHorizontal: 20, gap: 12, marginTop: 12 },
   exploreRow: {
     flexDirection: 'row',
@@ -408,6 +440,11 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  exploreIconOnArt: {
+    backgroundColor: 'rgba(255,255,255,0.14)',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(255,255,255,0.2)',
   },
   panicHost: { position: 'absolute', left: 0, right: 0 },
   panic: { paddingVertical: 18, alignItems: 'center', justifyContent: 'center' },

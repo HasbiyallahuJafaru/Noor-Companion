@@ -12,7 +12,7 @@ import Animated from 'react-native-reanimated';
 import { formatNgnShort } from '../../src/lib/format';
 import type { TherapistModel } from '../../src/lib/types';
 
-const AURORA = require('../../src/components/core/AuroraBackground').AuroraBackground;
+const AURORA = require('../../src/components/core/AppBackground').AppBackground;
 
 export default function TherapistDirectory() {
   const { palette, type, radius } = useTheme();

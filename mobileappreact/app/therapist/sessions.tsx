@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, FlatList, RefreshControl } from 'react-native';
 import { router } from 'expo-router';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Star } from 'lucide-react-native';
+import { ChevronLeft, Star } from 'lucide-react-native';
 import { useTheme } from '../../src/theme';
 import { api } from '../../src/lib/api';
 import { Card, Avatar, Badge, Skeleton, EmptyState, ErrorState, Button, PressableScale } from '../../src/components';
@@ -12,7 +12,7 @@ import { enterList } from '../../src/theme/motion';
 import Animated from 'react-native-reanimated';
 import type { CallSessionSummary } from '../../src/lib/types';
 
-const AURORA = require('../../src/components/core/AuroraBackground').AuroraBackground;
+const AURORA = require('../../src/components/core/AppBackground').AppBackground;
 
 export default function SessionHistory() {
   const { palette, type, radius } = useTheme();
@@ -44,7 +44,7 @@ export default function SessionHistory() {
       <AURORA />
       <View style={styles.header}>
         <PressableScale haptic="light" pressScale={0.9} onPress={() => router.back()} style={[styles.back, { backgroundColor: palette.surface, borderColor: palette.border }]}>
-          <Text style={type.headingSmall(palette.text)}>←</Text>
+          <ChevronLeft size={22} color={palette.text} strokeWidth={2.2} />
         </PressableScale>
         <Text style={type.headingMedium(palette.text)}>Session History</Text>
         <View style={{ width: 42 }} />

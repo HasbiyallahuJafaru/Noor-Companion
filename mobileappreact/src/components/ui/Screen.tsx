@@ -6,13 +6,20 @@ import { ChevronLeft, X } from 'lucide-react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useTheme } from '../../theme';
 import { PressableScale } from './PressableScale';
-import { AuroraBackground } from '../core/AuroraBackground';
+import { AppBackground } from '../core/AppBackground';
+import { medallionForeground, type BackdropVariant } from '../../theme/backdrops';
 import { enterScreen } from '../../theme/motion';
 
 interface ScreenProps {
   children: React.ReactNode;
-  /** Aurora canvas + safe areas; false for modal/full-bleed screens. */
+  /** Photographic canvas + safe areas; false for modal/full-bleed screens. */
   chrome?: boolean;
+  /**
+   * Which photograph sits behind the screen. 'canvas' is the everyday app
+   * backdrop; 'sanctuary' is for entry moments; 'medallion' is the always-dark
+   * celebration backdrop and switches header chrome to light-on-dark.
+   */
+  backdrop?: BackdropVariant;
   scroll?: boolean;
   padded?: boolean;
   /** Show a back chevron row (stack screens). */
@@ -32,13 +39,14 @@ interface ScreenProps {
 }
 
 /**
- * Standard screen scaffold: aurora canvas, safe areas, optional header row,
+ * Standard screen scaffold: photographic canvas, safe areas, optional header row,
  * optional pinned bottom (panic button / CTA). Content enters with the
  * shared screen-entrance spring.
  */
 export function Screen({
   children,
   chrome = true,
+  backdrop = 'canvas',
   back = false,
   close = false,
   title,
@@ -56,9 +64,19 @@ export function Screen({
   const router = useRouter();
   const goBack = onBack ?? onClose ?? (() => router.back());
 
+  // The medallion backdrop is dark in both themes, so header chrome that reads
+  // off the palette would go invisible on it.
+  const onDark = backdrop === 'medallion';
+  const fg = {
+    text: onDark ? medallionForeground.text : palette.text,
+    subtle: onDark ? medallionForeground.textBody : palette.textSecondary,
+    chipBg: onDark ? medallionForeground.glass : palette.surface,
+    chipBorder: onDark ? medallionForeground.border : palette.border,
+  };
+
   return (
-    <View style={[styles.fill, { backgroundColor: palette.background }]}>
-      {chrome && <AuroraBackground />}
+    <View style={[styles.fill, { backgroundColor: onDark ? '#070917' : palette.background }]}>
+      {chrome && <AppBackground variant={backdrop} />}
       <View style={[styles.fill, { paddingTop: !edges || edges.includes('top') ? insets.top : 0, paddingBottom: !edges || edges.includes('bottom') ? insets.bottom : 0 }]}>
         <Animated.View entering={enterScreen()} style={styles.fill}>
           {(back || close) && (
@@ -67,16 +85,16 @@ export function Screen({
                 haptic="light"
                 pressScale={0.9}
                 onPress={goBack}
-                style={[styles.backBtn, { backgroundColor: palette.surface, borderColor: palette.border }]}
+                style={[styles.backBtn, { backgroundColor: fg.chipBg, borderColor: fg.chipBorder }]}
               >
                 {close ? (
-                  <X size={20} color={palette.text} strokeWidth={2.2} />
+                  <X size={20} color={fg.text} strokeWidth={2.2} />
                 ) : (
-                  <ChevronLeft size={22} color={palette.text} strokeWidth={2.2} />
+                  <ChevronLeft size={22} color={fg.text} strokeWidth={2.2} />
                 )}
               </PressableScale>
               {title ? (
-                <Text style={[type.headingSmall(palette.text), styles.headerTitle]} numberOfLines={1}>
+                <Text style={[type.headingSmall(fg.text), styles.headerTitle]} numberOfLines={1}>
                   {title}
                 </Text>
               ) : (
@@ -87,9 +105,9 @@ export function Screen({
           )}
           {title && !back && !close && (
             <View style={styles.titleBlock}>
-              <Text style={type.heading(palette.text)}>{title}</Text>
+              <Text style={type.heading(fg.text)}>{title}</Text>
               {subtitle ? (
-                <Text style={[type.body(palette.textSecondary), styles.subtitle]}>{subtitle}</Text>
+                <Text style={[type.body(fg.subtle), styles.subtitle]}>{subtitle}</Text>
               ) : null}
               {right}
             </View>
@@ -104,7 +122,11 @@ export function Screen({
             {
               paddingBottom: 16,
               paddingHorizontal: 20,
-              backgroundColor: palette.isDark ? 'rgba(10,12,26,0.9)' : 'rgba(243,242,249,0.9)',
+              backgroundColor: onDark
+                ? 'rgba(7,9,23,0.92)'
+                : palette.isDark
+                  ? 'rgba(10,12,26,0.9)'
+                  : 'rgba(243,242,249,0.9)',
               borderTopColor: palette.hairline,
             },
           ]}

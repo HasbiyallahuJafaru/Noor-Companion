@@ -13,8 +13,8 @@ export const light = {
   background: '#F3F2F9',
   backgroundElevated: '#ECEBF5',
   surface: '#FFFFFF',
-  surfaceGlass: 'rgba(255, 255, 255, 0.74)',
-  surfaceGlassStrong: 'rgba(255, 255, 255, 0.92)',
+  surfaceGlass: 'rgba(255, 255, 255, 0.80)',
+  surfaceGlassStrong: 'rgba(255, 255, 255, 0.94)',
   scrim: 'rgba(23, 25, 48, 0.45)',
 
   // Text
@@ -68,8 +68,8 @@ export const dark = {
   background: '#0A0C1A',
   backgroundElevated: '#10122A',
   surface: '#161A36',
-  surfaceGlass: 'rgba(22, 26, 54, 0.58)',
-  surfaceGlassStrong: 'rgba(22, 26, 54, 0.92)',
+  surfaceGlass: 'rgba(22, 26, 54, 0.68)',
+  surfaceGlassStrong: 'rgba(22, 26, 54, 0.94)',
   scrim: 'rgba(2, 3, 10, 0.6)',
 
   // Text
@@ -82,7 +82,7 @@ export const dark = {
   // Lines
   border: '#262A4D',
   borderStrong: '#313660',
-  glassBorder: 'rgba(255, 255, 255, 0.09)',
+  glassBorder: 'rgba(255, 255, 255, 0.13)',
   hairline: 'rgba(241, 241, 250, 0.08)',
 
   // Brand — luminous

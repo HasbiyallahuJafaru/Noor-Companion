@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { router } from 'expo-router';
 import { useTheme } from '../../src/theme';
-import { AuroraBackground } from '../../src/components/core/AuroraBackground';
+import { AppBackground } from '../../src/components/core/AppBackground';
 import { Button, PressableScale, SelectableCard } from '../../src/components';
 import { OnboardingProgress, OnboardingHeading } from '../../src/components/shared/OnboardingParts';
 
@@ -19,7 +19,7 @@ export default function OnboardingAddiction() {
 
   return (
     <View style={[styles.fill, { backgroundColor: palette.background }]}>
-      <AuroraBackground />
+      <AppBackground variant="sanctuary" />
       <OnboardingProgress step={1} />
       <ScrollView contentContainerStyle={styles.scroll} bounces={false} showsVerticalScrollIndicator={false}>
         <OnboardingHeading title="What are you working through?" subtitle="This shapes the support Noor offers you. You can change this later." />

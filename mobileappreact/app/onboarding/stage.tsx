@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { router } from 'expo-router';
 import { useTheme } from '../../src/theme';
-import { AuroraBackground } from '../../src/components/core/AuroraBackground';
+import { AppBackground } from '../../src/components/core/AppBackground';
 import { Button, SelectableCard } from '../../src/components';
 import { OnboardingProgress, OnboardingHeading } from '../../src/components/shared/OnboardingParts';
 
@@ -19,7 +19,7 @@ export default function OnboardingStage() {
 
   return (
     <View style={[styles.fill, { backgroundColor: palette.background }]}>
-      <AuroraBackground />
+      <AppBackground variant="sanctuary" />
       <OnboardingProgress step={2} />
       <ScrollView contentContainerStyle={styles.scroll} bounces={false} showsVerticalScrollIndicator={false}>
         <OnboardingHeading title="How long have you been on this journey?" subtitle="Milestones and encouragement are calibrated to where you are." />

@@ -16,8 +16,9 @@ interface ArabicBlockProps {
 }
 
 /**
- * Sacred text presentation: RTL Amiri on a tinted canvas with a small divider
- * between the Arabic and its meaning. Screen readers read the translation.
+ * Sacred text in three voices: Amiri for the Arabic, an italic serif for the
+ * transliteration, and the interface sans for the translation, so the reading
+ * aid never reads as body copy. Screen readers read the translation.
  */
 export function ArabicBlock({
   arabic,
@@ -47,7 +48,7 @@ export function ArabicBlock({
           </View>
         )}
         {transliteration ? (
-          <Text style={[type.bodySmall(palette.textSecondary), styles.transliteration, { fontStyle: 'italic' }]}>
+          <Text style={[type.quote(13.5, palette.textSecondary), styles.transliteration]}>
             {transliteration}
           </Text>
         ) : null}

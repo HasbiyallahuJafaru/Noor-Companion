@@ -68,8 +68,13 @@ export default function ProgressScreen() {
         <View style={styles.milestoneGrid}>
           {MILESTONES.map((m, i) => {
             const unlocked = days >= m.days;
+            const toGo = m.days - days;
             return (
-              <Animated.View key={m.days} entering={FadeInDown.delay(i * 70).springify().damping(16)}>
+              <Animated.View
+                key={m.days}
+                entering={FadeInDown.delay(i * 70).springify().damping(16)}
+                style={styles.milestoneCell}
+              >
                 <Pressable
                   disabled={!unlocked}
                   onPress={() => {
@@ -86,13 +91,24 @@ export default function ProgressScreen() {
                     unlocked && shadows.goldGlow,
                   ]}
                 >
-                  {unlocked ? (
-                    <Text style={type.arabic(24, palette.goldDeep)}>{m.arabicName}</Text>
-                  ) : (
-                    <Lock size={22} color={palette.textMuted} strokeWidth={1.75} />
-                  )}
-                  <Text style={[type.micro(unlocked ? palette.goldDeep : palette.textMuted), styles.milestoneLabel]}>
-                    {m.days} days
+                  <View style={styles.milestoneTop}>
+                    {unlocked ? (
+                      <Text style={type.arabic(26, palette.goldDeep)}>{m.arabicName}</Text>
+                    ) : (
+                      <View style={[styles.lockWrap, { backgroundColor: palette.backgroundElevated }]}>
+                        <Lock size={16} color={palette.textMuted} strokeWidth={1.9} />
+                      </View>
+                    )}
+                  </View>
+                  <Text style={type.numeral(30, unlocked ? palette.goldDeep : palette.text)}>{m.days}</Text>
+                  <Text
+                    style={[
+                      type.micro(unlocked ? palette.goldDeep : palette.textMuted),
+                      styles.milestoneLabel,
+                    ]}
+                    numberOfLines={1}
+                  >
+                    {unlocked ? m.englishName.split(' — ')[0] : `${toGo} day${toGo === 1 ? '' : 's'} to go`}
                   </Text>
                 </Pressable>
               </Animated.View>
@@ -121,14 +137,23 @@ const styles = StyleSheet.create({
   },
   sectionTitle: { marginTop: 28, marginBottom: 14 },
   milestoneGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
+  milestoneCell: { width: '47.8%', flexGrow: 1, maxWidth: '50%' },
   milestone: {
-    width: '47.5%',
-    flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1.5,
-    paddingVertical: 22,
-    gap: 8,
+    paddingVertical: 20,
+    paddingHorizontal: 12,
+    gap: 7,
+    minHeight: 130,
+  },
+  milestoneTop: { height: 36, justifyContent: 'center' },
+  lockWrap: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   milestoneLabel: { textTransform: 'uppercase', letterSpacing: 0.6 },
 });

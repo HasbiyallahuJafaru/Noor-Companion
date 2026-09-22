@@ -10,7 +10,7 @@ import { Card, GlassCard, Skeleton, ErrorState, PressableScale } from '../../src
 import { enterList } from '../../src/theme/motion';
 import Animated from 'react-native-reanimated';
 
-const AURORA = require('../../src/components/core/AuroraBackground').AuroraBackground;
+const AURORA = require('../../src/components/core/AppBackground').AppBackground;
 
 export default function AdminDashboard() {
   const { palette, type, radius } = useTheme();

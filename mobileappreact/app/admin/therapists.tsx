@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, FlatList, Alert, TextInput, ScrollView } from '
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { Check, X } from 'lucide-react-native';
+import { ChevronLeft, Check, X } from 'lucide-react-native';
 import { useTheme } from '../../src/theme';
 import { api } from '../../src/lib/api';
 import { Card, Avatar, Badge, Button, Skeleton, EmptyState, ErrorState, PressableScale, Input } from '../../src/components';
@@ -13,7 +13,7 @@ import Animated from 'react-native-reanimated';
 import { haptic } from '../../src/lib/haptics';
 import type { PendingTherapist } from '../../src/lib/types';
 
-const AURORA = require('../../src/components/core/AuroraBackground').AuroraBackground;
+const AURORA = require('../../src/components/core/AppBackground').AppBackground;
 
 export default function AdminTherapists() {
   const { palette, type, radius } = useTheme();
@@ -89,7 +89,7 @@ export default function AdminTherapists() {
       <AURORA />
       <View style={styles.header}>
         <PressableScale haptic="light" pressScale={0.9} onPress={() => router.back()} style={[styles.back, { backgroundColor: palette.surface, borderColor: palette.border }]}>
-          <Text style={type.headingSmall(palette.text)}>←</Text>
+          <ChevronLeft size={22} color={palette.text} strokeWidth={2.2} />
         </PressableScale>
         <Text style={type.headingMedium(palette.text)}>Pending Therapists</Text>
         <View style={{ width: 42 }} />

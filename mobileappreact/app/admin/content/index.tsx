@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, FlatList, Switch } from 'react-native';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { Plus, Sparkles, BookOpen, HandHeart } from 'lucide-react-native';
+import { ChevronLeft, Plus, Sparkles, BookOpen, HandHeart } from 'lucide-react-native';
 import { useTheme } from '../../../src/theme';
 import { api } from '../../../src/lib/api';
 import { Card, Badge, Chip, Skeleton, EmptyState, ErrorState, PressableScale } from '../../../src/components';
@@ -13,7 +13,7 @@ import Animated from 'react-native-reanimated';
 import { haptic } from '../../../src/lib/haptics';
 import type { AdminContentItem } from '../../../src/lib/types';
 
-const AURORA = require('../../../src/components/core/AuroraBackground').AuroraBackground;
+const AURORA = require('../../../src/components/core/AppBackground').AppBackground;
 
 const CATEGORIES = ['', 'dhikr', 'duas', 'recitations'];
 
@@ -47,7 +47,7 @@ export default function AdminContent() {
       <AURORA />
       <View style={styles.header}>
         <PressableScale haptic="light" pressScale={0.9} onPress={() => router.back()} style={[styles.back, { backgroundColor: palette.surface, borderColor: palette.border }]}>
-          <Text style={type.headingSmall(palette.text)}>←</Text>
+          <ChevronLeft size={22} color={palette.text} strokeWidth={2.2} />
         </PressableScale>
         <Text style={type.headingMedium(palette.text)}>Content</Text>
         <PressableScale haptic="medium" pressScale={0.9} onPress={() => router.push('/admin/content/add')} style={[styles.add, { backgroundColor: palette.teal }]}>

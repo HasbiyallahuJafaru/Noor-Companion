@@ -9,7 +9,7 @@ import { useUiStore } from '../../src/lib/ui-store';
 import { Screen, GlassCard, Card, Button, Avatar, Badge, PressableScale } from '../../src/components';
 import { haptic } from '../../src/lib/haptics';
 
-const AURORA = require('../../src/components/core/AuroraBackground').AuroraBackground;
+const AURORA = require('../../src/components/core/AppBackground').AppBackground;
 
 export default function ProfileScreen() {
   const { palette, type, radius, shadows } = useTheme();

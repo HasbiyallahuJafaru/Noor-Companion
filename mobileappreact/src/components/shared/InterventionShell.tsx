@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { X } from 'lucide-react-native';
 import { useTheme } from '../../theme';
-import { AuroraBackground } from '../core/AuroraBackground';
+import { AppBackground } from '../core/AppBackground';
 import { PressableScale, Button } from '..';
 
 /**
@@ -23,7 +23,7 @@ export function InterventionShell({
 
   return (
     <View style={[styles.fill, { backgroundColor: palette.background, paddingTop: insets.top }]}>
-      <AuroraBackground />
+      <AppBackground />
       <View style={styles.topRow}>
         <View style={[styles.track, { backgroundColor: palette.hairline }]}>
           {[1, 2, 3, 4].map((i) => (

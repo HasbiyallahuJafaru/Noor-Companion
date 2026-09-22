@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -7,15 +7,21 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { QueryClient, QueryClientProvider, FocusManager } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
-import {
-  PlusJakartaSans_400Regular,
-  PlusJakartaSans_500Medium,
-  PlusJakartaSans_600SemiBold,
-  PlusJakartaSans_700Bold,
-  PlusJakartaSans_800ExtraBold,
-} from '@expo-google-fonts/plus-jakarta-sans';
-import { Amiri_400Regular, Amiri_700Bold } from '@expo-google-fonts/amiri';
+// Per-weight subpaths, not the package root: the root index eagerly requires
+// all 18 faces of a family, which bundles ~1.6MB of unused .ttf per family.
+import { Fraunces_400Regular } from '@expo-google-fonts/fraunces/400Regular';
+import { Fraunces_400Regular_Italic } from '@expo-google-fonts/fraunces/400Regular_Italic';
+import { Fraunces_500Medium } from '@expo-google-fonts/fraunces/500Medium';
+import { Fraunces_600SemiBold } from '@expo-google-fonts/fraunces/600SemiBold';
+import { Fraunces_700Bold } from '@expo-google-fonts/fraunces/700Bold';
+import { Geist_400Regular } from '@expo-google-fonts/geist/400Regular';
+import { Geist_500Medium } from '@expo-google-fonts/geist/500Medium';
+import { Geist_600SemiBold } from '@expo-google-fonts/geist/600SemiBold';
+import { Geist_700Bold } from '@expo-google-fonts/geist/700Bold';
+import { Amiri_400Regular } from '@expo-google-fonts/amiri/400Regular';
+import { Amiri_700Bold } from '@expo-google-fonts/amiri/700Bold';
 import { ThemeProvider, useTheme } from '../src/theme';
+import { Spinner } from '../src/components/ui/Button';
 import { ThemeMode } from '../src/theme';
 import { useAuthStore } from '../src/lib/auth-store';
 import { useUiStore } from '../src/lib/ui-store';
@@ -31,12 +37,17 @@ const queryClient = new QueryClient({
 
 function Gate({ children }: { children: React.ReactNode }) {
   const { palette, isDark } = useTheme();
+  // Fraunces carries the voice, Geist the interface, Amiri the Arabic.
   const [fontsLoaded] = useFonts({
-    PlusJakartaSans_400Regular,
-    PlusJakartaSans_500Medium,
-    PlusJakartaSans_600SemiBold,
-    PlusJakartaSans_700Bold,
-    PlusJakartaSans_800ExtraBold,
+    Fraunces_400Regular,
+    Fraunces_400Regular_Italic,
+    Fraunces_500Medium,
+    Fraunces_600SemiBold,
+    Fraunces_700Bold,
+    Geist_400Regular,
+    Geist_500Medium,
+    Geist_600SemiBold,
+    Geist_700Bold,
     Amiri_400Regular,
     Amiri_700Bold,
   });
@@ -60,7 +71,7 @@ function Gate({ children }: { children: React.ReactNode }) {
   if (!fontsLoaded || status === 'loading') {
     return (
       <View style={[styles.boot, { backgroundColor: palette.isDark ? '#0A0C1A' : '#F3F2F9' }]}>
-        <ActivityIndicator color={palette.teal} />
+        <Spinner color={palette.teal} size={26} />
       </View>
     );
   }

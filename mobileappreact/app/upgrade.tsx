@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Linking, AppState, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Linking, AppState } from 'react-native';
 import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -7,7 +7,8 @@ import { Phone, ShieldCheck, Star, Sparkles, Crown } from 'lucide-react-native';
 import { useTheme } from '../src/theme';
 import { api } from '../src/lib/api';
 import { useAuthStore } from '../src/lib/auth-store';
-import { Screen, GlassCard, Button, Confetti } from '../src/components';
+import { Screen, GlassCard, Button, Confetti, Spinner } from '../src/components';
+import { medallionForeground as fg } from '../src/theme/backdrops';
 import { config } from '../src/lib/config';
 import { haptic } from '../src/lib/haptics';
 
@@ -19,7 +20,7 @@ const FEATURES = [
 ];
 
 export default function UpgradeScreen() {
-  const { palette, type, radius } = useTheme();
+  const { type, radius } = useTheme();
   const user = useAuthStore((s) => s.user);
   const refreshUser = useAuthStore((s) => s.refreshUser);
   const [loading, setLoading] = useState(false);
@@ -86,16 +87,16 @@ export default function UpgradeScreen() {
 
   if (success || user?.subscriptionTier === 'paid') {
     return (
-      <Screen chrome close onClose={() => router.replace('/(tabs)')}>
+      <Screen chrome close backdrop="medallion" onClose={() => router.replace('/(tabs)')}>
         <View style={styles.successWrap}>
           <Confetti />
-          <View style={[styles.crownBadge, { backgroundColor: palette.goldSoft }]}>
-            <Crown size={34} color={palette.gold} strokeWidth={1.75} />
+          <View style={[styles.crownBadge, { backgroundColor: 'rgba(240,179,85,0.14)', borderColor: fg.border }]}>
+            <Crown size={34} color={fg.gold} strokeWidth={1.75} />
           </View>
-          <Text style={[type.heading(palette.text), { textAlign: 'center', marginTop: 20 }]}>
-            Welcome to Premium!
+          <Text style={[type.display(fg.text), { textAlign: 'center', marginTop: 22 }]}>
+            You&apos;re in
           </Text>
-          <Text style={[type.body(palette.textSecondary), { textAlign: 'center', marginTop: 8 }]}>
+          <Text style={[type.quote(16, fg.textBody), { textAlign: 'center', marginTop: 10 }]}>
             Your subscription is active. Barakallahu feek.
           </Text>
           <View style={{ marginTop: 30 }}>
@@ -107,26 +108,26 @@ export default function UpgradeScreen() {
   }
 
   return (
-    <Screen chrome close onClose={() => router.replace('/(tabs)')}>
+    <Screen chrome close backdrop="medallion" onClose={() => router.replace('/(tabs)')}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false} bounces={false}>
         <View style={styles.badgeRow}>
-          <View style={[styles.premiumPill, { backgroundColor: palette.goldSoft }]}>
-            <Crown size={13} color={palette.goldDeep} strokeWidth={2} />
-            <Text style={[type.micro(palette.goldDeep), { marginLeft: 6, letterSpacing: 1.2 }]}>PREMIUM</Text>
+          <View style={[styles.premiumPill, { borderColor: fg.border }]}>
+            <Crown size={12} color={fg.gold} strokeWidth={2} />
+            <Text style={[type.eyebrow(fg.gold), styles.premiumLabel]}>PREMIUM</Text>
           </View>
         </View>
-        <Text style={[type.heading(palette.text), { textAlign: 'center' }]}>Unlock Noor Companion Premium</Text>
-        <Text style={[type.body(palette.textSecondary), { textAlign: 'center', marginTop: 8, paddingHorizontal: 20 }]}>
-          Everything you need for the journey, in one plan.
+        <Text style={[type.display(fg.text), styles.offerTitle]}>Everything, unlocked</Text>
+        <Text style={[type.quote(16, fg.textBody), styles.offerSub]}>
+          One plan for the whole journey — the people, the practice, the library.
         </Text>
 
-        <GlassCard animate={false} padding={0} style={{ marginTop: 26, overflow: 'hidden', borderWidth: 0 }}>
-          <LinearGradient colors={[palette.teal, palette.tealDeep]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
+        <GlassCard animate={false} padding={0} style={styles.priceHost}>
+          <LinearGradient colors={['#14B8A6', '#0B7268']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
             <View style={styles.priceCard}>
-              <Text style={type.body('#D9F3F0')}>Monthly</Text>
+              <Text style={type.eyebrow('#B9E8E2')}>MONTHLY</Text>
               <View style={styles.priceRow}>
-                <Text style={[type.numeral(44, '#FFFFFF'), { marginTop: 6 }]}>₦{config.monthlyPriceNgn.toLocaleString()}</Text>
-                <Text style={[type.body('#D9F3F0'), { marginLeft: 8, marginTop: 18 }]}>/ month</Text>
+                <Text style={[type.numeral(46, '#FFFFFF'), { marginTop: 8 }]}>₦{config.monthlyPriceNgn.toLocaleString()}</Text>
+                <Text style={[type.body('#B9E8E2'), { marginLeft: 8, marginTop: 22 }]}>/ month</Text>
               </View>
             </View>
           </LinearGradient>
@@ -134,14 +135,14 @@ export default function UpgradeScreen() {
 
         <View style={styles.featureList}>
           {FEATURES.map((f, i) => (
-            <GlassCard key={f.title} index={i} padding={16} style={{ backgroundColor: palette.surfaceGlass }}>
+            <GlassCard key={f.title} index={i} padding={16} tint="dark" surface={fg.glass} border={fg.border}>
               <View style={styles.featureRow}>
-                <View style={[styles.featureIcon, { backgroundColor: palette.tealSoft }]}>
-                  <f.icon size={18} color={palette.teal} strokeWidth={1.9} />
+                <View style={[styles.featureIcon, { backgroundColor: 'rgba(45,212,191,0.14)' }]}>
+                  <f.icon size={18} color="#2DD4BF" strokeWidth={1.9} />
                 </View>
                 <View style={{ flex: 1, marginLeft: 14 }}>
-                  <Text style={type.headingSmall(palette.text)}>{f.title}</Text>
-                  <Text style={[type.bodySmall(palette.textSecondary), { marginTop: 2 }]}>{f.body}</Text>
+                  <Text style={type.title(fg.text)}>{f.title}</Text>
+                  <Text style={[type.bodySmall(fg.textMuted), { marginTop: 3 }]}>{f.body}</Text>
                 </View>
               </View>
             </GlassCard>
@@ -149,22 +150,22 @@ export default function UpgradeScreen() {
         </View>
 
         {error && (
-          <View style={[styles.error, { backgroundColor: palette.dangerSoft, borderRadius: radius.md }]}>
-            <Text style={type.bodySmall(palette.danger)}>{error}</Text>
+          <View style={[styles.error, { borderRadius: radius.md }]}>
+            <Text style={type.bodySmall('#FCA5A5')}>{error}</Text>
           </View>
         )}
 
         {confirming && (
           <View style={[styles.confirming, { borderRadius: radius.lg }]}>
-            <ActivityIndicator color={palette.teal} />
-            <Text style={[type.bodySmall(palette.textSecondary), { marginLeft: 10 }]}>Confirming your payment…</Text>
+            <Spinner color="#2DD4BF" size={18} />
+            <Text style={[type.bodySmall(fg.textBody), { marginLeft: 10 }]}>Confirming your payment…</Text>
           </View>
         )}
       </ScrollView>
 
       <View style={styles.ctaHost}>
         <Button label={`Upgrade Now — ₦${config.monthlyPriceNgn.toLocaleString()}/month`} variant="gold" onPress={startCheckout} loading={loading} />
-        <Text style={[type.micro(palette.textMuted), { textAlign: 'center', marginTop: 10 }]}>
+        <Text style={[type.caption(fg.textMuted), { textAlign: 'center', marginTop: 12 }]}>
           Cancel any time. Billed monthly.
         </Text>
       </View>
@@ -175,7 +176,14 @@ export default function UpgradeScreen() {
 const styles = StyleSheet.create({
   scroll: { padding: 20, paddingBottom: 12 },
   successWrap: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
-  crownBadge: { width: 84, height: 84, borderRadius: 42, alignItems: 'center', justifyContent: 'center' },
+  crownBadge: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   badgeRow: { alignItems: 'center', marginTop: 8 },
   premiumPill: {
     flexDirection: 'row',
@@ -183,7 +191,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 7,
     borderRadius: 999,
+    borderWidth: 1,
   },
+  premiumLabel: { marginLeft: 7 },
+  offerTitle: { textAlign: 'center', marginTop: 22 },
+  offerSub: { textAlign: 'center', marginTop: 10, paddingHorizontal: 14 },
+  priceHost: { marginTop: 26, overflow: 'hidden', borderWidth: 0 },
   priceCard: { padding: 24 },
   priceRow: { flexDirection: 'row', alignItems: 'flex-start' },
   featureList: { gap: 10, marginTop: 18 },
@@ -195,14 +208,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  error: { padding: 12, marginTop: 14 },
+  error: { padding: 12, marginTop: 14, backgroundColor: 'rgba(248,113,113,0.14)' },
   confirming: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 14,
     marginTop: 14,
-    backgroundColor: 'rgba(13,148,136,0.08)',
+    backgroundColor: 'rgba(45,212,191,0.10)',
   },
   ctaHost: { paddingHorizontal: 20, paddingBottom: 8 },
 });

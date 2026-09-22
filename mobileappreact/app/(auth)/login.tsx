@@ -4,7 +4,8 @@ import { router } from 'expo-router';
 import { supabase } from '../../src/lib/supabase';
 import { useAuthStore } from '../../src/lib/auth-store';
 import { useTheme } from '../../src/theme';
-import { AuroraBackground } from '../../src/components/core/AuroraBackground';
+import { FONT_ARABIC_BOLD } from '../../src/theme/typography';
+import { AppBackground } from '../../src/components/core/AppBackground';
 import { GlassCard, Input, Button, PressableScale } from '../../src/components';
 
 import { registerPushToken } from '../../src/lib/notifications';
@@ -51,11 +52,11 @@ function LoginInner() {
 
   return (
     <View style={[styles.fill, { backgroundColor: palette.background }]}>
-      <AuroraBackground />
+      <AppBackground variant="sanctuary" />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.fill}>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled" bounces={false}>
           <View style={styles.header}>
-            <Text style={styles.arabic}>نور</Text>
+            <Text style={[styles.arabic, { color: palette.isDark ? palette.gold : palette.teal }]}>نور</Text>
             <Text style={type.heading(palette.text)}>Welcome back</Text>
             <Text style={type.body(palette.textSecondary)}>Light your way back.</Text>
           </View>
@@ -158,7 +159,7 @@ const styles = StyleSheet.create({
   fill: { flex: 1 },
   scroll: { flexGrow: 1, justifyContent: 'center', padding: 20 },
   header: { alignItems: 'center', gap: 6 },
-  arabic: { fontSize: 56, color: '#0D9488', fontWeight: '700', marginBottom: 6 },
+  arabic: { fontFamily: FONT_ARABIC_BOLD, fontSize: 60, lineHeight: 94, marginBottom: 2 },
   error: {
     borderWidth: 1,
     padding: 12,

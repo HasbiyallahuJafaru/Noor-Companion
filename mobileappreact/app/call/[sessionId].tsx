@@ -19,7 +19,7 @@ import { api } from '../../src/lib/api';
 import { haptic } from '../../src/lib/haptics';
 import { getCallingEngine, type CallPhase } from '../../src/lib/calling';
 
-const AURORA = require('../../src/components/core/AuroraBackground').AuroraBackground;
+const AURORA = require('../../src/components/core/AppBackground').AppBackground;
 
 /**
  * Live session screen. Status mirrors the Flutter calling flow:

@@ -79,7 +79,7 @@ export default function CallRating() {
   );
 }
 
-const AURORA = require('../src/components/core/AuroraBackground').AuroraBackground;
+const AURORA = require('../src/components/core/AppBackground').AppBackground;
 
 const styles = StyleSheet.create({
   fill: { flex: 1 },
