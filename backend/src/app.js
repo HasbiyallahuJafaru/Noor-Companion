@@ -25,6 +25,10 @@ const notificationsRoutes = require('./routes/notifications.routes');
 
 const app = express();
 
+// Behind Railway's proxy — trust one proxy hop so req.ip (and the
+// per-IP rate limiter) reflects the real client, not the proxy.
+app.set('trust proxy', 1);
+
 // ── Security headers ──────────────────────────────────────────────────────────
 app.use(helmet());
 

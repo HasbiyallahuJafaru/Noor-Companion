@@ -8,6 +8,9 @@
 
 require('dotenv').config();
 
+const { initSentry } = require('./config/sentry');
+initSentry();
+
 const { initFirebase } = require('./config/firebase');
 initFirebase();
 
@@ -23,10 +26,15 @@ const server = app.listen(env.PORT, () => {
 startStreakRiskWorker();
 startCallTimeoutWorker();
 
-process.on('SIGTERM', () => {
-  console.log('SIGTERM received — shutting down gracefully');
+function shutdown(signal) {
+  console.log(`${signal} received — shutting down gracefully`);
   server.close(() => process.exit(0));
-});
+  // Keep-alive connections must not hold the process hostage.
+  setTimeout(() => process.exit(0), 10_000).unref();
+}
+
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
 
 process.on('unhandledRejection', (reason) => {
   console.error('Unhandled rejection:', reason);

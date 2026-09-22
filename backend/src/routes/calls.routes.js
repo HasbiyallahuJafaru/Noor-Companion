@@ -12,7 +12,7 @@ const { Router } = require('express');
 const { authenticate } = require('../middleware/auth');
 const { validate } = require('../middleware/validate');
 const { callRateLimiter } = require('../middleware/rateLimiter');
-const { initiateCall, endCall, rateSession, getTherapistSessions } = require('../services/calling.service');
+const { initiateCall, endCall, rateSession, markSessionStarted, getTherapistSessions } = require('../services/calling.service');
 const { initiateCallSchema, rateCallSchema } = require('../validators/calls.validator');
 const { prisma } = require('../config/prisma');
 
@@ -40,7 +40,7 @@ router.post('/token', callRateLimiter, validate(initiateCallSchema), async (req,
 
 router.post('/:sessionId/end', async (req, res, next) => {
   try {
-    const data = await endCall(req.params.sessionId);
+    const data = await endCall(req.params.sessionId, req.user.id);
     res.json({ success: true, data });
   } catch (err) {
     if (err.statusCode) return res.status(err.statusCode).json({
@@ -101,7 +101,14 @@ router.post('/:sessionId/renew-token', async (req, res, next) => {
       });
     }
 
-    if (session.status === 'completed' || session.status === 'missed') {
+    // A live participant connecting means the call was answered: flip
+    // initiated/missed → active and stamp startedAt, so the 60s timeout
+    // doesn't mark an in-progress call as missed and durations are real.
+    if (session.status === 'initiated' || session.status === 'missed') {
+      await markSessionStarted(req.params.sessionId);
+    }
+
+    if (session.status === 'completed' || session.status === 'cancelled') {
       return res.status(400).json({
         success: false,
         error: { code: 'SESSION_ENDED', message: 'Session is no longer active.' },

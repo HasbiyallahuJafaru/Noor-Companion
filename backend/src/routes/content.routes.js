@@ -9,14 +9,16 @@
 const { Router } = require('express');
 const { listDhikr, listDuas, listRecitations, recordProgress } = require('../controllers/content.controller');
 const { authenticate } = require('../middleware/auth');
+const { validate } = require('../middleware/validate');
+const { contentQuerySchema } = require('../validators/content.validator');
 
 const router = Router();
 
 router.use(authenticate);
 
-router.get('/dhikr', listDhikr);
-router.get('/duas', listDuas);
-router.get('/recitations', listRecitations);
+router.get('/dhikr', validate(contentQuerySchema, 'query'), listDhikr);
+router.get('/duas', validate(contentQuerySchema, 'query'), listDuas);
+router.get('/recitations', validate(contentQuerySchema, 'query'), listRecitations);
 router.post('/:contentId/progress', recordProgress);
 
 module.exports = router;

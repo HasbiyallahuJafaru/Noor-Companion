@@ -7,6 +7,7 @@
 'use strict';
 
 const logger = console; // Replace with pino if added later
+const { Sentry } = require('../config/sentry');
 const paymentsService = require('../services/payments.service');
 
 // ── Subscribe init ────────────────────────────────────────────────────────────
@@ -69,7 +70,10 @@ async function handleWebhook(req, res) {
       await paymentsService.processSuccessfulPayment(event.data);
     }
   } catch (err) {
+    // Paystack already got a 200 and will not retry — a failed activation
+    // must be visible in Sentry, not just console.
     logger.error('[webhook] processSuccessfulPayment error:', err.message);
+    Sentry.captureException(err);
   }
 }
 

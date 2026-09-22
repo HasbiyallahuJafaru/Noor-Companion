@@ -53,15 +53,21 @@ async function updateStreak(userId) {
   const existing = await prisma.streak.findUnique({ where: { userId } });
 
   if (!existing) {
-    return prisma.streak.create({
-      data: {
-        userId,
-        currentStreak: 1,
-        longestStreak: 1,
-        totalDays: 1,
-        lastEngagedAt: todayUTC,
-      },
-    });
+    try {
+      return await prisma.streak.create({
+        data: {
+          userId,
+          currentStreak: 1,
+          longestStreak: 1,
+          totalDays: 1,
+          lastEngagedAt: todayUTC,
+        },
+      });
+    } catch (err) {
+      // Lost the create race (unique userId) — the row exists now, recompute.
+      if (err.code !== 'P2002') throw err;
+      return updateStreak(userId);
+    }
   }
 
   const lastDate = existing.lastEngagedAt ? _toUTCDay(existing.lastEngagedAt) : null;
@@ -89,7 +95,9 @@ async function updateStreak(userId) {
 
 /**
  * Returns all users whose streak is at risk:
- * streak > 0, has not engaged today, and lastEngagedAt was yesterday or earlier.
+ * streak > 0 and lastEngagedAt was yesterday — engaging today still saves it.
+ * Users with older lastEngagedAt have already broken their streak, and a
+ * push would push them to engage, which resets their streak to 1.
  * Used by the daily streak risk BullMQ worker to target FCM pushes.
  *
  * @returns {Promise<Array<{userId: string, currentStreak: number, fcmToken: string|null}>>}
@@ -97,11 +105,12 @@ async function updateStreak(userId) {
 async function findStreakRiskUsers() {
   const now = new Date();
   const todayUTC = _toUTCDay(now);
+  const yesterdayUTC = new Date(todayUTC.getTime() - 86_400_000);
 
   const atRisk = await prisma.streak.findMany({
     where: {
       currentStreak: { gt: 0 },
-      lastEngagedAt: { lt: todayUTC },
+      lastEngagedAt: { gte: yesterdayUTC, lt: todayUTC },
     },
     select: {
       currentStreak: true,

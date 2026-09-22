@@ -41,7 +41,15 @@ async function main() {
   );
 
   if (res.rowCount === 0) {
-    console.log('No DB row found — will be created as admin on next login.');
+    // Auth middleware never trusts role from user_metadata (client-controlled),
+    // so create the row here — it will be picked up on next login.
+    const meta = supabaseUser.user_metadata ?? {};
+    await client.query(
+      `INSERT INTO "User" ("id", "supabaseId", "firstName", "lastName", "role")
+       VALUES (gen_random_uuid()::text, $1, $2, $3, 'admin')`,
+      [supabaseUser.id, meta.first_name ?? 'User', meta.last_name ?? '']
+    );
+    console.log(`Created DB User row as admin for supabaseId=${supabaseUser.id}`);
   } else {
     console.log(`Updated DB User row: id=${res.rows[0].id}, role=${res.rows[0].role}`);
   }

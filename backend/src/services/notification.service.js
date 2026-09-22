@@ -66,10 +66,23 @@ async function sendToUser(userId, { type, title, body, data }) {
     });
 
     if (user.fcmToken) {
-      await sendDirectPush(user.fcmToken, {
-        notification: { title, body },
-        data: { type, ...(data ? { payload: JSON.stringify(data) } : {}) },
-      });
+      try {
+        await admin.messaging().send({
+          token: user.fcmToken,
+          notification: { title, body },
+          data: { type, ...(data ? { payload: JSON.stringify(data) } : {}) },
+          android: { priority: 'high' },
+          apns: { payload: { aps: { 'content-available': 1 } } },
+        });
+      } catch (err) {
+        // Expired/uninstalled tokens fail forever — clear them so we stop
+        // paying to send into the void.
+        if (err.errorInfo?.code === 'messaging/registration-token-not-registered') {
+          await prisma.user.update({ where: { id: userId }, data: { fcmToken: null } });
+        } else {
+          console.error('[notification] sendToUser push error:', err.message);
+        }
+      }
     }
   } catch (err) {
     console.error('[notification] sendToUser error:', err.message);
@@ -84,7 +97,7 @@ async function sendToUser(userId, { type, title, body, data }) {
  *
  * @param {string} role - 'user' | 'therapist' | 'admin'
  * @param {{ type: string, title: string, body: string, data?: object }} options
- * @returns {Promise<void>}
+ * @returns {Promise<number>} Number of users targeted
  */
 async function broadcastToRole(role, { type, title, body, data }) {
   try {
@@ -93,7 +106,7 @@ async function broadcastToRole(role, { type, title, body, data }) {
       select: { id: true, fcmToken: true },
     });
 
-    if (users.length === 0) return;
+    if (users.length === 0) return 0;
 
     await prisma.notification.createMany({
       data: users.map((u) => ({
@@ -123,8 +136,11 @@ async function broadcastToRole(role, { type, title, body, data }) {
         console.error('[notification] broadcastToRole batch error:', err.message);
       }
     }
+
+    return users.length;
   } catch (err) {
     console.error('[notification] broadcastToRole error:', err.message);
+    return 0;
   }
 }
 

@@ -15,7 +15,8 @@ jest.mock('../config/redis', () => ({
 }));
 
 jest.mock('../workers/callTimeout.worker', () => ({
-  callTimeoutQueue: { add: jest.fn().mockResolvedValue({}) },
+  getCallTimeoutQueue: () => ({ add: jest.fn().mockResolvedValue({}) }),
+  CALL_TIMEOUT_JOB: 'check-missed',
 }));
 
 jest.mock('../config/prisma', () => ({
@@ -32,7 +33,7 @@ jest.mock('../utils/agora', () => ({
 }));
 
 jest.mock('../services/notification.service', () => ({
-  sendPushNotification: jest.fn().mockResolvedValue(true),
+  notificationService: { sendDirectPush: jest.fn().mockResolvedValue(true) },
 }));
 
 const { prisma } = require('../config/prisma');
@@ -76,18 +77,23 @@ describe('initiateCall', () => {
 describe('endCall', () => {
   it('marks session as completed and calculates duration', async () => {
     const startedAt = new Date(Date.now() - 300_000); // 5 min ago
-    prisma.callSession.findUnique.mockResolvedValue({ ...mockSession, startedAt, status: 'active' });
+    prisma.callSession.findUnique.mockResolvedValue({ ...mockSession, startedAt, status: 'active', therapistProfile: { userId: 'therapist-user-1' } });
     prisma.callSession.update.mockResolvedValue({ ...mockSession, status: 'completed', durationSeconds: 300 });
-    const result = await endCall('session-1');
+    const result = await endCall('session-1', 'user-1');
     expect(prisma.callSession.update).toHaveBeenCalledWith(
       expect.objectContaining({ data: expect.objectContaining({ status: 'completed' }) })
     );
     expect(result).toHaveProperty('durationSeconds');
   });
 
+  it('throws FORBIDDEN when caller is not a session participant', async () => {
+    prisma.callSession.findUnique.mockResolvedValue({ ...mockSession, status: 'active', therapistProfile: { userId: 'therapist-user-1' } });
+    await expect(endCall('session-1', 'random-user')).rejects.toMatchObject({ statusCode: 403 });
+  });
+
   it('throws NOT_FOUND when session does not exist', async () => {
     prisma.callSession.findUnique.mockResolvedValue(null);
-    await expect(endCall('bad-id')).rejects.toMatchObject({ statusCode: 404 });
+    await expect(endCall('bad-id', 'user-1')).rejects.toMatchObject({ statusCode: 404 });
   });
 });
 

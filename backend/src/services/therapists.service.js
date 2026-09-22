@@ -30,12 +30,42 @@ const THERAPIST_SELECT = {
       fcmToken: true,
     },
   },
-  ratings: { select: { rating: true } },
-  sessions: {
-    where: { status: 'completed' },
-    select: { id: true },
-  },
 };
+
+/**
+ * Computes averageRating and completed-session totals via two grouped
+ * aggregate queries instead of loading every rating/session row
+ * (row counts grow without bound as therapists accumulate history).
+ *
+ * @param {object[]} profiles - Prisma TherapistProfile rows (THERAPIST_SELECT)
+ * @returns {Promise<object[]>} Same rows with aggregates merged in API shape
+ */
+async function _attachAggregates(profiles) {
+  const ids = profiles.map((p) => p.id);
+
+  let ratingMap = new Map();
+  let sessionMap = new Map();
+
+  if (ids.length > 0) {
+    const [ratingAgg, sessionAgg] = await Promise.all([
+      prisma.sessionRating.groupBy({
+        by: ['therapistProfileId'],
+        where: { therapistProfileId: { in: ids } },
+        _avg: { rating: true },
+      }),
+      prisma.callSession.groupBy({
+        by: ['therapistProfileId'],
+        where: { therapistProfileId: { in: ids }, status: 'completed' },
+        _count: { _all: true },
+      }),
+    ]);
+
+    ratingMap = new Map(ratingAgg.map((r) => [r.therapistProfileId, r._avg.rating]));
+    sessionMap = new Map(sessionAgg.map((s) => [s.therapistProfileId, s._count._all]));
+  }
+
+  return profiles.map((p) => _formatProfile(p, ratingMap.get(p.id), sessionMap.get(p.id) ?? 0));
+}
 
 /**
  * Lists active therapists with optional filters.
@@ -67,7 +97,7 @@ async function listTherapists({ specialisation, language, page, limit }) {
   ]);
 
   return {
-    therapists: profiles.map(_formatProfile),
+    therapists: await _attachAggregates(profiles),
     pagination: { page, limit, total },
   };
 }
@@ -92,7 +122,8 @@ async function getTherapistById(therapistProfileId) {
     throw err;
   }
 
-  return _formatProfile(profile);
+  const [formatted] = await _attachAggregates([profile]);
+  return formatted;
 }
 
 /**
@@ -339,16 +370,14 @@ async function _sendRejectionPush(fcmToken, firstName, reason) {
 
 /**
  * Formats a raw Prisma TherapistProfile row into the public API shape.
+ * Aggregates come from _attachAggregates, not from rows on the profile.
  *
  * @param {object} profile
+ * @param {number|null} avgRating - Precomputed average rating (null = no ratings)
+ * @param {number} totalSessions - Precomputed completed-session count
  * @returns {object}
  */
-function _formatProfile(profile) {
-  const totalRatings = profile.ratings.length;
-  const averageRating = totalRatings > 0
-    ? Math.round((profile.ratings.reduce((sum, r) => sum + r.rating, 0) / totalRatings) * 10) / 10
-    : null;
-
+function _formatProfile(profile, avgRating, totalSessions) {
   return {
     id: profile.id,
     firstName: profile.user.firstName,
@@ -361,8 +390,10 @@ function _formatProfile(profile) {
     languagesSpoken: profile.languagesSpoken,
     sessionRateNgn: profile.sessionRateNgn,
     availabilityJson: profile.availabilityJson ?? null,
-    averageRating,
-    totalSessions: profile.sessions.length,
+    averageRating: avgRating != null
+      ? Math.round(avgRating * 10) / 10
+      : null,
+    totalSessions,
   };
 }
 
@@ -392,7 +423,8 @@ async function getMyTherapistProfile(userId) {
     throw err;
   }
 
-  return { ..._formatProfile(profile), status: profile.status, rejectionReason: profile.rejectionReason ?? null };
+  const [formatted] = await _attachAggregates([profile]);
+  return { ...formatted, status: profile.status, rejectionReason: profile.rejectionReason ?? null };
 }
 
 module.exports = {

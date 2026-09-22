@@ -26,7 +26,7 @@
                           │
        ┌──────────────────▼──────────────────────────┐
        │           BACKEND API                        │
-       │    Node.js + Express on Render               │
+       │    Node.js + Express on Railway               │
        │                                              │
        │  Auth middleware: verifies Supabase tokens   │
        │  Business logic: streaks, calls, payments    │
@@ -264,7 +264,7 @@ immediately after a successful Paystack webhook.
 | Service            | Free Tier Limit                      | Paid from          |
 |--------------------|--------------------------------------|--------------------|
 | Supabase           | 500MB DB, 1GB storage, 50k MAU auth  | $25/month          |
-| Render (backend)   | 750h/month (spins down after 15 min) | $7/month (Starter) |
+| Railway (backend)  | $5 trial credit (usage-based)        | ~$5-10/month Hobby |
 | Upstash Redis      | 10k commands/day                     | ~$0.2/100k cmds    |
 | Netlify (website)  | 100GB bandwidth, 300 build min       | $19/month          |
 | Firebase FCM       | Unlimited push notifications         | Free               |
@@ -272,5 +272,6 @@ immediately after a successful Paystack webhook.
 | Sentry             | 5k errors/month                      | $26/month          |
 | Resend             | 3,000 emails/month                   | $20/month          |
 
-**Launch cost: $0/month on free tiers across all services.**
-Upgrade Render to $7/month Starter immediately to prevent spin-down in production.
+**Launch cost: ~$0/month on free tiers across all services.**
+Railway bills by usage and does not spin down like Render's free tier —
+top up the Hobby plan once the trial credit runs out.

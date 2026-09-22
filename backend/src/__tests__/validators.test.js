@@ -2,8 +2,6 @@
 
 const { initiateCallSchema, rateCallSchema } = require('../validators/calls.validator');
 const { updateProfileSchema, fcmTokenSchema } = require('../validators/users.validator');
-const { createContentSchema } = require('../validators/content.validator');
-const { therapistProfileSchema } = require('../validators/therapists.validator');
 
 describe('initiateCallSchema', () => {
   it('passes with valid therapistProfileId', () => {

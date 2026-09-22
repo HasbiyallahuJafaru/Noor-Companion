@@ -21,8 +21,8 @@ const paymentsService = require('../services/payments.service');
  */
 async function generateSubscribeToken(req, res, next) {
   try {
-    const { id: userId } = req.user;
-    const data = paymentsService.generateSubscribeToken(userId);
+    const { id: userId, email } = req.user;
+    const data = paymentsService.generateSubscribeToken(userId, email);
 
     return res.json({ success: true, data });
   } catch (error) {

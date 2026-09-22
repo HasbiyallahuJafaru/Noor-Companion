@@ -6,6 +6,8 @@
 
 'use strict';
 
+const { Sentry } = require('../config/sentry');
+
 /**
  * Catches errors thrown or passed to next() anywhere in the app.
  *
@@ -16,13 +18,16 @@
  */
 function errorHandler(err, req, res, _next) {
   const statusCode = err.statusCode || 500;
-  const code = err.code || 'INTERNAL_ERROR';
+  // 5xx codes like P2002 are Prisma internals — never forward them.
+  const code = statusCode >= 500 ? 'INTERNAL_ERROR' : (err.code || 'INTERNAL_ERROR');
+  // Never expose internal error text (Prisma/DB details) to the client.
   const message = statusCode >= 500
-    ? err.message || 'An unexpected error occurred.'
+    ? 'An unexpected error occurred.'
     : err.message;
 
   if (statusCode >= 500) {
     console.error('[Error]', err);
+    Sentry.captureException(err);
   }
 
   return res.status(statusCode).json({

@@ -52,7 +52,7 @@ Noor Companion brings together daily Islamic practice and professional mental we
 | Push Notifications | Firebase Admin SDK (FCM) |
 | Error Tracking | Sentry |
 | Email | Resend |
-| Hosting | Render |
+| Hosting | Railway |
 
 ### Mobile (Flutter)
 
@@ -76,7 +76,7 @@ Noor Companion brings together daily Islamic practice and professional mental we
 | Service | Provider |
 |---|---|
 | Database | Supabase |
-| Backend Hosting | Render |
+| Backend Hosting | Railway |
 | Redis | Upstash |
 | Website Hosting | Netlify |
 | Voice Calling | Agora.io |

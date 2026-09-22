@@ -29,8 +29,10 @@ const { getCallTimeoutQueue, CALL_TIMEOUT_JOB } = require('../workers/callTimeou
  * @throws {{ code: 'NOT_FOUND', statusCode: 404 }}
  */
 async function initiateCall(userId, therapistProfileId) {
-  const caller = await _requirePaidUser(userId);
-  const therapist = await _requireActiveTherapist(therapistProfileId);
+  const [caller, therapist] = await Promise.all([
+    _requirePaidUser(userId),
+    _requireActiveTherapist(therapistProfileId),
+  ]);
 
   const channelName = `noor_${createId()}`;
   const agoraToken = generateRtcToken(channelName);
@@ -56,19 +58,28 @@ async function initiateCall(userId, therapistProfileId) {
 /**
  * Ends a call session and records the duration.
  * Idempotent — returns existing data if session is already completed.
- * Called by either the user or the therapist.
+ * Only the caller or the session's therapist may end a session.
  *
  * @param {string} sessionId
+ * @param {string} userId - Authenticated user's Prisma ID (participant check)
  * @returns {Promise<{ sessionId: string, durationSeconds: number }>}
  * @throws {{ code: 'NOT_FOUND', statusCode: 404 }}
+ * @throws {{ code: 'FORBIDDEN', statusCode: 403 }}
  */
-async function endCall(sessionId) {
+async function endCall(sessionId, userId) {
   const session = await prisma.callSession.findUnique({
     where: { id: sessionId },
-    select: { id: true, status: true, startedAt: true, durationSeconds: true },
+    select: {
+      id: true, status: true, startedAt: true, durationSeconds: true,
+      userId: true,
+      therapistProfile: { select: { userId: true } },
+    },
   });
 
   if (!session) _throw('Session not found.', 'NOT_FOUND', 404);
+  if (session.userId !== userId && session.therapistProfile?.userId !== userId) {
+    _throw('Forbidden.', 'FORBIDDEN', 403);
+  }
 
   if (session.status === 'completed') {
     return { sessionId, durationSeconds: session.durationSeconds ?? 0 };
@@ -110,6 +121,9 @@ async function rateSession(userId, sessionId, rating, comment) {
   if (!session) _throw('Session not found.', 'NOT_FOUND', 404);
   if (session.userId !== userId) _throw('Forbidden.', 'FORBIDDEN', 403);
   if (session.rating) return { message: 'Rating submitted.' };
+  if (session.status !== 'completed') {
+    _throw('Only completed sessions can be rated.', 'SESSION_NOT_COMPLETED', 400);
+  }
 
   await prisma.sessionRating.create({
     data: { sessionId, userId, therapistProfileId: session.therapistProfileId, rating, comment },
@@ -121,15 +135,16 @@ async function rateSession(userId, sessionId, rating, comment) {
 // ── Mark session started ──────────────────────────────────────────────────────
 
 /**
- * Marks the session as active (sets startedAt to now) when the therapist joins.
- * Called from the missed-call worker's pre-check — if already active, no-op.
+ * Marks the session as active (sets startedAt to now) when a participant
+ * connects. Idempotent — no-op unless the session is initiated or was
+ * wrongly timed out as missed (a real join recovers it).
  *
  * @param {string} sessionId
  * @returns {Promise<void>}
  */
 async function markSessionStarted(sessionId) {
   await prisma.callSession.updateMany({
-    where: { id: sessionId, status: 'initiated' },
+    where: { id: sessionId, status: { in: ['initiated', 'missed'] } },
     data: { status: 'active', startedAt: new Date() },
   });
 }
@@ -207,21 +222,25 @@ function _throw(message, code, statusCode) {
  * @returns {Promise<{ sessions: object[], pagination: object }>}
  */
 async function getTherapistSessions(userId, { page = 1, limit = 20 } = {}) {
+  // Clamp to keep ?limit=1000000 from becoming an unbounded query.
+  const safeLimit = Math.min(Math.max(1, limit), 50);
+  const safePage = Math.max(1, page);
+
   const profile = await prisma.therapistProfile.findUnique({
     where: { userId },
     select: { id: true },
   });
 
-  if (!profile) return { sessions: [], pagination: { page, limit, total: 0 } };
+  if (!profile) return { sessions: [], pagination: { page: safePage, limit: safeLimit, total: 0 } };
 
-  const skip = (page - 1) * limit;
+  const skip = (safePage - 1) * safeLimit;
 
   const [sessions, total] = await Promise.all([
     prisma.callSession.findMany({
       where: { therapistProfileId: profile.id },
       orderBy: { createdAt: 'desc' },
       skip,
-      take: limit,
+      take: safeLimit,
       select: {
         id: true,
         status: true,
@@ -235,7 +254,7 @@ async function getTherapistSessions(userId, { page = 1, limit = 20 } = {}) {
     prisma.callSession.count({ where: { therapistProfileId: profile.id } }),
   ]);
 
-  return { sessions, pagination: { page, limit, total } };
+  return { sessions, pagination: { page: safePage, limit: safeLimit, total } };
 }
 
 module.exports = { initiateCall, endCall, rateSession, markSessionStarted, getTherapistSessions };

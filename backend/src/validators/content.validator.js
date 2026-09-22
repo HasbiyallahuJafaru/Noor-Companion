@@ -7,9 +7,6 @@
 
 const { z } = require('zod');
 
-/** Schema for recording progress on a content item (no body required). */
-const progressSchema = z.object({});
-
 /**
  * Schema for prayer-times query params.
  * lat and lng are required; date is optional.
@@ -37,7 +34,6 @@ const contentQuerySchema = z.object({
 });
 
 module.exports = {
-  progressSchema,
   prayerTimesQuerySchema,
   surahParamSchema,
   hadithQuerySchema,

@@ -127,14 +127,13 @@ Before starting development:
 - [ ] Set Site URL in Supabase Auth: https://noorcompanion.netlify.app
 - [ ] Add redirect URLs: noorcompanion://auth-callback (for deep linking)
 
-## Render Setup Checklist (Backend)
+## Railway Setup Checklist (Backend)
 
-- [ ] Create Web Service pointing to backend/ folder
-- [ ] Build command: npm install && npx prisma generate && npx prisma migrate deploy
-- [ ] Start command: node src/server.js
-- [ ] Add all .env variables from the list above
-- [ ] Add health check path: /health
-- [ ] Upgrade to Starter ($7/mo) to prevent spin-down
+- [ ] Create service from the GitHub repo (root railway.json drives build/deploy)
+- [ ] Environment variables: add all vars from the list above in the Railway dashboard (never in git)
+- [ ] PORT is injected by Railway automatically — do not set it manually
+- [ ] Health check path /health is preconfigured in railway.json
+- [ ] Set the generated Railway domain as API_BASE_URL in codemagic.yaml for release builds
 
 ## Netlify Setup Checklist (Website)
 

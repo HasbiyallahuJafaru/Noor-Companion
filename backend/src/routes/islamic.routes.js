@@ -9,13 +9,21 @@
 const { Router } = require('express');
 const { getPrayerTimes, getQuranSurah, getHadith } = require('../controllers/islamic.controller');
 const { authenticate } = require('../middleware/auth');
+const { validate } = require('../middleware/validate');
+const {
+  prayerTimesQuerySchema,
+  surahParamSchema,
+  hadithQuerySchema,
+} = require('../validators/content.validator');
 
 const router = Router();
 
 router.use(authenticate);
 
-router.get('/prayer-times', getPrayerTimes);
-router.get('/quran/:surahNumber', getQuranSurah);
-router.get('/hadith', getHadith);
+// Query/path validation happens before the controller — lat/lng are
+// interpolated into the Aladhan URL and must be numbers, not free text.
+router.get('/prayer-times', validate(prayerTimesQuerySchema, 'query'), getPrayerTimes);
+router.get('/quran/:surahNumber', validate(surahParamSchema, 'params'), getQuranSurah);
+router.get('/hadith', validate(hadithQuerySchema, 'query'), getHadith);
 
 module.exports = router;

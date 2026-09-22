@@ -13,10 +13,8 @@
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const { prisma } = require('../config/prisma');
-const { redis } = require('../config/redis');
-const { supabase } = require('../config/supabase');
 const { env } = require('../config/env');
-const notificationService = require('./notification.service');
+const { notificationService } = require('./notification.service');
 
 const PAID_PLAN_AMOUNT_NGN = 5000; // ₦5,000/month — update when client confirms pricing
 
@@ -30,11 +28,12 @@ const PAID_PLAN_AMOUNT_NGN = 5000; // ₦5,000/month — update when client conf
  * Token expires in 10 minutes — enough time to complete payment.
  *
  * @param {string} userId - Our app User.id (CUID)
+ * @param {string} email  - User's email from Supabase Auth
  * @returns {{ redirectUrl: string }} Absolute URL to the Netlify subscribe page
  */
-function generateSubscribeToken(userId) {
+function generateSubscribeToken(userId, email) {
   const token = jwt.sign(
-    { userId, plan: 'paid', purpose: 'paystack_redirect' },
+    { userId, email, plan: 'paid', purpose: 'paystack_redirect' },
     env.SUBSCRIPTION_TOKEN_SECRET,
     { expiresIn: '10m' },
   );
@@ -75,13 +74,10 @@ async function verifySubscribeInit(token, plan) {
     throw err;
   }
 
-  const { data: { user: supabaseUser }, error } =
-    await supabase.auth.admin.getUserById(decoded.userId);
-
-  if (error || !supabaseUser) {
-    const err = new Error('User not found.');
-    err.statusCode = 404;
-    err.code = 'NOT_FOUND';
+  if (!decoded.email) {
+    const err = new Error('Payment link is invalid or has expired.');
+    err.statusCode = 400;
+    err.code = 'INVALID_TOKEN';
     throw err;
   }
 
@@ -89,7 +85,7 @@ async function verifySubscribeInit(token, plan) {
   const reference = `NR-${crypto.randomBytes(8).toString('hex')}`;
 
   return {
-    email: supabaseUser.email,
+    email: decoded.email,
     amountInKobo,
     reference,
     userId: decoded.userId,
@@ -131,7 +127,6 @@ function verifyPaystackWebhook(rawBody, receivedSignature) {
  * Side effects:
  *  - Creates a PaymentEvent audit record
  *  - Updates User.subscriptionTier to 'paid'
- *  - Deletes the Redis user cache entry for the affected user
  *  - Sends an FCM push notification to the user
  *
  * @param {object} chargeData - The event.data object from a charge.success webhook
@@ -142,6 +137,15 @@ async function processSuccessfulPayment(chargeData) {
 
   if (!userId) {
     console.warn('[payments] charge.success webhook missing userId, paystackEventId:', paystackEventId);
+    return;
+  }
+
+  // Defense in depth: only grant the tier for the exact plan price. The
+  // checkout amount is server-controlled today, but never trust that chain.
+  if (amount !== PAID_PLAN_AMOUNT_NGN * 100 || (currency && currency !== 'NGN')) {
+    console.warn(
+      `[payments] charge.success amount mismatch — got ${amount} ${currency ?? ''}, expected ${PAID_PLAN_AMOUNT_NGN * 100} NGN. Event: ${paystackEventId}`,
+    );
     return;
   }
 
@@ -169,8 +173,6 @@ async function processSuccessfulPayment(chargeData) {
       data: { subscriptionTier: 'paid' },
     }),
   ]);
-
-  await redis.del(`user:${userId}`);
 
   await notificationService.sendToUser(userId, {
     type: 'subscription_active',

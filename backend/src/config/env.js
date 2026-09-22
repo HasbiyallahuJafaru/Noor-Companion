@@ -14,6 +14,11 @@ const envSchema = z.object({
   DIRECT_DATABASE_URL: z.string().min(1),
   SUPABASE_URL: z.string().url(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
+  // Optional — enables local HS256 JWT verification in auth middleware
+  // (skips a Supabase network roundtrip on every request). Legacy project
+  // JWT secret from Supabase → Settings → API.
+  SUPABASE_JWT_SECRET: z.string().default(''),
+  SENTRY_DSN: z.string().default(''),
   SUBSCRIPTION_TOKEN_SECRET: z.string().min(32),
   UPSTASH_REDIS_URL: z.string().min(1),
   PAYSTACK_SECRET_KEY: z.string().min(1),

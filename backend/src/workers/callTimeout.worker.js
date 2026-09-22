@@ -18,13 +18,15 @@ const QUEUE_NAME = 'callTimeout';
 const CALL_TIMEOUT_JOB = 'check-missed';
 
 /**
- * Returns the callTimeout BullMQ queue for enqueuing timeout jobs.
- * Called by calling.service when a call is initiated.
+ * Returns the shared callTimeout BullMQ queue for enqueuing timeout jobs.
+ * Created once per process — a new Queue per call would churn Redis connections.
  *
  * @returns {Queue}
  */
+let _queue;
 function getCallTimeoutQueue() {
-  return new Queue(QUEUE_NAME, { connection: redis });
+  if (!_queue) _queue = new Queue(QUEUE_NAME, { connection: redis });
+  return _queue;
 }
 
 /**
@@ -50,7 +52,7 @@ async function _processMissedCallCheck(job) {
   });
 
   await notificationService.sendToUser(session.userId, {
-    type: 'call_missed',
+    type: 'general',
     title: 'Therapist Unavailable',
     body: 'The therapist was not available right now. Please try again later.',
   });
@@ -63,7 +65,7 @@ async function _processMissedCallCheck(job) {
  * @returns {{ queue: Queue, worker: Worker }}
  */
 function startCallTimeoutWorker() {
-  const queue = new Queue(QUEUE_NAME, { connection: redis });
+  const queue = getCallTimeoutQueue();
 
   const worker = new Worker(QUEUE_NAME, _processMissedCallCheck, { connection: redis });
 

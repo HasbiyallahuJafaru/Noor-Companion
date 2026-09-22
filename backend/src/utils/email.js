@@ -10,7 +10,31 @@
 const { Resend } = require('resend');
 const { env } = require('../config/env');
 
-const resend = new Resend(env.RESEND_API_KEY);
+// Emails are best-effort — a missing API key must not crash the server
+// at import time; sends become logged no-ops instead.
+const resend = env.RESEND_API_KEY ? new Resend(env.RESEND_API_KEY) : null;
+
+/**
+ * Sends an email via Resend, or logs and skips when not configured.
+ *
+ * @param {{ to: string, subject: string, html: string }} params
+ * @returns {Promise<void>}
+ */
+async function _send({ to, subject, html }) {
+  if (!resend) {
+    console.warn(`[email] RESEND_API_KEY not set — skipped: "${subject}" to ${to}`);
+    return;
+  }
+  if (!to) {
+    console.warn(`[email] no recipient — skipped: "${subject}"`);
+    return;
+  }
+  try {
+    await resend.emails.send({ from: env.FROM_EMAIL, to, subject, html });
+  } catch (err) {
+    console.error(`[email] Failed to send "${subject}":`, err.message);
+  }
+}
 
 /**
  * Sends a therapist approval notification email.
@@ -19,17 +43,7 @@ const resend = new Resend(env.RESEND_API_KEY);
  * @returns {Promise<void>}
  */
 async function sendTherapistApprovedEmail({ toEmail, firstName }) {
-  try {
-    await resend.emails.send({
-      from: env.FROM_EMAIL,
-      to: toEmail,
-      subject: 'You\'re approved — Welcome to Noor Companion',
-      html: _approvedHtml(firstName),
-    });
-  } catch (err) {
-    // error already logged below
-    console.error('[email] Failed to send approval email:', err.message);
-  }
+  await _send({ to: toEmail, subject: 'You\'re approved — Welcome to Noor Companion', html: _approvedHtml(firstName) });
 }
 
 /**
@@ -39,17 +53,7 @@ async function sendTherapistApprovedEmail({ toEmail, firstName }) {
  * @returns {Promise<void>}
  */
 async function sendTherapistRejectedEmail({ toEmail, firstName, reason }) {
-  try {
-    await resend.emails.send({
-      from: env.FROM_EMAIL,
-      to: toEmail,
-      subject: 'Update on your Noor Companion application',
-      html: _rejectedHtml(firstName, reason),
-    });
-  } catch (err) {
-    // error already logged below
-    console.error('[email] Failed to send rejection email:', err.message);
-  }
+  await _send({ to: toEmail, subject: 'Update on your Noor Companion application', html: _rejectedHtml(firstName, reason) });
 }
 
 /**

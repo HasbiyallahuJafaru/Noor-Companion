@@ -242,12 +242,16 @@ async function updateContent(contentId, updates) {
 
 /**
  * Deletes all Redis cache keys for a given content category.
- * Tags cannot be predicted, so we use pattern deletion.
+ * Tags cannot be predicted, so we pattern-delete via SCAN — KEYS would
+ * block Redis by scanning the entire keyspace synchronously.
  *
  * @param {string} category
  */
 async function _bustContentCache(category) {
-  const keys = await redis.keys(`content:${category}:*`);
+  const keys = [];
+  for await (const batch of redis.scanStream({ match: `content:${category}:*`, count: 100 })) {
+    keys.push(...batch);
+  }
   if (keys.length > 0) await redis.del(...keys);
 }
 

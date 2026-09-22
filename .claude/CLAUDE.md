@@ -75,7 +75,7 @@ Every session, no exceptions:
 | Push notifs     | Firebase Admin SDK (FCM)                    |
 | Error tracking  | Sentry (@sentry/node)                       |
 | Email           | Resend                                      |
-| Hosting         | Render Web Service                          |
+| Hosting         | Railway (Nixpacks, railway.json)            |
 
 ### Mobile (Flutter)
 | Concern         | Tool                                        |
@@ -99,7 +99,7 @@ Every session, no exceptions:
 | Database        | Supabase                                    |
 | Auth            | Supabase                                    |
 | Storage         | Supabase                                    |
-| Backend hosting | Render Web Service                          |
+| Backend hosting | Railway (Nixpacks, railway.json)            |
 | Redis           | Upstash                                     |
 | Website hosting | Netlify (static)                            |
 | Calling         | Agora.io                                    |

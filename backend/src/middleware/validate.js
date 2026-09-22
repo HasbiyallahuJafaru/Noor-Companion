@@ -1,7 +1,7 @@
 /**
  * Zod validation middleware factory.
- * Validates req.body or req.query against the given Zod schema.
- * On success, replaces the validated object with the parsed (coerced) data.
+ * Validates req.body, req.query, or req.params against the given Zod schema.
+ * On success, merges the parsed (coerced) data into the request object.
  * On failure, returns 400 with per-field error details.
  */
 
@@ -9,7 +9,7 @@
 
 /**
  * @param {import('zod').ZodSchema} schema
- * @param {'body'|'query'} [source='body'] - Which request object to validate
+ * @param {'body'|'query'|'params'} [source='body'] - Which request object to validate
  * @returns {import('express').RequestHandler}
  */
 function validate(schema, source = 'body') {
@@ -27,7 +27,9 @@ function validate(schema, source = 'body') {
       });
     }
 
-    req[source] = result.data;
+    // Express 5 defines query/params as getter-only properties — mutate the
+    // object in place instead of reassigning it.
+    Object.assign(req[source], result.data);
     next();
   };
 }

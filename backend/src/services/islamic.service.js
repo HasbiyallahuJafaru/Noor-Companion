@@ -18,6 +18,28 @@ const ALADHAN_BASE = 'https://api.aladhan.com/v1';
 const ALQURAN_BASE = 'https://api.alquran.cloud/v1';
 const ALQURAN_AUDIO_BASE = 'https://cdn.alquran.cloud/media/audio/ayah/ar.alafasy/64';
 
+/** Hard cap on upstream API latency — a slow third party must not hold our request open. */
+const UPSTREAM_TIMEOUT_MS = 8000;
+
+/** Cache failures never fail the request — the cache is an optimisation. */
+async function _cacheGet(key) {
+  try {
+    const cached = await redis.get(key);
+    return cached ? JSON.parse(cached) : null;
+  } catch (err) {
+    console.error('[cache] get failed:', err.message);
+    return null;
+  }
+}
+
+async function _cacheSet(key, ttl, value) {
+  try {
+    await redis.setex(key, ttl, JSON.stringify(value));
+  } catch (err) {
+    console.error('[cache] set failed:', err.message);
+  }
+}
+
 /**
  * Fetches prayer times for a given coordinate and date.
  * Results are cached per lat/lng/date combination for 24 hours.
@@ -31,11 +53,11 @@ async function getPrayerTimes(lat, lng, date) {
   const resolvedDate = date || formatDate(new Date());
   const cacheKey = `prayer:${lat}:${lng}:${resolvedDate}`;
 
-  const cached = await redis.get(cacheKey);
-  if (cached) return JSON.parse(cached);
+  const cached = await _cacheGet(cacheKey);
+  if (cached) return cached;
 
   const url = `${ALADHAN_BASE}/timings/${resolvedDate}?latitude=${lat}&longitude=${lng}&method=2`;
-  const response = await fetch(url);
+  const response = await fetch(url, { signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS) });
 
   if (!response.ok) {
     const err = new Error('Prayer times API unavailable.');
@@ -64,7 +86,7 @@ async function getPrayerTimes(lat, lng, date) {
     isha: timings.Isha,
   };
 
-  await redis.setex(cacheKey, PRAYER_TIMES_TTL, JSON.stringify(result));
+  await _cacheSet(cacheKey, PRAYER_TIMES_TTL, result);
   return result;
 }
 
@@ -76,7 +98,7 @@ async function getPrayerTimes(lat, lng, date) {
  * @returns {Promise<object>}
  */
 async function getQuranSurah(surahNumber) {
-  if (surahNumber < 1 || surahNumber > 114) {
+  if (!Number.isInteger(surahNumber) || surahNumber < 1 || surahNumber > 114) {
     const err = new Error('Surah number must be between 1 and 114.');
     err.statusCode = 400;
     err.code = 'VALIDATION_ERROR';
@@ -84,12 +106,12 @@ async function getQuranSurah(surahNumber) {
   }
 
   const cacheKey = `quran:surah:${surahNumber}`;
-  const cached = await redis.get(cacheKey);
-  if (cached) return JSON.parse(cached);
+  const cached = await _cacheGet(cacheKey);
+  if (cached) return cached;
 
   const [arabicRes, translationRes] = await Promise.all([
-    fetch(`${ALQURAN_BASE}/surah/${surahNumber}`),
-    fetch(`${ALQURAN_BASE}/surah/${surahNumber}/en.asad`),
+    fetch(`${ALQURAN_BASE}/surah/${surahNumber}`, { signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS) }),
+    fetch(`${ALQURAN_BASE}/surah/${surahNumber}/en.asad`, { signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS) }),
   ]);
 
   if (!arabicRes.ok || !translationRes.ok) {
@@ -129,7 +151,7 @@ async function getQuranSurah(surahNumber) {
     verses,
   };
 
-  await redis.setex(cacheKey, QURAN_TTL, JSON.stringify(result));
+  await _cacheSet(cacheKey, QURAN_TTL, result);
   return result;
 }
 

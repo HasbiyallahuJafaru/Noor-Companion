@@ -26,19 +26,45 @@ function buildContentCacheKey(category, tag) {
   return tag ? `content:${category}:tag:${tag}` : `content:${category}:all`;
 }
 
+// In-flight fetches per cache key — a cold or expired key under concurrent
+// load hits the DB once, not once per request (cache stampede).
+const _inflight = new Map();
+
 /**
  * Returns cached content list or fetches from DB and caches.
+ * Redis failures never fail the request — cache is an optimisation, the
+ * DB is the source of truth.
  *
  * @param {string} key
  * @param {Function} fetchFn
  * @returns {Promise<object[]>}
  */
 async function cacheOrFetch(key, fetchFn) {
-  const cached = await redis.get(key);
-  if (cached) return JSON.parse(cached);
-  const fresh = await fetchFn();
-  await redis.setex(key, CONTENT_CACHE_TTL, JSON.stringify(fresh));
-  return fresh;
+  try {
+    const cached = await redis.get(key);
+    if (cached) return JSON.parse(cached);
+  } catch (err) {
+    console.error('[cache] get failed:', err.message);
+  }
+
+  if (_inflight.has(key)) return _inflight.get(key);
+
+  const pending = (async () => {
+    const fresh = await fetchFn();
+    try {
+      await redis.setex(key, CONTENT_CACHE_TTL, JSON.stringify(fresh));
+    } catch (err) {
+      console.error('[cache] set failed:', err.message);
+    }
+    return fresh;
+  })();
+
+  _inflight.set(key, pending);
+  try {
+    return await pending;
+  } finally {
+    _inflight.delete(key);
+  }
 }
 
 /**
