@@ -2,7 +2,16 @@
 
 > **Light your way back**
 
-An Islamic spiritual wellness mobile application for daily users, verified therapists, and platform administrators. Built with Flutter and Node.js.
+An Islamic spiritual wellness mobile application for daily users, verified therapists, and platform administrators. Built with Flutter and Node.js, hosted on Railway.
+
+---
+
+## Current State
+
+- **Infrastructure consolidated on Railway**: API, PostgreSQL, Redis, and the static website all run as Railway services. Supabase remains **auth only** (Railway has no auth service). Third-party services without Railway equivalents stay: Firebase (FCM), Agora (calling), Resend (email), Paystack (payments), Sentry (error tracking).
+- **Deployment is config-as-code**: `railway.json` (repo root) drives the API build/deploy; `website/railway.json` drives the website service. The Prisma schema is pushed at container start against Railway's private internal database URL — the database is never exposed publicly.
+- **UI redesigned to the "Soft Luxury" visual world** across website and mobile: lavender-grey canvas, white cards, ink-navy pills, single teal accent, Plus Jakarta Sans, and a custom inline-SVG icon set (`flutter_svg`).
+- **Hardened payment and call flows**: the Paystack webhook verifies amount and idempotency, call sessions flip to active with real durations on join, and the subscribe page's API/paystack config is injected at serve time.
 
 ---
 
@@ -22,14 +31,14 @@ Noor Companion brings together daily Islamic practice and professional mental we
 
 ## Features
 
-- **Daily Dhikr & Duas** — curated content library with audio playback and counter
+- **Daily Dhikr & Duas** — curated content library with audio playback and tasbih counter
 - **Quran Browser** — surah listing with verse-by-verse audio via Al-Quran Cloud
-- **Prayer Times** — location-aware prayer schedule via Aladhan API
-- **Streak System** — daily engagement tracking with milestone celebrations and at-risk push notifications
-- **Therapist Directory** — searchable, filterable directory of verified Muslim wellness professionals
-- **Voice Calling** — Agora RTC-powered calls between paid users and therapists
-- **Subscriptions** — iOS (Safari redirect) and Android (WebView) Paystack payment flows
-- **Push Notifications** — FCM-powered feed with in-app unread badge
+- **Prayer Times** — location-aware prayer schedule via Aladhan API with live countdown
+- **Streak System** — daily engagement tracking with milestone celebrations and at-risk push notifications (targeted at users whose streak is still salvageable, not lapsed ones)
+- **Therapist Directory** — searchable, filterable directory with aggregated ratings
+- **Voice Calling** — Agora RTC-powered calls between paid users and therapists, with live token renewal and missed-call detection
+- **Subscriptions** — Paystack checkout in an external browser (iOS) or in-app WebView (Android), activated by a signature-verified webhook
+- **Push Notifications** — FCM-powered feed with in-app unread badge and dead-token pruning
 - **Admin Panel** — analytics dashboard, user/therapist/content management, broadcast notifications
 - **Therapist Dashboard** — profile setup, session history, incoming call screen
 
@@ -41,12 +50,11 @@ Noor Companion brings together daily Islamic practice and professional mental we
 
 | Concern | Technology |
 |---|---|
-| Runtime | Node.js |
+| Runtime | Node.js 20+ |
 | Framework | Express.js |
 | ORM | Prisma |
 | Database | Railway PostgreSQL |
-| Auth | Supabase Auth (Railway Postgres for data) |
-| Storage | Supabase Storage |
+| Auth | Supabase Auth (Railway Postgres for app data) |
 | Cache / Queues | Railway Redis + BullMQ |
 | Validation | Zod |
 | Push Notifications | Firebase Admin SDK (FCM) |
@@ -59,31 +67,34 @@ Noor Companion brings together daily Islamic practice and professional mental we
 | Concern | Technology |
 |---|---|
 | Language | Dart |
-| Auth + Realtime | supabase_flutter |
+| Auth | supabase_flutter |
 | State Management | Riverpod |
 | Navigation | GoRouter |
 | HTTP Client | Dio |
 | Offline Cache | Hive |
+| Fonts | google_fonts (Plus Jakarta Sans + Amiri for Arabic) |
+| Icons | flutter_svg (custom NoorIcons set) |
+| Audio | just_audio |
+| Location | geolocator (prayer times) |
 | Push Notifications | firebase_messaging |
 | Voice Calling | agora_rtc_engine |
-| Permissions | permission_handler |
-| Payments (iOS) | url_launcher -> Safari |
+| Payments (iOS) | url_launcher → external browser |
 | Payments (Android) | flutter_inappwebview |
-| Error Tracking | Sentry Flutter SDK |
 
 ### Infrastructure
 
 | Service | Provider |
 |---|---|
 | Database | Railway PostgreSQL |
-| Backend Hosting | Railway |
+| API Hosting | Railway |
 | Redis | Railway Redis |
-| Website Hosting | Railway (static) |
+| Website Hosting | Railway (static, `website/server.js`) |
+| Auth | Supabase Auth |
 | Voice Calling | Agora.io |
 | Payments | Paystack |
 | Push Notifications | Firebase FCM |
 | Email | Resend |
-| Error Tracking | Sentry |
+| Error Tracking | Sentry (backend) |
 
 ---
 
@@ -91,23 +102,26 @@ Noor Companion brings together daily Islamic practice and professional mental we
 
 ```
 noor-companion/
++-- railway.json              Railway config: API build + deploy (schema push at start)
 +-- backend/                  Node.js + Express + Prisma
-|   +-- prisma/               Database schema and migrations
+|   +-- prisma/               Database schema
+|   +-- scripts/              Ops scripts (create tables, grant admin)
 |   +-- src/
-|       +-- config/           Supabase, Prisma, Redis, Sentry, env validation
-|       +-- middleware/        Auth, role guard, validation, rate limiter, error handler
+|       +-- config/           Prisma, Redis, Supabase (auth), Firebase, Sentry, env validation
+|       +-- middleware/       Auth (local JWT verify + user cache), role guard, validation, rate limiter, error handler
 |       +-- routes/           Express routers (users, content, calls, payments, etc.)
 |       +-- services/         Business logic layer
 |       +-- controllers/      Request/response handlers
 |       +-- validators/       Zod schemas
 |       +-- workers/          BullMQ workers (streak risk, call timeout)
+|       +-- __tests__/        Jest test suites
 |       +-- utils/            Agora token generation, email helpers
 +-- mobile/                   Flutter application
 |   +-- lib/
-|       +-- core/             App config, router, theme, network client, services
-|       +-- features/         Feature modules (auth, dhikr, duas, quran, etc.)
+|       +-- core/             Config, router, theme, NoorIcons, network client, shell
+|       +-- features/         Feature modules (auth, dhikr, duas, quran, calls, etc.)
 |       +-- shared/           Shared widgets and utilities
-+-- website/                  Static site on Railway (landing + Paystack redirect page)
++-- website/                  Static site on Railway (landing, pricing, Paystack redirect page)
 +-- .claude/                  Project documentation for AI-assisted development
 ```
 
@@ -119,11 +133,11 @@ noor-companion/
 
 - Node.js 20+
 - Flutter 3.x with Dart 3.x
-- A Supabase project
+- A PostgreSQL database and Redis instance (local, or Railway)
+- A Supabase project (auth only)
 - An Agora.io account and app
 - A Paystack account
 - Firebase project with FCM enabled
-- Upstash Redis instance
 
 ### Backend Setup
 
@@ -134,10 +148,10 @@ npm install
 
 Copy `.env.example` to `.env` and fill in all required values (see `.claude/ENV.md` for descriptions).
 
-Run the database migration:
+Create the schema:
 
 ```bash
-npx prisma migrate dev
+npx prisma db push
 npx prisma generate
 ```
 
@@ -147,11 +161,18 @@ Start the development server:
 npm run dev
 ```
 
+Run the test suite:
+
+```bash
+npm test
+```
+
 ### Flutter Setup
 
 ```bash
 cd mobile
 flutter pub get
+flutter analyze
 ```
 
 Run with environment variables:
@@ -162,8 +183,7 @@ flutter run \
   --dart-define=SUPABASE_URL=your_supabase_url \
   --dart-define=SUPABASE_ANON_KEY=your_anon_key \
   --dart-define=AGORA_APP_ID=your_agora_app_id \
-  --dart-define=SENTRY_DSN=your_sentry_dsn \
-  --dart-define=WEBSITE_URL=https://noorcompanion.netlify.app
+  --dart-define=WEBSITE_URL=https://your-website.up.railway.app
 ```
 
 Firebase must be configured separately via:
@@ -174,39 +194,55 @@ flutterfire configure
 
 ---
 
+## Deployment (Railway)
+
+Full runbook in `.claude/ENV.md`. Summary:
+
+1. **API service** — from the repo root; `railway.json` handles build (`npm install && prisma generate`) and start (`prisma db push && node src/server.js`).
+2. **Databases** — add Railway PostgreSQL and Redis, then reference their private URLs as service variables: `DATABASE_URL` = `${{Postgres.DATABASE_URL}}`, `REDIS_URL` = `${{Redis.REDIS_URL}}`.
+3. **Website service** — same repo, root directory `/website`, config `website/railway.json`. `website/server.js` serves static files with clean URLs and the security headers (including the Paystack-scoped CSP on `/subscribe`).
+4. **Data migration from Supabase** (one-time) — `pg_dump --data-only` from Supabase piped into `psql` on the Railway URL. Auth users stay in Supabase; the app's `User` table mirrors them via `supabaseId`.
+
+---
+
 ## Architecture Notes
 
 ### Auth
 
-Supabase Auth owns the full authentication lifecycle. The backend never generates JWTs or stores refresh tokens. Flutter sends the Supabase access token as a Bearer header on every API call; the backend verifies it by calling `supabase.auth.getUser(token)`.
+Supabase Auth owns the full authentication lifecycle; the backend never stores credentials. Flutter sends the Supabase access token as a Bearer header on every API call. The backend verifies it **locally** with `SUPABASE_JWT_SECRET` when configured (no network roundtrip), falling back to `supabase.auth.getUser(token)` otherwise — and caches the resolved app user in memory for 30 seconds.
 
-Roles (`user`, `therapist`, `admin`) are stored in Supabase `user_metadata` and mirrored in the `users` table for Prisma queries. Subscription tier (`free`, `paid`) is stored in the database and updated exclusively by the Paystack webhook handler.
+Roles (`user`, `therapist`, `admin`) are mirrored in the `users` table. Signup metadata is client-controlled, so the auth middleware only ever self-selects `user` or `therapist` — `admin` is granted out-of-band via `backend/scripts/make-admin.js`. Subscription tier (`free`, `paid`) is updated exclusively by the Paystack webhook, which verifies the HMAC signature, enforces idempotency, and checks the charged amount.
 
 ### Payments
 
-Apple prohibits third-party in-app payment processors. The iOS flow opens Safari to a hosted Netlify page where the user pays via Paystack; the app polls `GET /users/me` on return to confirm the upgrade. Android uses an in-app WebView and intercepts the `noorcompanion://payment-success` URI scheme.
+Apple prohibits third-party in-app payment processors. The iOS flow opens an external browser to the hosted website (`/subscribe`) where the user pays via Paystack; the app picks up the result via the `noorcompanion://payment-success` deep link and polls `GET /users/me` to confirm the upgrade. Android uses an in-app WebView. The webhook responds 200 immediately (Paystack's retry contract) and processes asynchronously with idempotent event storage.
 
 ### Voice Calling
 
-Agora RTC tokens are generated server-side with a 1-hour expiry. The app handles `onTokenPrivilegeWillExpire` to request a fresh token from `POST /calls/:sessionId/renew-token` and call `engine.renewToken()` without dropping the call. Calls are rate-limited to 5 initiations per minute per user.
+Agora RTC tokens are generated server-side with a 1-hour expiry. Connecting participants flip the session from `initiated`/`missed` to `active` via `POST /calls/:sessionId/renew-token`, which stamps `startedAt` (real durations) and prevents the 60-second timeout from marking answered calls as missed. Both parties can end the call; only the caller can rate it. Calls are rate-limited to 5 initiations per minute.
 
 ### Background Jobs
 
-Two BullMQ workers run on server startup:
+Two BullMQ workers run on server startup (Railway services don't spin down, so schedules hold):
 
-- **Streak risk** — fires daily at 8 PM UTC, sends FCM to users who have a streak but no engagement today
-- **Call timeout** — fires 60 seconds after a call is initiated; marks the session as missed and notifies the caller if the therapist has not joined
+- **Streak risk** — daily at 8 PM UTC, FCM to users who engaged *yesterday* but not today (their streak can still be saved; lapsed users are excluded, since engaging after a lapse resets the streak)
+- **Call timeout** — 60 seconds after initiation, marks unanswered sessions as missed and notifies the caller
 
 ---
 
 ## Brand
 
+Visual world: **Soft Luxury** — lavender canvas, white cards, ink pills, one teal accent.
+
 | Token | Value |
 |---|---|
-| Primary (Teal) | `#0D7C6E` |
-| Accent (Gold) | `#C9933A` |
-| Text (Dark) | `#1A1A2E` |
-| Background | `#F7F8FA` |
+| Canvas (lavender grey) | `#F2F1F8` |
+| Surface | `#FFFFFF` |
+| Ink (primary actions) | `#171930` |
+| Accent (teal) | `#17C3B2` (fills) / `#0B8A7E` (text-safe) |
+| Streak gold | `#E8A33D` — streaks and premium only |
+| Type | Plus Jakarta Sans (UI) + Amiri (Arabic) |
+| Shapes | cards 20-32px, all interactive controls pill |
 
 ---
 
