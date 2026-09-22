@@ -1,0 +1,68 @@
+{
+  "expo": {
+    "name": "Noor Companion",
+    "slug": "noor-companion",
+    "scheme": "noorcompanion",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.noorcompanion.app",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Noor Companion uses your location to show accurate prayer times for your area.",
+        "NSMicrophoneUsageDescription": "The microphone is used during therapy voice calls.",
+        "UIBackgroundModes": ["audio", "voip"]
+      }
+    },
+    "android": {
+      "package": "com.noorcompanion.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#10122A",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "RECORD_AUDIO",
+        "POST_NOTIFICATIONS",
+        "VIBRATE"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "expo-secure-store",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Show accurate prayer times for your area."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#0D9488"
+        }
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "The microphone is used during therapy voice calls."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": false
+    }
+  }
+}
