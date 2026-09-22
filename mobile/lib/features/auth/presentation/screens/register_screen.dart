@@ -64,7 +64,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Icon(Icons.mark_email_read_rounded,
-                    size: 64, color: Color(0xFF0D7C6E)),
+                    size: 64, color: AppColors.brandTeal),
                 const SizedBox(height: 24),
                 Text('Check your email',
                     style: AppTextStyles.headingLarge,

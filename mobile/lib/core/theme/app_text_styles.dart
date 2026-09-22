@@ -1,5 +1,6 @@
 /// Typography definitions for the Noor Companion design system.
-/// Latin text uses Inter via google_fonts.
+/// Latin text uses Plus Jakarta Sans via google_fonts — the geometric,
+/// slightly-rounded sans that carries the Soft Luxury look.
 /// Arabic text uses Amiri via google_fonts — used exclusively for
 /// Quranic text, duas, and dhikr phrases.
 library;
@@ -11,70 +12,71 @@ import 'app_colors.dart';
 /// Text style constants for the app.
 /// Use these instead of inline TextStyle definitions in widgets.
 abstract final class AppTextStyles {
-  // ── Latin (Inter) ──────────────────────────────────────────────────────────
+  // ── Latin (Plus Jakarta Sans) ─────────────────────────────────────────────
 
   /// Large display heading — used on splash and milestone screens.
-  static TextStyle get displayLarge => GoogleFonts.inter(
+  static TextStyle get displayLarge => GoogleFonts.plusJakartaSans(
         fontSize: 36,
         fontWeight: FontWeight.w800,
         color: AppColors.textPrimary,
-        letterSpacing: -0.5,
-        height: 1.1,
+        letterSpacing: -1.2,
+        height: 1.08,
       );
 
   /// Section headings and screen titles.
-  static TextStyle get headingLarge => GoogleFonts.inter(
+  static TextStyle get headingLarge => GoogleFonts.plusJakartaSans(
         fontSize: 24,
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w800,
         color: AppColors.textPrimary,
-        letterSpacing: -0.3,
-        height: 1.2,
+        letterSpacing: -0.6,
+        height: 1.18,
       );
 
   /// Card titles and prominent labels.
-  static TextStyle get headingMedium => GoogleFonts.inter(
+  static TextStyle get headingMedium => GoogleFonts.plusJakartaSans(
         fontSize: 18,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w700,
         color: AppColors.textPrimary,
+        letterSpacing: -0.3,
         height: 1.3,
       );
 
   /// Sub-section labels.
-  static TextStyle get headingSmall => GoogleFonts.inter(
+  static TextStyle get headingSmall => GoogleFonts.plusJakartaSans(
         fontSize: 15,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w700,
         color: AppColors.textPrimary,
         height: 1.4,
       );
 
   /// Standard body text.
-  static TextStyle get body => GoogleFonts.inter(
+  static TextStyle get body => GoogleFonts.plusJakartaSans(
         fontSize: 15,
-        fontWeight: FontWeight.w400,
+        fontWeight: FontWeight.w500,
         color: AppColors.textBody,
         height: 1.6,
       );
 
   /// Secondary body — supporting copy and descriptions.
-  static TextStyle get bodySmall => GoogleFonts.inter(
+  static TextStyle get bodySmall => GoogleFonts.plusJakartaSans(
         fontSize: 13,
-        fontWeight: FontWeight.w400,
+        fontWeight: FontWeight.w500,
         color: AppColors.textSecondary,
         height: 1.5,
       );
 
   /// Button label text.
-  static TextStyle get button => GoogleFonts.inter(
-        fontSize: 16,
-        fontWeight: FontWeight.w600,
+  static TextStyle get button => GoogleFonts.plusJakartaSans(
+        fontSize: 15,
+        fontWeight: FontWeight.w700,
         color: Colors.white,
         letterSpacing: 0.1,
       );
 
   /// Small labels, badges, and metadata.
-  static TextStyle get caption => GoogleFonts.inter(
+  static TextStyle get caption => GoogleFonts.plusJakartaSans(
         fontSize: 12,
-        fontWeight: FontWeight.w500,
+        fontWeight: FontWeight.w600,
         color: AppColors.textMuted,
         letterSpacing: 0.2,
       );
@@ -99,11 +101,10 @@ abstract final class AppTextStyles {
       );
 
   /// Transliteration text — sits below the Arabic phrase.
-  static TextStyle get transliteration => GoogleFonts.inter(
+  static TextStyle get transliteration => GoogleFonts.plusJakartaSans(
         fontSize: 14,
-        fontWeight: FontWeight.w400,
+        fontWeight: FontWeight.w500,
         color: AppColors.textSecondary,
-        fontStyle: FontStyle.italic,
         height: 1.5,
       );
 }

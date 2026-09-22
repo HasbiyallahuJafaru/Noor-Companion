@@ -25,8 +25,20 @@ class _PremiumBackgroundState extends State<PremiumBackground>
     _ctrl = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 12),
-    )..repeat(reverse: true);
+    );
     _anim = CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut);
+
+    // Respect the OS reduce-motion setting — paint a static frame instead
+    // of the ambient 12s loop.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final reduceMotion = MediaQuery.disableAnimationsOf(context);
+      if (reduceMotion) {
+        _ctrl.value = 0.5;
+      } else {
+        _ctrl.repeat(reverse: true);
+      }
+    });
   }
 
   @override
@@ -66,7 +78,7 @@ class _BlobPainter extends CustomPainter {
     final w = size.width;
     final h = size.height;
 
-    // Teal blob — top-left, drifts gently
+    // Ink blob — top-left, drifts gently (soft navy depth)
     _drawBlob(
       canvas,
       center: Offset(
@@ -76,10 +88,10 @@ class _BlobPainter extends CustomPainter {
       radiusX: w * 0.55,
       radiusY: h * 0.30,
       rotation: 0.3 + 0.15 * t,
-      color: AppColors.brandTeal.withValues(alpha: 0.09),
+      color: AppColors.ink.withValues(alpha: 0.05),
     );
 
-    // Gold blob — bottom-right
+    // Gold blob — bottom-right whisper (streak warmth)
     _drawBlob(
       canvas,
       center: Offset(
@@ -89,10 +101,10 @@ class _BlobPainter extends CustomPainter {
       radiusX: w * 0.50,
       radiusY: h * 0.28,
       rotation: -0.4 + 0.1 * t,
-      color: AppColors.brandGold.withValues(alpha: 0.08),
+      color: AppColors.brandGold.withValues(alpha: 0.07),
     );
 
-    // Soft teal accent — mid-right
+    // Accent teal — mid-right
     _drawBlob(
       canvas,
       center: Offset(
@@ -102,7 +114,7 @@ class _BlobPainter extends CustomPainter {
       radiusX: w * 0.35,
       radiusY: h * 0.20,
       rotation: 1.0 + 0.2 * t,
-      color: AppColors.brandTeal.withValues(alpha: 0.06),
+      color: AppColors.brandTeal.withValues(alpha: 0.07),
     );
 
     // Faint gold — top-right whisper

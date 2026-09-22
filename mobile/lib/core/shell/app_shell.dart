@@ -20,34 +20,39 @@ import '../services/permissions_service.dart';
 import '../../features/notifications/presentation/providers/notifications_provider.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
+import '../theme/app_theme.dart';
+import '../widgets/noor_icons.dart';
+
+/// Icon builder signature shared with [NoorIcons].
+typedef _IconBuilder = Widget Function({double size, Color color});
 
 class _TabDef {
   const _TabDef({required this.icon, required this.label, required this.widget});
-  final IconData icon;
+  final _IconBuilder icon;
   final String label;
   final Widget widget;
 }
 
-const _userTabs = [
-  _TabDef(icon: Icons.home_rounded, label: 'Home', widget: HomeScreen()),
-  _TabDef(icon: Icons.auto_awesome_rounded, label: 'Dhikr', widget: DhikrLibraryScreen()),
-  _TabDef(icon: Icons.menu_book_rounded, label: 'Quran', widget: RecitationBrowserScreen()),
-  _TabDef(icon: Icons.people_outline_rounded, label: 'Therapists', widget: TherapistsScreen()),
-  _TabDef(icon: Icons.person_outline_rounded, label: 'Profile', widget: ProfileScreen()),
+final _userTabs = [
+  _TabDef(icon: NoorIcons.home, label: 'Home', widget: HomeScreen()),
+  _TabDef(icon: NoorIcons.sparkles, label: 'Dhikr', widget: DhikrLibraryScreen()),
+  _TabDef(icon: NoorIcons.bookOpen, label: 'Quran', widget: RecitationBrowserScreen()),
+  _TabDef(icon: NoorIcons.heart, label: 'Therapists', widget: TherapistsScreen()),
+  _TabDef(icon: NoorIcons.user, label: 'Profile', widget: ProfileScreen()),
 ];
 
-const _therapistTabs = [
-  _TabDef(icon: Icons.home_rounded, label: 'Home', widget: HomeScreen()),
-  _TabDef(icon: Icons.auto_awesome_rounded, label: 'Dhikr', widget: DhikrLibraryScreen()),
-  _TabDef(icon: Icons.dashboard_rounded, label: 'Dashboard', widget: TherapistDashboardScreen()),
-  _TabDef(icon: Icons.person_outline_rounded, label: 'Profile', widget: ProfileScreen()),
+final _therapistTabs = [
+  _TabDef(icon: NoorIcons.home, label: 'Home', widget: HomeScreen()),
+  _TabDef(icon: NoorIcons.sparkles, label: 'Dhikr', widget: DhikrLibraryScreen()),
+  _TabDef(icon: NoorIcons.chart, label: 'Dashboard', widget: TherapistDashboardScreen()),
+  _TabDef(icon: NoorIcons.user, label: 'Profile', widget: ProfileScreen()),
 ];
 
-const _adminTabs = [
-  _TabDef(icon: Icons.home_rounded, label: 'Home', widget: HomeScreen()),
-  _TabDef(icon: Icons.admin_panel_settings_rounded, label: 'Admin', widget: AdminDashboardScreen()),
-  _TabDef(icon: Icons.menu_book_rounded, label: 'Quran', widget: RecitationBrowserScreen()),
-  _TabDef(icon: Icons.person_outline_rounded, label: 'Profile', widget: ProfileScreen()),
+final _adminTabs = [
+  _TabDef(icon: NoorIcons.home, label: 'Home', widget: HomeScreen()),
+  _TabDef(icon: NoorIcons.shield, label: 'Admin', widget: AdminDashboardScreen()),
+  _TabDef(icon: NoorIcons.bookOpen, label: 'Quran', widget: RecitationBrowserScreen()),
+  _TabDef(icon: NoorIcons.user, label: 'Profile', widget: ProfileScreen()),
 ];
 
 // ── Shell ──────────────────────────────────────────────────────────────────────
@@ -156,20 +161,20 @@ class _FloatingNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(28),
+      borderRadius: BorderRadius.circular(32),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
         child: Container(
-          height: 64,
+          height: 70,
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.82),
-            borderRadius: BorderRadius.circular(28),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.7), width: 1.2),
-            boxShadow: [
+            color: Colors.white.withValues(alpha: 0.88),
+            borderRadius: BorderRadius.circular(32),
+            border: Border.all(color: Colors.white, width: 1.2),
+            boxShadow: const [
               BoxShadow(
-                color: AppColors.brandTeal.withValues(alpha: 0.10),
-                blurRadius: 30,
-                offset: const Offset(0, 8),
+                color: Color(0x24171930),
+                blurRadius: 32,
+                offset: Offset(0, 12),
               ),
             ],
           ),
@@ -201,7 +206,7 @@ class _NavItem extends StatefulWidget {
     required this.onTap,
   });
 
-  final IconData icon;
+  final _IconBuilder icon;
   final String label;
   final bool isActive;
   final VoidCallback onTap;
@@ -247,44 +252,49 @@ class _NavItemState extends State<_NavItem>
       onTapCancel: _handleTapCancel,
       child: ScaleTransition(
         scale: _scale,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 220),
-          curve: Curves.easeOut,
-          margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-          decoration: widget.isActive
-              ? BoxDecoration(
-                  color: AppColors.brandTeal.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(18),
-                )
-              : null,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              AnimatedSwitcher(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Active tab: filled ink circle with a white glyph — the
+            // signature motif of the reference design.
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 220),
+              curve: Curves.easeOut,
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: widget.isActive ? AppColors.ink : Colors.transparent,
+                shape: BoxShape.circle,
+                boxShadow: widget.isActive
+                    ? const [
+                        BoxShadow(
+                          color: Color(0x33171930),
+                          blurRadius: 14,
+                          offset: Offset(0, 5),
+                        ),
+                      ]
+                    : null,
+              ),
+              child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 200),
-                child: Icon(
-                  widget.icon,
-                  key: ValueKey(widget.isActive),
-                  size: widget.isActive ? 22 : 20,
-                  color: widget.isActive
-                      ? AppColors.brandTeal
-                      : AppColors.textMuted,
+                child: widget.icon(
+                  size: widget.isActive ? 20 : 22,
+                  color: widget.isActive ? Colors.white : AppColors.textMuted,
                 ),
               ),
-              const SizedBox(height: 2),
-              Text(
-                widget.label,
-                style: AppTextStyles.caption.copyWith(
-                  fontSize: 10,
-                  color: widget.isActive
-                      ? AppColors.brandTeal
-                      : AppColors.textMuted,
-                  fontWeight:
-                      widget.isActive ? FontWeight.w700 : FontWeight.w500,
-                ),
+            ),
+            const SizedBox(height: 3),
+            Text(
+              widget.label,
+              style: AppTextStyles.caption.copyWith(
+                fontSize: 10,
+                color:
+                    widget.isActive ? AppColors.ink : AppColors.textMuted,
+                fontWeight:
+                    widget.isActive ? FontWeight.w700 : FontWeight.w500,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -302,46 +312,39 @@ class _NotificationBell extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(999),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-          child: Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.75),
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white.withValues(alpha: 0.6)),
+      child: Container(
+        width: 42,
+        height: 42,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+          border: Border.all(color: AppColors.border),
+          boxShadow: AppShadows.sm,
+        ),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            NoorIcons.bell(
+              size: 20,
+              color: unreadCount > 0
+                  ? AppColors.brandTeal
+                  : AppColors.textSecondary,
             ),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Icon(
-                  unreadCount > 0
-                      ? Icons.notifications_rounded
-                      : Icons.notifications_none_rounded,
-                  color: unreadCount > 0
-                      ? AppColors.brandTeal
-                      : AppColors.textSecondary,
-                  size: 20,
-                ),
-                if (unreadCount > 0)
-                  Positioned(
-                    top: 6,
-                    right: 6,
-                    child: Container(
-                      width: 8,
-                      height: 8,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFE53E3E),
-                        shape: BoxShape.circle,
-                      ),
-                    ),
+            if (unreadCount > 0)
+              Positioned(
+                top: 7,
+                right: 7,
+                child: Container(
+                  width: 9,
+                  height: 9,
+                  decoration: BoxDecoration(
+                    color: AppColors.error,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 1.5),
                   ),
-              ],
-            ),
-          ),
+                ),
+              ),
+          ],
         ),
       ),
     );

@@ -9,7 +9,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: var(--bg);
+  background: var(--canvas);
   padding: 24px;
 }
 
@@ -37,7 +37,7 @@ body {
 .payment-logo-mark {
   width: 44px;
   height: 44px;
-  background: var(--teal);
+  background: var(--accent-deep);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -49,10 +49,10 @@ body {
 .payment-logo-text {
   font-size: 1.3rem;
   font-weight: 700;
-  color: var(--dark);
+  color: var(--ink);
 }
 
-.payment-logo-text span { color: var(--teal); }
+.payment-logo-text span { color: var(--accent-deep); }
 
 /* ── Screens ── */
 .screen {
@@ -74,8 +74,8 @@ body {
 .spinner {
   width: 48px;
   height: 48px;
-  border: 3px solid var(--teal-light);
-  border-top-color: var(--teal);
+  border: 3px solid var(--accent-soft);
+  border-top-color: var(--accent-deep);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -87,7 +87,7 @@ body {
 .loading-title {
   font-size: 1.2rem;
   font-weight: 600;
-  color: var(--dark);
+  color: var(--ink);
 }
 
 .loading-subtitle {
@@ -106,9 +106,9 @@ body {
   margin: 0 auto 8px;
 }
 
-.icon-circle-success { background: var(--teal-light); }
+.icon-circle-success { background: var(--accent-soft); }
 .icon-circle-error   { background: #FFF0F0; }
-.icon-circle-warning { background: var(--gold-light); }
+.icon-circle-warning { background: var(--gold-soft); }
 
 .icon-circle svg { width: 40px; height: 40px; }
 
@@ -116,7 +116,7 @@ body {
 .screen-title {
   font-size: 1.4rem;
   font-weight: 700;
-  color: var(--dark);
+  color: var(--ink);
 }
 
 .screen-body {
@@ -129,7 +129,7 @@ body {
 /* ── Plan card ── */
 .plan-card {
   background: var(--surface);
-  border: 2px solid var(--teal-light);
+  border: 2px solid var(--accent-soft);
   border-radius: var(--radius);
   padding: 20px 24px;
   width: 100%;
@@ -146,13 +146,13 @@ body {
 .plan-name {
   font-size: 1rem;
   font-weight: 700;
-  color: var(--dark);
+  color: var(--ink);
 }
 
 .plan-price {
   font-size: 1.4rem;
   font-weight: 800;
-  color: var(--teal);
+  color: var(--accent-deep);
 }
 
 .plan-price span {
@@ -179,7 +179,7 @@ body {
 .plan-features li svg {
   width: 16px;
   height: 16px;
-  color: var(--teal);
+  color: var(--accent-deep);
   flex-shrink: 0;
 }
 

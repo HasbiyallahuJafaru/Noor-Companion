@@ -4,6 +4,7 @@ library;
 
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
 
 class GlassCard extends StatelessWidget {
   const GlassCard({
@@ -42,7 +43,7 @@ class GlassCard extends StatelessWidget {
                 : null,
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF0D7C6E).withValues(alpha: 0.06),
+                color: AppColors.ink.withValues(alpha: 0.07),
                 blurRadius: 24,
                 offset: const Offset(0, 8),
               ),

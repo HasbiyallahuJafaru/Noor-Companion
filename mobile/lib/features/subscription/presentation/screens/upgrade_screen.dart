@@ -267,7 +267,7 @@ class _PriceCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF0D7C6E), Color(0xFF0A6358)],
+          colors: [AppColors.brandTeal, AppColors.brandTealDark],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
