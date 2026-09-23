@@ -33,7 +33,7 @@ export default function QuranBrowser() {
       <FlatList
         data={filtered}
         keyExtractor={(s) => String(s.id ?? s.surahNumber)}
-        contentContainerStyle={{ paddingTop: insets.top + 18, paddingBottom: 130, gap: 8 }}
+        contentContainerStyle={{ paddingTop: insets.top + 18, paddingBottom: insets.bottom + 130, gap: 8 }}
         ListHeaderComponent={
           <View style={{ marginBottom: 16, paddingHorizontal: 20 }}>
             <Text style={type.heading(palette.text)}>Quran</Text>

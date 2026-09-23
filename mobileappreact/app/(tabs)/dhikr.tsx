@@ -26,7 +26,7 @@ export default function DhikrLibrary() {
         keyExtractor={(d) => d.id}
         numColumns={2}
         columnWrapperStyle={{ gap: 12, paddingHorizontal: 20 }}
-        contentContainerStyle={{ paddingTop: insets.top + 18, paddingBottom: 130, gap: 12 }}
+        contentContainerStyle={{ paddingTop: insets.top + 18, paddingBottom: insets.bottom + 130, gap: 12 }}
         ListHeaderComponent={
           <View style={{ marginBottom: 14 }}>
             <Text style={[type.heading(palette.text), styles.title]}>Dhikr</Text>

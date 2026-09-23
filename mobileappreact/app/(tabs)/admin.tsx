@@ -34,7 +34,7 @@ export default function AdminDashboard() {
   return (
     <View style={[styles.fill, { backgroundColor: palette.background }]}>
       <AURORA />
-      <ScrollView contentContainerStyle={{ paddingTop: insets.top + 18, paddingBottom: 140 }} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={{ paddingTop: insets.top + 18, paddingBottom: insets.bottom + 140 }} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <View style={{ flex: 1 }}>
             <Text style={type.heading(palette.text)}>Admin Panel</Text>

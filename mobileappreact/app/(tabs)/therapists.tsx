@@ -58,7 +58,7 @@ export default function TherapistDirectory() {
       <FlatList
         data={filtered}
         keyExtractor={(t) => t.id}
-        contentContainerStyle={{ paddingTop: insets.top + 18, paddingBottom: 130, gap: 12 }}
+        contentContainerStyle={{ paddingTop: insets.top + 18, paddingBottom: insets.bottom + 130, gap: 12 }}
         refreshControl={
           <RefreshControl refreshing={isRefetching} onRefresh={() => refetch()} tintColor={palette.teal} />
         }

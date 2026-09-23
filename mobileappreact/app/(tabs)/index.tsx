@@ -67,7 +67,7 @@ export default function HomeScreen() {
       <AURORA />
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingTop: insets.top + 14, paddingBottom: 150 }}
+        contentContainerStyle={{ paddingTop: insets.top + 14, paddingBottom: insets.bottom + 150 }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={palette.teal} />}
       >
         {/* Header */}

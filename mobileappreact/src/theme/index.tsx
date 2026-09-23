@@ -28,7 +28,7 @@ export function ThemeProvider({
 }) {
   const scheme = useColorScheme();
   const value = useMemo<Theme>(() => {
-    const isDark = preference === 'system' ? scheme !== 'light' : preference === 'dark';
+    const isDark = preference === 'system' ? scheme === 'dark' : preference === 'dark';
     const palette = isDark ? dark : light;
     return {
       palette,

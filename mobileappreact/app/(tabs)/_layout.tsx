@@ -1,6 +1,7 @@
 import React from 'react';
 import { Text, StyleSheet, View, Pressable } from 'react-native';
 import { Tabs, router } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BlurView } from 'expo-blur';
 import Animated, {
   useAnimatedStyle,
@@ -137,13 +138,14 @@ const TAB_HREFS: Record<string, string> = {
 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 function TabBarComponent(props: any) {
   const { palette, radius, shadows } = useTheme();
+  const insets = useSafeAreaInsets();
   const user = useAuthStore((s) => s.user);
   const { data } = useNotifications(user != null);
   const unread = data?.unreadCount ?? 0;
   const visible = visibleTabNames(user?.role);
 
   return (
-    <View pointerEvents="box-none" style={styles.barHost}>
+    <View pointerEvents="box-none" style={[styles.barHost, { bottom: Math.max(insets.bottom, 8) + 8 }]}>
       <View pointerEvents="box-none" style={styles.bellSlot}>
         {unread > 0 && <View style={[styles.bellDot, { backgroundColor: palette.danger }]} />}
       </View>
@@ -211,7 +213,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 20,
     right: 20,
-    bottom: 16,
+    // `bottom` is set at render from the safe-area inset: on a device with
+    // on-screen navigation buttons a fixed offset puts the bar underneath them.
   },
   bellSlot: {
     alignSelf: 'flex-end',

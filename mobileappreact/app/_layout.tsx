@@ -79,7 +79,7 @@ function Gate({ children }: { children: React.ReactNode }) {
 }
 
 export default function RootLayout() {
-  const preference = useUiStore((s) => (s.hydrated ? s.themePreference : 'system')) as ThemeMode;
+  const preference = useUiStore((s) => (s.hydrated ? s.themePreference : 'light')) as ThemeMode;
 
   return (
     <GestureHandlerRootView style={styles.fill}>

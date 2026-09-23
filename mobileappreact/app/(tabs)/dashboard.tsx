@@ -76,7 +76,7 @@ export default function TherapistDashboard() {
   return (
     <View style={[styles.fill, { backgroundColor: palette.background }]}>
       <AURORA />
-      <ScrollView contentContainerStyle={{ paddingTop: insets.top + 18, paddingBottom: 140 }} showsVerticalScrollIndicator={false}
+      <ScrollView contentContainerStyle={{ paddingTop: insets.top + 18, paddingBottom: insets.bottom + 140 }} showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={false} onRefresh={() => refetch()} tintColor={palette.teal} />}
       >
         <View style={styles.headerRow}>

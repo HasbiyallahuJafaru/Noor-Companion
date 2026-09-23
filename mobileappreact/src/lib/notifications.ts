@@ -1,18 +1,50 @@
-import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useEffect } from 'react';
+import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { api } from './api';
 
-/** Foreground: show heads-up banners. */
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowBanner: true,
-    shouldShowList: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
-});
+/**
+ * Push notifications, loaded lazily so the app still runs in Expo Go.
+ *
+ * Expo removed Android push from Expo Go in SDK 53, and expo-notifications
+ * throws as soon as it is touched there. This module used to import it at the
+ * top level and call setNotificationHandler during module evaluation, which
+ * took down the whole router before the first screen rendered. Nothing here
+ * loads the module until something actually needs it, and never in Expo Go.
+ *
+ * Everything below degrades to a no-op rather than throwing: push simply does
+ * not work in Expo Go, which is expected. Use a development build for it.
+ */
+type NotificationsModule = typeof import('expo-notifications');
+
+export const isExpoGo =
+  Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
+
+let cached: NotificationsModule | null | undefined;
+
+/** Returns the native module, or null where it is unavailable. */
+function getNotifications(): NotificationsModule | null {
+  if (cached !== undefined) return cached;
+  if (isExpoGo) {
+    cached = null;
+    return null;
+  }
+  try {
+    cached = require('expo-notifications') as NotificationsModule;
+    cached.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowBanner: true,
+        shouldShowList: true,
+        shouldPlaySound: true,
+        shouldSetBadge: false,
+      }),
+    });
+  } catch {
+    cached = null;
+  }
+  return cached;
+}
 
 /** Map push data to routes, mirroring the Flutter notification_handler. */
 function routeFor(data?: Record<string, unknown>): string | null {
@@ -34,8 +66,10 @@ function routeFor(data?: Record<string, unknown>): string | null {
   }
 }
 
-/** Register the device push token with the API. Skips quietly in Expo Go. */
+/** Register the device push token with the API. No-ops in Expo Go. */
 export async function registerPushToken() {
+  const Notifications = getNotifications();
+  if (!Notifications) return;
   try {
     const existing = await Notifications.getPermissionsAsync();
     let granted = existing.granted;
@@ -58,10 +92,12 @@ export async function registerPushToken() {
   }
 }
 
-/** Wire tap routing; call once near the root. */
+/** Wire tap routing; call once near the root. No-ops in Expo Go. */
 export function useNotificationRouting() {
   const router = useRouter();
   useEffect(() => {
+    const Notifications = getNotifications();
+    if (!Notifications) return;
     const sub = Notifications.addNotificationResponseReceivedListener((res) => {
       const target = routeFor(res.notification.request.content.data as Record<string, unknown>);
       if (target) router.push(target as never);

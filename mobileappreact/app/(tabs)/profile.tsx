@@ -46,7 +46,7 @@ export default function ProfileScreen() {
   return (
     <View style={[styles.fill, { backgroundColor: palette.background }]}>
       <AURORA />
-      <ScrollView contentContainerStyle={{ paddingTop: insets.top + 18, paddingBottom: 140 }} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={{ paddingTop: insets.top + 18, paddingBottom: insets.bottom + 140 }} showsVerticalScrollIndicator={false}>
         <Text style={[type.heading(palette.text), styles.title]}>Profile</Text>
 
         {/* Identity */}
